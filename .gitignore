@@ -1,0 +1,49 @@
+# Compiled Object files
+*.o
+*.obj
+*.so
+*.exe
+*.dll
+*.out
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Static libraries
+*.lib
+*.a
+
+# Build Folders
+bin/
+obj/
+build/
+out/
+
+# VSCode settings
+.vscode/
+*.code-workspace
+
+# Temporary files
+*.swp
+*~
+.DS_Store
+
+# Log files
+*.log
+
+# Makefile generated files
+Makefile.in
+Makefile
+
+# Ignore CMake temporary files
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+*.make
+*.cmake
+
+# Ignore backup files
+*.bak
+
