@@ -5,6 +5,7 @@ U64 pawn_attacks[COLORS][SQUARES];
 U64 knight_attacks[SQUARES];
 U64 king_attacks[SQUARES];
 U64 bishop_attacks[SQUARES]; 
+U64 rook_attacks[SQUARES];
 
 // Initialize attack tables
 void init_precalc_attack_tables()
@@ -27,6 +28,8 @@ void init_precalc_attack_tables()
 			king_attacks[square] = generate_king_attacks(bitboard);
 
 			bishop_attacks[square] = generate_bishop_attacks(square);
+
+			rook_attacks[square] = generate_rook_attacks(square);
 
 			bitboard = pop_bit(bitboard, square);
 		}
@@ -93,7 +96,7 @@ U64 generate_king_attacks(U64 bitboard)
 	return attack;
 }
 
-// generate bishop attacks
+// generate bishop relevant occupancy bits
 U64 generate_bishop_attacks(int square)
 {
 	U64 attack = 0ULL;
@@ -110,6 +113,26 @@ U64 generate_bishop_attacks(int square)
 	for (r = tr + 1, f= tf - 1; r <= 6  && f >= 1; r++, f--) attack |= (1ULL << (r * 8 + f));
 	for (r = tr - 1, f= tf - 1; r >= 1 && f >= 1; r--, f--) attack |= (1ULL << (r * 8 + f));
 
+
+	return attack;
+}
+
+// generate rook relevant occupancy bits
+U64 generate_rook_attacks(int square)
+{
+	U64 attack = 0ULL;
+
+	// init ranks and files
+	int r, f;
+
+	// init target rank and files
+	int tr = square / 8;
+	int tf = square % 8;
+
+	for( r = tr + 1; r <= 6; r++) attack |= (1ULL << (r * 8 + tf));
+	for( r = tr - 1; r >= 1; r--) attack |= (1ULL << (r * 8 + tf));
+	for( f = tf + 1; f <= 6; f++) attack |= (1ULL << (tr * 8 + f));
+	for( f = tf - 1; f >= 1; f--) attack |= (1ULL << (tr * 8 + f));
 
 	return attack;
 }
