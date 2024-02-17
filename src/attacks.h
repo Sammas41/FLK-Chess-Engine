@@ -8,6 +8,8 @@
 extern U64 pawn_attacks[COLORS][SQUARES];
 extern U64 knight_attacks[SQUARES];
 extern U64 king_attacks[SQUARES];
+extern U64 bishop_attacks[SQUARES];
+
 
 // Initialize precalculated attack tables
 void init_precalc_attack_tables();
@@ -16,5 +18,6 @@ void init_precalc_attack_tables();
 U64 generate_pawn_attacks(int, U64);
 U64 generate_knight_attacks(U64);
 U64 generate_king_attacks(U64);
+U64 generate_bishop_attacks(int);
 
 #endif
