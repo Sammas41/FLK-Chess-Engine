@@ -16,6 +16,28 @@ constexpr U64 NOT_H_FILE = 9187201950435737471ULL;
 constexpr U64 NOT_GH_FILE = 4557430888798830399ULL;
 constexpr U64 NOT_AB_FILE = 18229723555195321596ULL;
 
+constexpr int bits_in_bishop_attacks[SQUARES] = {	
+	6, 5, 5, 5, 5, 5, 5, 6, 
+	5, 5, 5, 5, 5, 5, 5, 5, 
+	5, 5, 7, 7, 7, 7, 5, 5, 
+	5, 5, 7, 9, 9, 7, 5, 5, 
+	5, 5, 7, 9, 9, 7, 5, 5, 
+	5, 5, 7, 7, 7, 7, 5, 5, 
+	5, 5, 5, 5, 5, 5, 5, 5, 
+	6, 5, 5, 5, 5, 5, 5, 6  
+};
+
+constexpr int bits_in_rook_attacks[SQUARES] = {
+	12, 11, 11, 11, 11, 11, 11, 12, 
+	11, 10, 10, 10, 10, 10, 10, 11, 
+	11, 10, 10, 10, 10, 10, 10, 11, 
+	11, 10, 10, 10, 10, 10, 10, 11, 
+	11, 10, 10, 10, 10, 10, 10, 11, 
+	11, 10, 10, 10, 10, 10, 10, 11, 
+	11, 10, 10, 10, 10, 10, 10, 11, 
+	12, 11, 11, 11, 11, 11, 11, 12 
+};
+
 // Squares notation
 enum {
 	a8, b8, c8, d8, e8, f8, g8, h8,
@@ -35,6 +57,9 @@ enum { white, black };
 U64 get_bit(U64, int);
 U64 set_bit(U64, int);
 U64 pop_bit(U64, int);
+
+int count_bits(U64);
+int get_ls1b_index(U64);
 
 // Print the bitboard
 void print_bitboard(U64);

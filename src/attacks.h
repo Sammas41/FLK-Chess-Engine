@@ -2,8 +2,6 @@
 #define ATTACKS_H
 
 #include "general.h"
-#include <fstream>
-#include <string>
 
 extern U64 pawn_attacks[COLORS][SQUARES];
 extern U64 knight_attacks[SQUARES];
