@@ -4,13 +4,25 @@
 int main()
 {
 	init_precalc_attack_tables();
+
+	U64 bitboard = 0ULL;
 	
-	U64 bitboard = knight_attacks[e4];
+	// TODO: change ordering of bits, a1 = 0 ---> h8
+	// TODO: check set_bit function
 
-	std::cout << "Number of bits: " << count_bits(knight_attacks[e4]) << "\n";
-	std::cout << "Index of the 1st non zero bit: " << get_ls1b_index(knight_attacks[e4]) << "\n";
+	// Set a blocker on e5
+    bitboard |= (1ULL << 28);
+	// Set a blocker on a7
+	bitboard |= (1ULL << 8);
+	// Set a blocker on c5
+	bitboard |= (1ULL << 26); 
+	// Set a blocker on f7
+	bitboard |= (1ULL << 13); 
 
-	// Answers: Number of bits: 8, Index: 19
-
+	print_bitboard(bitboard);
+	print_bitboard(generate_rook_attacks_with_blockers(f5,bitboard)); 
+	print_bitboard(generate_bishop_attacks_with_blockers(d4,bitboard)); 
+	
+	
 	return 0;
 }
