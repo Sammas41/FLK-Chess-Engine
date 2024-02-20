@@ -25,7 +25,7 @@ int main()
 	print_bitboard(generate_rook_attacks_with_blockers(f5,bitboard)); 
 	print_bitboard(generate_bishop_attacks_with_blockers(f6,bitboard)); 
 
-	print_bitboard(FENtoBitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"));
+	print_bitboard(FENtoBitboard("r1bqk1nr/pppp1ppp/2n5/2b1p3/2B1P3/3P1N2/PPP2PPP/RNBQK2R"));
 	
 	
 	return 0;
