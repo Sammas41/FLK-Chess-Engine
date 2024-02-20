@@ -53,6 +53,9 @@ enum {
 // Colors
 enum { white, black };
 
+// Piece_type
+enum { king, queen, rook, bishop, knight, pawn };
+
 // Useful functions for manipulating bits in bitboards
 U64 get_bit(U64, int);
 U64 set_bit(U64, int);

@@ -20,6 +20,6 @@ U64 generate_king_attacks(U64);
 U64 generate_bishop_attacks(int);
 U64 generate_rook_attacks(int);
 
-
+U64 set_occupancies(int, int, U64);
 
 #endif
