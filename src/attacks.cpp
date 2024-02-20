@@ -203,3 +203,21 @@ U64 generate_bishop_attacks_with_blockers(int square, U64 blockers) {
 
 	return attacks;
 }
+
+
+U64 set_occupancies(int index, int bit_count, U64 mask)
+{
+	U64 occupancy = 0ULL;
+
+	for(int count = 0; count < bit_count; count++)
+	{
+		int square = get_ls1b_index(mask);
+
+		mask = pop_bit(mask, square);
+
+		if(index & (1 << count))
+			occupancy |= (1ULL << square);
+	}
+
+	return occupancy;
+}

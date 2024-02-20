@@ -21,4 +21,9 @@ U64 generate_bishop_occupancy_bits(int);
 U64 generate_rook_occupancy_bits(int);
 U64 generate_bishop_attacks_with_blockers(int, U64); 
 U64 generate_rook_attacks_with_blockers(int, U64);
+U64 generate_bishop_attacks(int);
+U64 generate_rook_attacks(int);
+
+U64 set_occupancies(int, int, U64);
+
 #endif
