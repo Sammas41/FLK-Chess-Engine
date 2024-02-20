@@ -1,32 +1,56 @@
 #include "magic.h"
 
 // Initial state. The choice of the initial state is irrelevant
-uint32_t seed = 1804289383U;  // 10287456512451172U;
+uint32_t seed = 1804289383U;
 
+// Computes the magic numbers for all possible squares
+void initialize_magic_numbers()
+{
+    // Computes magic numbers for the rook
+    for(int square = 0; square < SQUARES; square++)
+    {
+        std::cout << generate_magic_number(square, bits_in_rook_attacks[square], rook)
+                  << "ULL,\n";
+    }
+
+    std::cout << "\n";
+
+    // Computes magic numbers for the bishop
+    for(int square = 0; square < SQUARES; square++)
+    {
+        std::cout << generate_magic_number(square, bits_in_bishop_attacks[square], bishop)
+                  << "ULL,\n";
+    }
+}
+
+// Computes the magic number for a particular square and piece
 U64 generate_magic_number(int square, int relevant_bits, int piece_type)
 {
     U64 occupancies[4096];
     U64 attacks[4096];
-    U64 used_attacks[4096];
+    U64 hashed_attacks[4096];
 
-    if(piece_type != rook || piece_type != bishop)
+    if(piece_type != rook && piece_type != bishop)
     {
         std::cout << "Invalid piece type, must be rook or bishop\n" << "\n";
         return 0ULL;
     }
 
     // checks if we are generating magic numbers for rooks attacks or bishops attacks
-    U64 attack_mask = piece_type == rook ? rook_attacks[square] : bishop_attacks[square];
+    U64 attack_mask = piece_type == rook ? rook_occupancy_bits[square] : bishop_occupancy_bits[square];
 
     // maximum number of different occupancies
     int occupancy_indices = 1 << relevant_bits;
 
     for(int index = 0; index < occupancy_indices; index++)
     {
-        // compute the occupancy and its respective attack table
+        // compute the occupancy for this particular index
         occupancies[index] = set_occupancies(index, relevant_bits, attack_mask);
 
-        // attacks[index] = piece_type == rook ? : ;
+        // compute the attack given the occupancy
+        attacks[index] = piece_type == rook ? 
+                        generate_rook_attacks_with_blockers(square, occupancies[index]) :
+                        generate_bishop_attacks_with_blockers(square, occupancies[index]);
     }
 
     // search for magic numbers
@@ -35,26 +59,34 @@ U64 generate_magic_number(int square, int relevant_bits, int piece_type)
         // generate a random candidate number
         U64 magic_number = generate_magic_candidate();
 
-        if((count_bits(attack_mask * magic_number) & 0xFF00000000000000) < 6) continue;
+        // skips bad candidates
+        if(count_bits((attack_mask * magic_number) & 0xFF00000000000000) < 6) continue;
 
-        // Initialize all the
+        // Initialize the hashed attack table
         for(int i = 0; i < 4096; i++)
-            used_attacks[i] = 0ULL;
+            hashed_attacks[i] = 0ULL;
 
         int index, fail;
 
-        for(int index = 0, fail = 0; !fail && index < occupancy_indices; index++)
+        // test if the magic number produces no collisions
+        for(index = 0, fail = 0; !fail && index < occupancy_indices; index++)
         {
-            int magic_index = (occupancies[index] - magic_number) >> (64 - relevant_bits);
+            // generate the key for a particular occupancy using the magic number
+            int magic_index = static_cast<int>((occupancies[index] * magic_number) >> (64 - relevant_bits));
 
-            if (used_attacks[magic_index] = 0ULL)
-                used_attacks[magic_index] = attacks[index];
+            // if the key maps the current occupancy to an empty bitboard, link that 
+            // bitboard to the corresponding attack
+            if (hashed_attacks[magic_index] == 0ULL)
+                hashed_attacks[magic_index] = attacks[index];
             else 
             {
-                if (used_attacks[magic_index] != attacks[index]) fail = 1;
-            } 
+                // if the key maps the current occupancy to a non-empty board and the two bitboards do
+                // not coincide --> collision. We must change the magic number
+                if (hashed_attacks[magic_index] != attacks[index]) fail = 1;
+            }
         }
 
+        // if there are no collisions then we have found the magic number
         if(!fail) return magic_number;
     }
 
@@ -68,16 +100,25 @@ U64 generate_magic_number(int square, int relevant_bits, int piece_type)
 // slider pieces movement
 U64 generate_magic_candidate()
 {
+    U64 n = generate_random_64bit_number() &
+            generate_random_64bit_number() &
+            generate_random_64bit_number();
+    return n;
+}
+
+// Generate a random 64 bits number using the 32 bits RNG
+U64 generate_random_64bit_number()
+{
     U64 n1, n2, n3, n4;
 
-    n1 = static_cast<U64>(generate_random_number()) & 0xFFFF;
-    n1 = static_cast<U64>(generate_random_number()) & 0xFFFF; 
-    n1 = static_cast<U64>(generate_random_number()) & 0xFFFF; 
-    n1 = static_cast<U64>(generate_random_number()) & 0xFFFF;
+    n1 = static_cast<U64>(generate_random_number() & 0xFFFF);
+    n2 = static_cast<U64>(generate_random_number() & 0xFFFF); 
+    n3 = static_cast<U64>(generate_random_number() & 0xFFFF); 
+    n4 = static_cast<U64>(generate_random_number() & 0xFFFF);
 
-    U64 n = n1 | (n2 << 16) | (n2 << 32) | (n3 << 48);
+    U64 n = n1 | (n2 << 16) | (n3 << 32) | (n4 << 48);
 
-    return n & n & n;    
+    return n;    
 }
 
 // Generates a random 32 bit number

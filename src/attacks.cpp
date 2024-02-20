@@ -136,7 +136,7 @@ U64 generate_rook_occupancy_bits(int square){
 	return attack;
 }
 
-
+// Generates the attack range for a rook on a bitboard with blockers
 U64 generate_rook_attacks_with_blockers(int square, U64 blockers) {
     U64 attacks = 0ULL;
     int r, f;
@@ -145,32 +145,36 @@ U64 generate_rook_attacks_with_blockers(int square, U64 blockers) {
 
     // up
     for (r = tr + 1; r <= 7; r++) {
-	if (blockers & (1ULL << (r * 8 + tf))) break;  // stop if blocker encountered
-        attacks |= (1ULL << (r * 8 + tf));   
+		attacks |= (1ULL << (r * 8 + tf)); 
+		if (blockers & (1ULL << (r * 8 + tf))) break;  // stop if blocker encountered
+        // attacks |= (1ULL << (r * 8 + tf));   
     }
 
     // down
     for (r = tr - 1; r >= 0; r--) {
+		attacks |= (1ULL << (r * 8 + tf)); 
         if (blockers & (1ULL << (r * 8 + tf))) break; 
-	attacks |= (1ULL << (r * 8 + tf));
+		// attacks |= (1ULL << (r * 8 + tf));
     }
 
     // right
     for (f = tf + 1; f <= 7; f++) {
-	if (blockers & (1ULL << (tr * 8 + f))) break; 
-        attacks |= (1ULL << (tr * 8 + f));   
+		attacks |= (1ULL << (tr * 8 + f)); 
+		if (blockers & (1ULL << (tr * 8 + f))) break; 
+        // attacks |= (1ULL << (tr * 8 + f));   
     }
 
     // left
     for (f = tf - 1; f >= 0; f--) {
-	if (blockers & (1ULL << (tr * 8 + f))) break; 
-        attacks |= (1ULL << (tr * 8 + f));      
+		attacks |= (1ULL << (tr * 8 + f)); 
+		if (blockers & (1ULL << (tr * 8 + f))) break; 
+        // attacks |= (1ULL << (tr * 8 + f));      
     }
 
     return attacks;
 }
 
-
+// Generates the attack range for a bishop on a bitboard with blockers
 U64 generate_bishop_attacks_with_blockers(int square, U64 blockers) {
 	U64 attacks = 0ULL;
 	int r, f;
@@ -179,32 +183,37 @@ U64 generate_bishop_attacks_with_blockers(int square, U64 blockers) {
 
 	// up-right
 	for (r = tr + 1, f = tf + 1; r <= 7 && f <= 7; r++, f++) {
-		if (blockers & (1ULL << (r * 8 + f))) break; // stop if blocker encountered
 		attacks |= (1ULL << (r * 8 + f));
+		if (blockers & (1ULL << (r * 8 + f))) break; // stop if blocker encountered
+		// attacks |= (1ULL << (r * 8 + f));
 	}
 
 	// up-left
 	for (r = tr + 1, f = tf - 1; r <= 7 && f >= 0; r++, f--) {
-		if (blockers & (1ULL << (r * 8 + f))) break; // stop if blocker encountered
 		attacks |= (1ULL << (r * 8 + f));
+		if (blockers & (1ULL << (r * 8 + f))) break; // stop if blocker encountered
+		// attacks |= (1ULL << (r * 8 + f));
 	}
 
 	// down-right
 	for (r = tr - 1, f = tf + 1; r >= 0 && f <= 7; r--, f++) {
-		if (blockers & (1ULL << (r * 8 + f))) break; // stop if blocker encountered
 		attacks |= (1ULL << (r * 8 + f));
+		if (blockers & (1ULL << (r * 8 + f))) break; // stop if blocker encountered
+		// attacks |= (1ULL << (r * 8 + f));
 	}
 
 	// down-left
 	for (r = tr - 1, f = tf - 1; r >= 0 && f >= 0; r--, f--) {
-		if (blockers & (1ULL << (r * 8 + f))) break; // stop if blocker encountered
 		attacks |= (1ULL << (r * 8 + f));
+		if (blockers & (1ULL << (r * 8 + f))) break; // stop if blocker encountered
+		// attacks |= (1ULL << (r * 8 + f));
 	}
 
 	return attacks;
 }
 
-
+// Returns a possible occupancy that a slider piece may find based on
+// what index is passed to the function
 U64 set_occupancies(int index, int bit_count, U64 mask)
 {
 	U64 occupancy = 0ULL;
