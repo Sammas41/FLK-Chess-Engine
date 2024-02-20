@@ -59,3 +59,27 @@ void print_bitboard(U64 bitboard)
 	std::cout << "\n     a b c d e f g h\n\n";
 	std::cout << "     Decimal = " << bitboard << "\n\n";
 }
+
+
+// function to convert a FEN string (only the board representation part) to a bitboard
+// with ones on the pieces location
+U64 FENtoBitboard(std::string fen) {
+    U64 bitboard = 0;
+    int square = 0; 
+
+    for (char c : fen) {
+        
+        if (c == '/') {
+            continue; // Skip to the next row
+        }
+
+        if (isdigit(c)) {
+            square += c - '0'; // Skip empty squares
+        } else {
+            bitboard |= 1ULL << (63 - square);
+            square++;
+        }
+    }
+
+    return bitboard;
+}
