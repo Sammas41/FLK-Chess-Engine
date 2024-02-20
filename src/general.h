@@ -61,6 +61,8 @@ U64 get_bit(U64, int);
 U64 set_bit(U64, int);
 U64 pop_bit(U64, int);
 
+U64 FENtoBitboard(std::string);
+
 int count_bits(U64);
 int get_ls1b_index(U64);
 

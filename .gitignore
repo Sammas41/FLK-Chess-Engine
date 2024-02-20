@@ -47,3 +47,4 @@ Makefile
 # Ignore backup files
 *.bak
 
+main
