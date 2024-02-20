@@ -97,13 +97,13 @@ U64 generate_king_attacks(U64 bitboard)
 }
 
 // generate bishop relevant occupancy bits
-U64 generate_bishop_occupancy_bits(int square)
-{
+U64 generate_bishop_occupancy_bits(int square){
+	
 	U64 attack = 0ULL;
 
 	// init ranks and files
 	int r, f;
-
+	
 	// init target rank and files
 	int tr = square / 8;
 	int tf = square % 8;
@@ -113,13 +113,12 @@ U64 generate_bishop_occupancy_bits(int square)
 	for (r = tr + 1, f= tf - 1; r <= 6  && f >= 1; r++, f--) attack |= (1ULL << (r * 8 + f));
 	for (r = tr - 1, f= tf - 1; r >= 1 && f >= 1; r--, f--) attack |= (1ULL << (r * 8 + f));
 
-
 	return attack;
 }
 
 // generate rook relevant occupancy bits
-U64 generate_rook_occupancy_bits(int square)
-{
+U64 generate_rook_occupancy_bits(int square){
+	
 	U64 attack = 0ULL;
 
 	// init ranks and files
@@ -146,64 +145,61 @@ U64 generate_rook_attacks_with_blockers(int square, U64 blockers) {
 
     // up
     for (r = tr + 1; r <= 7; r++) {
-		if (blockers & (1ULL << (r * 8 + tf))) break;
-		 // stop if blocker encountered
+	if (blockers & (1ULL << (r * 8 + tf))) break;  // stop if blocker encountered
         attacks |= (1ULL << (r * 8 + tf));   
     }
 
     // down
     for (r = tr - 1; r >= 0; r--) {
-        if (blockers & (1ULL << (r * 8 + tf))) break; // stop if blocker encountered
-		attacks |= (1ULL << (r * 8 + tf));
+        if (blockers & (1ULL << (r * 8 + tf))) break; 
+	attacks |= (1ULL << (r * 8 + tf));
     }
 
     // right
     for (f = tf + 1; f <= 7; f++) {
-		if (blockers & (1ULL << (tr * 8 + f))) break; // stop if blocker encountered
-        attacks |= (1ULL << (tr * 8 + f));
-        
+	if (blockers & (1ULL << (tr * 8 + f))) break; 
+        attacks |= (1ULL << (tr * 8 + f));   
     }
 
     // left
     for (f = tf - 1; f >= 0; f--) {
-		if (blockers & (1ULL << (tr * 8 + f))) break; // stop if blocker encountered
-        attacks |= (1ULL << (tr * 8 + f));
-        
+	if (blockers & (1ULL << (tr * 8 + f))) break; 
+        attacks |= (1ULL << (tr * 8 + f));      
     }
 
-	return attacks;
+    return attacks;
+}
+
+
+U64 generate_bishop_attacks_with_blockers(int square, U64 blockers) {
+	U64 attacks = 0ULL;
+	int r, f;
+	int tr = square / 8; // target rank
+	int tf = square % 8; // target file
+
+	// up-right
+	for (r = tr + 1, f = tf + 1; r <= 7 && f <= 7; r++, f++) {
+		if (blockers & (1ULL << (r * 8 + f))) break; // stop if blocker encountered
+		attacks |= (1ULL << (r * 8 + f));
 	}
 
+	// up-left
+	for (r = tr + 1, f = tf - 1; r <= 7 && f >= 0; r++, f--) {
+		if (blockers & (1ULL << (r * 8 + f))) break; // stop if blocker encountered
+		attacks |= (1ULL << (r * 8 + f));
+	}
 
-	U64 generate_bishop_attacks_with_blockers(int square, U64 blockers) {
-		U64 attacks = 0ULL;
-		int r, f;
-		int tr = square / 8; // target rank
-		int tf = square % 8; // target file
+	// down-right
+	for (r = tr - 1, f = tf + 1; r >= 0 && f <= 7; r--, f++) {
+		if (blockers & (1ULL << (r * 8 + f))) break; // stop if blocker encountered
+		attacks |= (1ULL << (r * 8 + f));
+	}
 
-		// up-right
-		for (r = tr + 1, f = tf + 1; r <= 7 && f <= 7; r++, f++) {
-			if (blockers & (1ULL << (r * 8 + f))) break; // stop if blocker encountered
-			attacks |= (1ULL << (r * 8 + f));
-		}
+	// down-left
+	for (r = tr - 1, f = tf - 1; r >= 0 && f >= 0; r--, f--) {
+		if (blockers & (1ULL << (r * 8 + f))) break; // stop if blocker encountered
+		attacks |= (1ULL << (r * 8 + f));
+	}
 
-		// up-left
-		for (r = tr + 1, f = tf - 1; r <= 7 && f >= 0; r++, f--) {
-			if (blockers & (1ULL << (r * 8 + f))) break; // stop if blocker encountered
-			attacks |= (1ULL << (r * 8 + f));
-		}
-
-		// down-right
-		for (r = tr - 1, f = tf + 1; r >= 0 && f <= 7; r--, f++) {
-			if (blockers & (1ULL << (r * 8 + f))) break; // stop if blocker encountered
-			attacks |= (1ULL << (r * 8 + f));
-		}
-
-		// down-left
-		for (r = tr - 1, f = tf - 1; r >= 0 && f >= 0; r--, f--) {
-			if (blockers & (1ULL << (r * 8 + f))) break; // stop if blocker encountered
-			attacks |= (1ULL << (r * 8 + f));
-		}
-
-		return attacks;
+	return attacks;
 }
