@@ -6,6 +6,9 @@
 extern U64 pawn_attacks[COLORS][SQUARES];
 extern U64 knight_attacks[SQUARES];
 extern U64 king_attacks[SQUARES];
+extern U64 bishop_attacks[SQUARES][512];
+extern U64 rook_attacks[SQUARES][4096];
+
 extern U64 bishop_occupancy_bits[SQUARES];
 extern U64 rook_occupancy_bits[SQUARES];
 
@@ -16,6 +19,8 @@ void init_precalc_attack_tables();
 U64 generate_pawn_attacks(int, U64);
 U64 generate_knight_attacks(U64);
 U64 generate_king_attacks(U64);
+U64 get_bishop_attacks(int, U64);
+U64 get_rook_attacks(int, U64);
 
 U64 generate_bishop_occupancy_bits(int);
 U64 generate_rook_occupancy_bits(int);

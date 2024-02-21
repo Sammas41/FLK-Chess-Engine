@@ -4,6 +4,10 @@
 U64 pawn_attacks[COLORS][SQUARES];
 U64 knight_attacks[SQUARES];
 U64 king_attacks[SQUARES];
+
+U64 bishop_attacks[SQUARES][512];
+U64 rook_attacks[SQUARES][4096];
+
 U64 bishop_occupancy_bits[SQUARES]; 
 U64 rook_occupancy_bits[SQUARES];
 
@@ -13,26 +17,56 @@ void init_precalc_attack_tables()
 	int square = 0;
 	U64 bitboard = 0ULL;
 	
-	for(int i = 0; i < RANKS; i++)
+	for(int square = 0; square < SQUARES; square++)
 	{
-		for(int j = 0; j < FILES; j++)
+		bitboard = set_bit(bitboard, square);
+			
+		pawn_attacks[white][square] = generate_pawn_attacks(white, bitboard);
+		pawn_attacks[black][square] = generate_pawn_attacks(black, bitboard);
+			
+		knight_attacks[square] = generate_knight_attacks(bitboard);
+
+		king_attacks[square] = generate_king_attacks(bitboard);
+		
+		bishop_occupancy_bits[square] = generate_bishop_occupancy_bits(square);
+
+		rook_occupancy_bits[square] = generate_rook_occupancy_bits(square);
+
+		bitboard = pop_bit(bitboard, square);
+	}
+
+	for(int square = 0; square < SQUARES; square++)
+	{
+		int total_occupancies = 1 << bits_in_bishop_attacks[square];
+
+		for(int index = 0; index < total_occupancies; index++)
 		{
-			square = i * RANKS + j;
-			bitboard = set_bit(bitboard, square);
-			
-			pawn_attacks[white][square] = generate_pawn_attacks(white, bitboard);
-			pawn_attacks[black][square] = generate_pawn_attacks(black, bitboard);
-			
-			knight_attacks[square] = generate_knight_attacks(bitboard);
+			U64 occupancy = set_occupancies(index, 
+			                                bits_in_bishop_attacks[square], 
+											bishop_occupancy_bits[square]);
 
-			king_attacks[square] = generate_king_attacks(bitboard);
+			int magic_index = static_cast<int>(
+							 (occupancy * bishop_magics[square]) >> (64 - bits_in_bishop_attacks[square]));
 
-			bishop_occupancy_bits[square] = generate_bishop_occupancy_bits(square);
+			bishop_attacks[square][magic_index] = generate_bishop_attacks_with_blockers(square, occupancy);
+		}		
+	}
 
-			rook_occupancy_bits[square] = generate_rook_occupancy_bits(square);
+	for(int square = 0; square < SQUARES; square++)
+	{
+		int total_occupancies = 1 << bits_in_rook_attacks[square];
 
-			bitboard = pop_bit(bitboard, square);
-		}
+		for(int index = 0; index < total_occupancies; index++)
+		{
+			U64 occupancy = set_occupancies(index, 
+			                                bits_in_rook_attacks[square], 
+											rook_occupancy_bits[square]);
+
+			int magic_index = static_cast<int>(
+							 (occupancy * rook_magics[square]) >> (64 - bits_in_rook_attacks[square]));
+
+			rook_attacks[square][magic_index] = generate_rook_attacks_with_blockers(square, occupancy);
+		}		
 	}
 }
 
@@ -94,6 +128,26 @@ U64 generate_king_attacks(U64 bitboard)
 	attack |= ( (bitboard & NOT_H_FILE) << 9);
 
 	return attack;
+}
+
+U64 get_bishop_attacks(int square, U64 occupancy)
+{	
+	occupancy &= bishop_occupancy_bits[square];
+
+	int magic_index = static_cast<int>(
+					  (occupancy * bishop_magics[square]) >> (64 - bits_in_bishop_attacks[square]));
+	
+	return bishop_attacks[square][magic_index];
+}
+
+U64 get_rook_attacks(int square, U64 occupancy)
+{	
+	occupancy &= rook_occupancy_bits[square];
+
+	int magic_index = static_cast<int>(
+					  (occupancy * rook_magics[square]) >> (64 - bits_in_rook_attacks[square]));
+	
+	return rook_attacks[square][magic_index];
 }
 
 // generate bishop relevant occupancy bits
