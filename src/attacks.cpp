@@ -3,7 +3,7 @@
 // Constructor
 Attacks::Attacks()
 {
-	std::cout << "Object constructed\n";
+	std::cout << "Attacks constructed\n";
 	
 	init_leaper_pieces_attacks();
 

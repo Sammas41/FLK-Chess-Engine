@@ -1,30 +1,14 @@
 #include "general.h"
 #include "attacks.h"
+#include "game.h"
 
 int main()
 {
-	/* Attacks* attacks = new Attacks(); */
-	Attacks attacks;
-
+	Game game;
 	
-/*  	init_precalc_attack_tables();
-	initialize_magic_numbers();  */
-
-	U64 bitboard = 0ULL;
-
-	bitboard = set_bit(bitboard, g6);
-	bitboard = set_bit(bitboard, d3);
-
-	std::cout << "Bitboard\n";
-	print_bitboard(bitboard);
-
-	std::cout << "Bishop attack on the current bitboard\n";
-	print_bitboard(attacks.get_bishop_attack(e4, bitboard));
-
-	std::cout << "Rook attack on the current bitboard\n";
-	print_bitboard(attacks.get_rook_attack(d6, bitboard));
-
-	/* delete attacks; */
+	game.set_bitboard(Game::P , FENtoBitboard("8/8/8/8/8/8/PPPPPPPP/8"));
 	
+	print_bitboard(game.get_bitboard(Game::P));
+	printf("piece %c\n", game.ascii_pieces[Game::P]);
 	return 0;
 }
