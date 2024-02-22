@@ -76,7 +76,7 @@ U64 FENtoBitboard(std::string fen) {
         if (isdigit(c)) {
             square += c - '0'; // Skip empty squares
         } else {
-            bitboard |= 1ULL << (63 - square);
+            bitboard |= 1ULL << (square);
             square++;
         }
     }
