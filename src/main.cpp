@@ -1,11 +1,14 @@
 #include "general.h"
 #include "attacks.h"
-#include "magic.h"
 
 int main()
 {
-	init_precalc_attack_tables();
-	// initialize_magic_numbers();
+	/* Attacks* attacks = new Attacks(); */
+	Attacks attacks;
+
+	
+/*  	init_precalc_attack_tables();
+	initialize_magic_numbers();  */
 
 	U64 bitboard = 0ULL;
 
@@ -16,10 +19,12 @@ int main()
 	print_bitboard(bitboard);
 
 	std::cout << "Bishop attack on the current bitboard\n";
-	print_bitboard(get_bishop_attacks(e4, bitboard));
+	print_bitboard(attacks.get_bishop_attack(e4, bitboard));
 
 	std::cout << "Rook attack on the current bitboard\n";
-	print_bitboard(get_rook_attacks(d6, bitboard));
+	print_bitboard(attacks.get_rook_attack(d6, bitboard));
 
+	/* delete attacks; */
+	
 	return 0;
 }

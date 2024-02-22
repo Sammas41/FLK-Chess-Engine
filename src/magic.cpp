@@ -1,5 +1,7 @@
 #include "magic.h"
 
+Attacks a;
+
 // Initial state. The choice of the initial state is irrelevant
 uint32_t seed = 1804289383U;
 
@@ -9,7 +11,7 @@ void initialize_magic_numbers()
     // Computes magic numbers for the rook
     for(int square = 0; square < SQUARES; square++)
     {
-        std::cout << generate_magic_number(square, bits_in_rook_attacks[square], rook)
+        std::cout << generate_magic_number(square, a.bits_in_rook_mask[square], rook)
                   << "ULL,\n";
     }
 
@@ -18,7 +20,7 @@ void initialize_magic_numbers()
     // Computes magic numbers for the bishop
     for(int square = 0; square < SQUARES; square++)
     {
-        std::cout << generate_magic_number(square, bits_in_bishop_attacks[square], bishop)
+        std::cout << generate_magic_number(square, a.bits_in_bishop_mask[square], bishop)
                   << "ULL,\n";
     }
 }
@@ -37,7 +39,8 @@ U64 generate_magic_number(int square, int relevant_bits, int piece_type)
     }
 
     // checks if we are generating magic numbers for rooks attacks or bishops attacks
-    U64 attack_mask = piece_type == rook ? rook_occupancy_bits[square] : bishop_occupancy_bits[square];
+    U64 attack_mask = piece_type == rook ? a.rook_mask[square]
+                                         : a.bishop_mask[square];
 
     // maximum number of different occupancies
     int occupancy_indices = 1 << relevant_bits;
@@ -45,12 +48,12 @@ U64 generate_magic_number(int square, int relevant_bits, int piece_type)
     for(int index = 0; index < occupancy_indices; index++)
     {
         // compute the occupancy for this particular index
-        occupancies[index] = set_occupancies(index, relevant_bits, attack_mask);
+        occupancies[index] = a.generate_occupancy(index, relevant_bits, attack_mask);
 
         // compute the attack given the occupancy
         attacks[index] = piece_type == rook ? 
-                        generate_rook_attacks_with_blockers(square, occupancies[index]) :
-                        generate_bishop_attacks_with_blockers(square, occupancies[index]);
+                        a.generate_rook_attacks_with_blockers(square, occupancies[index]) :
+                        a.generate_bishop_attacks_with_blockers(square, occupancies[index]);
     }
 
     // search for magic numbers
