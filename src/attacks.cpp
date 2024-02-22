@@ -3,8 +3,6 @@
 // Constructor
 Attacks::Attacks()
 {
-	std::cout << "Object constructed\n";
-	
 	init_leaper_pieces_attacks();
 
 	init_slider_pieces_attacks();
@@ -15,25 +13,55 @@ void Attacks::init_leaper_pieces_attacks()
 {
 	U64 bitboard = 0ULL;
 	
-	for(int i = 0; i < RANKS; i++)
+	for(int square = 0; square < SQUARES; square++)
+	{		
+		bitboard = set_bit(bitboard, square);
+
+		pawn_attacks[white][square] = generate_pawn_attacks(white, bitboard);
+		pawn_attacks[black][square] = generate_pawn_attacks(black, bitboard);
+			
+		knight_attacks[square] = generate_knight_attacks(bitboard);
+
+		king_attacks[square] = generate_king_attacks(bitboard);
+
+		bitboard = pop_bit(bitboard, square);
+	}
+}
+
+// Initialize slider pieces attack tables (bishops, rooks, queens)
+void Attacks::init_slider_pieces_attacks()
+{
+	// Initialize bishop attacks 
+	for(int square = 0; square < SQUARES; square++)
 	{
-		for(int j = 0; j < FILES; j++)
+		bishop_mask[square] = generate_bishop_mask(square);
+
+		int total_occupancies = (1 << bits_in_bishop_mask[square]);
+
+		for(int index = 0; index < total_occupancies; index++)
 		{
-			square = i * RANKS + j;
-			bitboard = set_bit(bitboard, square);
-			
-			pawn_attacks[white][square] = generate_pawn_attacks(white, bitboard);
-			pawn_attacks[black][square] = generate_pawn_attacks(black, bitboard);
-			
-			knight_attacks[square] = generate_knight_attacks(bitboard);
+			U64 occupancy = generate_occupancy(index, bits_in_bishop_mask[square], bishop_mask[square]);
 
-			king_attacks[square] = generate_king_attacks(bitboard);
+			int magic_index = compute_magic_index(square, occupancy, bishop);
 
-			bishop_occupancy_bits[square] = generate_bishop_occupancy_bits(square);
+			bishop_attacks[square][magic_index] = generate_bishop_attacks_with_blockers(square, occupancy);
+		}
+	}
 
-			rook_occupancy_bits[square] = generate_rook_occupancy_bits(square);
+	// Initialize rook attacks 
+	for(int square = 0; square < SQUARES; square++)
+	{
+		rook_mask[square] = generate_rook_mask(square);
 
-			bitboard = pop_bit(bitboard, square);
+		int total_occupancies = (1 << bits_in_rook_mask[square]);
+
+		for(int index = 0; index < total_occupancies; index++)
+		{
+			U64 occupancy = generate_occupancy(index, bits_in_rook_mask[square], rook_mask[square]);
+
+			int magic_index = compute_magic_index(square, occupancy, rook);
+
+			rook_attacks[square][magic_index] = generate_rook_attacks_with_blockers(square, occupancy);
 		}
 	}
 }
@@ -225,6 +253,7 @@ U64 Attacks::generate_occupancy(int index, int bit_count, U64 mask)
 	return occupancy;
 }
 
+// Returns the magic index for a given square and occupancy for rooks and bishops
 int Attacks::compute_magic_index(int square, U64 occupancy, int piece_type)
 {
 	int magic_index = 0;
@@ -243,4 +272,75 @@ int Attacks::compute_magic_index(int square, U64 occupancy, int piece_type)
 
 		return magic_index;
 	}
+}
+
+// Retrieve pawns attacks
+U64 Attacks::get_pawn_attack(int color, int square)
+{
+	if(color != white && color != black)
+	{
+		std::cout << "[ERROR] In: Attacks::get_pawn_attack, Error: color must be white or black\n";
+		return 0ULL;
+	}
+
+	if(square < 0 || square > 63)
+	{
+		std::cout << "[ERROR] In: Attacks::get_pawn_attack, Error: square must be between 0 and 63\n";
+		return 0ULL;
+	}
+
+	if(color == white) return pawn_attacks[white][square];
+	else return pawn_attacks[black][square];
+}
+
+// Retrieve knights attacks
+U64 Attacks::get_knight_attack(int square)
+{
+	if(square < 0 || square > 63)
+	{
+		std::cout << "[ERROR] In: Attacks::get_knight_attack, Error: square must be between 0 and 63\n";
+		return 0ULL;
+	}
+
+	return knight_attacks[square];
+}
+
+// Retrieve kings attacks
+U64 Attacks::get_king_attack(int square)
+{
+	if(square < 0 || square > 63)
+	{
+		std::cout << "[ERROR] In: Attacks::get_king_attack, Error: square must be between 0 and 63\n";
+		return 0ULL;
+	}
+
+	return king_attacks[square];
+}
+
+// Retrieve bishops attacks
+U64 Attacks::get_bishop_attack(int square, U64 occupancy)
+{
+	if(square < 0 || square > 63)
+	{
+		std::cout << "[ERROR] In: Attacks::get_bishop_attack, Error: square must be between 0 and 63\n";
+		return 0ULL;
+	}
+
+	int magic_index = compute_magic_index(square, occupancy, bishop);
+
+	return bishop_attacks[square][magic_index];
+}
+
+// Retrieve rooks attacks
+U64 Attacks::get_rook_attack(int square, U64 occupancy)
+{
+	if(square < 0 || square > 63)
+	{
+		std::cout << "[ERROR] In: Attacks::get_rook_attack, Error: square must be between 0 and 63\n";
+		return 0ULL;
+	}
+
+	int magic_index = compute_magic_index(square, occupancy, rook);
+
+	return rook_attacks[square][magic_index];
 }
