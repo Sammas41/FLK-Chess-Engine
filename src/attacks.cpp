@@ -1,44 +1,76 @@
 #include "attacks.h"
 
-// Precalculated attack tables for leaper pieces
-U64 pawn_attacks[COLORS][SQUARES];
-U64 knight_attacks[SQUARES];
-U64 king_attacks[SQUARES];
-U64 bishop_occupancy_bits[SQUARES]; 
-U64 rook_occupancy_bits[SQUARES];
-
-// Initialize attack tables
-void init_precalc_attack_tables()
+// Constructor
+Attacks::Attacks()
 {
-	int square = 0;
-	U64 bitboard = 0ULL;
+	std::cout << "Object constructed\n";
 	
-	for(int i = 0; i < RANKS; i++)
+	init_leaper_pieces_attacks();
+
+	init_slider_pieces_attacks();
+}
+
+// Initialize leaper pieces attack tables (pawns, knights and kings)
+void Attacks::init_leaper_pieces_attacks()
+{
+	U64 bitboard = 0ULL;
+
+	for(int square = 0; square < SQUARES; square++)
 	{
-		for(int j = 0; j < FILES; j++)
+		bitboard = set_bit(bitboard, square);
+
+		pawn_attacks[white][square] = generate_pawn_attacks(white, square);
+		pawn_attacks[black][square] = generate_pawn_attacks(black, square);
+		
+		knight_attacks[square] = generate_knight_attacks(square);
+
+		king_attacks[square] = generate_king_attacks(square);
+
+		bitboard = pop_bit(bitboard, square);
+	}
+}
+
+// Initialize slider pieces attack tables (bishops, rooks, queens)
+void Attacks::init_slider_pieces_attacks()
+{
+	// Initialize bishop attacks 
+	for(int square = 0; square < SQUARES; square++)
+	{
+		bishop_mask[square] = generate_bishop_mask(square);
+
+		int total_occupancies = (1 << bits_in_bishop_mask[square]);
+
+		for(int index = 0; index < total_occupancies; index++)
 		{
-			square = i * RANKS + j;
-			bitboard = set_bit(bitboard, square);
-			
-			pawn_attacks[white][square] = generate_pawn_attacks(white, bitboard);
-			pawn_attacks[black][square] = generate_pawn_attacks(black, bitboard);
-			
-			knight_attacks[square] = generate_knight_attacks(bitboard);
+			U64 occupancy = generate_occupancy(index, bits_in_bishop_mask[square], bishop_mask[square]);
 
-			king_attacks[square] = generate_king_attacks(bitboard);
+			int magic_index = compute_magic_index(square, occupancy, bishop);
 
-			bishop_occupancy_bits[square] = generate_bishop_occupancy_bits(square);
+			bishop_attacks[square][magic_index] = generate_bishop_attacks_with_blockers(square, occupancy);
+		}
+	}
 
-			rook_occupancy_bits[square] = generate_rook_occupancy_bits(square);
+	// Initialize rook attacks 
+	for(int square = 0; square < SQUARES; square++)
+	{
+		rook_mask[square] = generate_rook_mask(square);
 
-			bitboard = pop_bit(bitboard, square);
+		int total_occupancies = (1 << bits_in_rook_mask[square]);
+
+		for(int index = 0; index < total_occupancies; index++)
+		{
+			U64 occupancy = generate_occupancy(index, bits_in_rook_mask[square], rook_mask[square]);
+
+			int magic_index = compute_magic_index(square, occupancy, rook);
+
+			rook_attacks[square][magic_index] = generate_rook_attacks_with_blockers(square, occupancy);
 		}
 	}
 }
 
 // Generates the attack table for a pawn on a given square, for both colors
-U64 generate_pawn_attacks(int color, U64 bitboard)
-{	
+U64 Attacks::generate_pawn_attacks(int color, U64 bitboard)
+{
 	U64 attack = 0ULL;
 	
 	if(color == white)
@@ -58,7 +90,7 @@ U64 generate_pawn_attacks(int color, U64 bitboard)
 }
 
 // Generates the attack table for a knight on a given square
-U64 generate_knight_attacks(U64 bitboard)
+U64 Attacks::generate_knight_attacks(U64 bitboard)
 {
 	U64 attack = 0ULL;
 
@@ -77,7 +109,7 @@ U64 generate_knight_attacks(U64 bitboard)
 }
 
 // Generates the attack table for a king on a given square
-U64 generate_king_attacks(U64 bitboard)
+U64 Attacks::generate_king_attacks(U64 bitboard)
 {
 	U64 attack = 0ULL;
 
@@ -96,8 +128,45 @@ U64 generate_king_attacks(U64 bitboard)
 	return attack;
 }
 
+// Retrieve pawn attack table for a given square and color
+U64 Attacks::get_pawn_attack(int color, int square)
+{	
+	return pawn_attacks[color][square];
+}
+
+// Retrieve knight attack table for a given square
+U64 Attacks::get_knight_attack(int square)
+{	
+	return knight_attacks[square];
+}
+
+// Retrieve king attack table for a given square
+U64 Attacks::get_king_attack(int square)
+{	
+	return king_attacks[square];
+}
+
+// Retrieve bishop attack table for a given square and board occupancy
+U64 Attacks::get_bishop_attack(int square, U64 occupancy)
+{	
+	occupancy &= bishop_mask[square];
+	int magic_index = compute_magic_index(square, occupancy, bishop);
+	
+	return bishop_attacks[square][magic_index];
+}
+
+// Retrieve rook attack table for a given square and board occupancy
+U64 Attacks::get_rook_attack(int square, U64 occupancy)
+{	
+	occupancy &= rook_mask[square];
+
+	int magic_index = compute_magic_index(square, occupancy, rook);
+	
+	return rook_attacks[square][magic_index];
+}
+
 // generate bishop relevant occupancy bits
-U64 generate_bishop_occupancy_bits(int square){
+U64 Attacks::generate_bishop_mask(int square){
 	
 	U64 attack = 0ULL;
 
@@ -117,7 +186,7 @@ U64 generate_bishop_occupancy_bits(int square){
 }
 
 // generate rook relevant occupancy bits
-U64 generate_rook_occupancy_bits(int square){
+U64 Attacks::generate_rook_mask(int square){
 	
 	U64 attack = 0ULL;
 
@@ -137,7 +206,7 @@ U64 generate_rook_occupancy_bits(int square){
 }
 
 // Generates the attack range for a rook on a bitboard with blockers
-U64 generate_rook_attacks_with_blockers(int square, U64 blockers) {
+U64 Attacks::generate_rook_attacks_with_blockers(int square, U64 blockers) {
     U64 attacks = 0ULL;
     int r, f;
     int tr = square / 8; // target rank
@@ -146,36 +215,32 @@ U64 generate_rook_attacks_with_blockers(int square, U64 blockers) {
     // up
     for (r = tr + 1; r <= 7; r++) {
 		attacks |= (1ULL << (r * 8 + tf)); 
-		if (blockers & (1ULL << (r * 8 + tf))) break;  // stop if blocker encountered
-        // attacks |= (1ULL << (r * 8 + tf));   
+		if (blockers & (1ULL << (r * 8 + tf))) break;  // stop if blocker encountered  
     }
 
     // down
     for (r = tr - 1; r >= 0; r--) {
 		attacks |= (1ULL << (r * 8 + tf)); 
         if (blockers & (1ULL << (r * 8 + tf))) break; 
-		// attacks |= (1ULL << (r * 8 + tf));
     }
 
     // right
     for (f = tf + 1; f <= 7; f++) {
 		attacks |= (1ULL << (tr * 8 + f)); 
-		if (blockers & (1ULL << (tr * 8 + f))) break; 
-        // attacks |= (1ULL << (tr * 8 + f));   
+		if (blockers & (1ULL << (tr * 8 + f))) break;   
     }
 
     // left
     for (f = tf - 1; f >= 0; f--) {
 		attacks |= (1ULL << (tr * 8 + f)); 
-		if (blockers & (1ULL << (tr * 8 + f))) break; 
-        // attacks |= (1ULL << (tr * 8 + f));      
+		if (blockers & (1ULL << (tr * 8 + f))) break;      
     }
 
     return attacks;
 }
 
 // Generates the attack range for a bishop on a bitboard with blockers
-U64 generate_bishop_attacks_with_blockers(int square, U64 blockers) {
+U64 Attacks::generate_bishop_attacks_with_blockers(int square, U64 blockers) {
 	U64 attacks = 0ULL;
 	int r, f;
 	int tr = square / 8; // target rank
@@ -185,28 +250,24 @@ U64 generate_bishop_attacks_with_blockers(int square, U64 blockers) {
 	for (r = tr + 1, f = tf + 1; r <= 7 && f <= 7; r++, f++) {
 		attacks |= (1ULL << (r * 8 + f));
 		if (blockers & (1ULL << (r * 8 + f))) break; // stop if blocker encountered
-		// attacks |= (1ULL << (r * 8 + f));
 	}
 
 	// up-left
 	for (r = tr + 1, f = tf - 1; r <= 7 && f >= 0; r++, f--) {
 		attacks |= (1ULL << (r * 8 + f));
 		if (blockers & (1ULL << (r * 8 + f))) break; // stop if blocker encountered
-		// attacks |= (1ULL << (r * 8 + f));
 	}
 
 	// down-right
 	for (r = tr - 1, f = tf + 1; r >= 0 && f <= 7; r--, f++) {
 		attacks |= (1ULL << (r * 8 + f));
 		if (blockers & (1ULL << (r * 8 + f))) break; // stop if blocker encountered
-		// attacks |= (1ULL << (r * 8 + f));
 	}
 
 	// down-left
 	for (r = tr - 1, f = tf - 1; r >= 0 && f >= 0; r--, f--) {
 		attacks |= (1ULL << (r * 8 + f));
 		if (blockers & (1ULL << (r * 8 + f))) break; // stop if blocker encountered
-		// attacks |= (1ULL << (r * 8 + f));
 	}
 
 	return attacks;
@@ -214,7 +275,7 @@ U64 generate_bishop_attacks_with_blockers(int square, U64 blockers) {
 
 // Returns a possible occupancy that a slider piece may find based on
 // what index is passed to the function
-U64 set_occupancies(int index, int bit_count, U64 mask)
+U64 Attacks::generate_occupancy(int index, int bit_count, U64 mask)
 {
 	U64 occupancy = 0ULL;
 
@@ -229,4 +290,24 @@ U64 set_occupancies(int index, int bit_count, U64 mask)
 	}
 
 	return occupancy;
+}
+
+int Attacks::compute_magic_index(int square, U64 occupancy, int piece_type)
+{
+	int magic_index = 0;
+
+	if(piece_type == bishop)
+	{
+		magic_index = static_cast<int>((occupancy * bishop_magics[square]) 
+		                               >> (64 - bits_in_bishop_mask[square]));
+
+		return magic_index;	
+	}
+	else
+	{
+		magic_index = static_cast<int>((occupancy * rook_magics[square]) 
+		                               >> (64 - bits_in_rook_mask[square]));
+
+		return magic_index;
+	}
 }
