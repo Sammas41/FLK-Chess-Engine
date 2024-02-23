@@ -1,6 +1,9 @@
 #include "game.h"
 #include "general.h"
 
+#include <sstream>
+
+
 Game::Game(){
     initialize_pieces_bitboards(initial_position_fen);
 }
@@ -40,6 +43,19 @@ void Game::initialize_pieces_bitboards(const std::string& fen) {
         if(i < 3) occupancies[i] = 0ULL;
     }
 
+    // reset game state variables
+    side = 0;
+
+    enpassant = no_sq;
+
+    castle = 0;
+
+    std::istringstream fenStream(fen);
+    std::string board, activeColor, castlingRights, enPassant, halfmove, fullmove;
+
+    // Parse FEN string
+    fenStream >> board >> activeColor >> castlingRights >> enPassant >> halfmove >> fullmove;
+
 	for (char c : fen) {
         if (c == '/') {
             continue; // Skip to the next row
@@ -74,6 +90,32 @@ void Game::initialize_pieces_bitboards(const std::string& fen) {
         }
 	}
 
+    // Parse active color
+    side = (activeColor == "w") ? white : black;
+
+    // Parse castling rights
+    for (char c : castlingRights) {
+        switch (c) {
+            case 'K': castle |= wk; break;
+            case 'Q': castle |= wq; break;
+            case 'k': castle |= bk; break;
+            case 'q': castle |= bq; break;
+        }
+    }
+
+    // Parse en passant target square
+    if (enPassant != "-") {
+        int file = enPassant[0] - 'a'; // File index (0-7)
+        int rank = 8 - (enPassant[1] - '0'); // Rank index (0-7), inverted
+        enpassant = rank * 8 + file;
+    } else {
+        enpassant = no_sq;
+    }
+
+    // Parse halfmove clock and fullmove number
+    // Assuming these are integers and stored in your class
+    halfmoveClock = std::stoi(halfmove);
+    fullmoveNumber = std::stoi(fullmove);
     // Initialize white pieces bitboard
     for(int piece = P; piece <= K; piece++)
     {
@@ -132,7 +174,7 @@ void Game::print_board()
     // print board files
     printf("\n     a b c d e f g h\n\n");
     
-    // print side to move
+    // print side to move (white = 0, black = 1)
     printf("     Side:     %s\n", !side ? "white" : "black");
     
     // print enpassant square
@@ -143,7 +185,11 @@ void Game::print_board()
                                            (castle & wq) ? 'Q' : '-',
                                            (castle & bk) ? 'k' : '-',
                                            (castle & bq) ? 'q' : '-');
+
+    std::cout << "     Halfmove: " << halfmoveClock << std::endl;
+    std::cout << "     Fullmove: " << fullmoveNumber << std::endl;                                    
 }
+
 
 bool Game::is_valid(const std::string & fen)
 {

@@ -24,6 +24,16 @@ class Game{
         // castling rights
         int castle = 0;
 
+        int activeColor;
+
+        // This is the number of halfmoves (or moves by one player) since the last capture or pawn advance.
+        // This is used for the fifty-move rule.
+        int halfmoveClock;
+
+        // Fullmove Counter: This counts the number of full moves in the game.
+        // It starts at 1 and is incremented after Black's move.
+        int fullmoveNumber;
+
     public:
 
         Game();
