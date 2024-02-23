@@ -56,7 +56,7 @@ void Game::initialize_pieces_bitboards(const std::string& fen) {
     // Parse FEN string
     fenStream >> board >> activeColor >> castlingRights >> enPassant >> halfmove >> fullmove;
 
-	for (char c : fen) {
+	for (char c : board) {
         if (c == '/') {
             continue; // Skip to the next row
         }
