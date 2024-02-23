@@ -39,10 +39,10 @@ void Game::initialize_pieces_bitboards(const std::string& fen, U64 bitboards[12]
     castle = 0;
 
     std::istringstream fenStream(fen);
-    std::string board, activeColor, castlingRights, enPassant;
+    std::string board, activeColor, castlingRights, enPassant, halfmove, fullmove;
 
     // Parse FEN string
-    fenStream >> board >> activeColor >> castlingRights >> enPassant;
+    fenStream >> board >> activeColor >> castlingRights >> enPassant >> halfmove >> fullmove;
 
 	for (char c : fen) {
 	if (c == '/') {
@@ -99,6 +99,11 @@ void Game::initialize_pieces_bitboards(const std::string& fen, U64 bitboards[12]
     } else {
         enpassant = no_sq;
     }
+
+    // Parse halfmove clock and fullmove number
+    // Assuming these are integers and stored in your class
+    halfmoveClock = std::stoi(halfmove);
+    fullmoveNumber = std::stoi(fullmove);
 }
 
 
@@ -155,4 +160,7 @@ void Game::print_board()
                                            (castle & wq) ? 'Q' : '-',
                                            (castle & bk) ? 'k' : '-',
                                            (castle & bq) ? 'q' : '-');
+
+    std::cout << "     Halfmove: " << halfmoveClock << std::endl;
+    std::cout << "     Fullmove: " << fullmoveNumber << std::endl;                                    
 }
