@@ -7,5 +7,6 @@ int main()
 	Game game;
 	
 	game.print_board();
+
 	return 0;
 }
