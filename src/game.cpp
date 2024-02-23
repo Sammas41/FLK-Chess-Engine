@@ -1,9 +1,8 @@
 #include "game.h"
 #include "general.h"
 
-#include <iostream>
 #include <sstream>
-#include <string>
+
 
 Game::Game(){
     initialize_pieces_bitboards(initial_position_fen,bitboards);
