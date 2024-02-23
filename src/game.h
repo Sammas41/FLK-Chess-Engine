@@ -23,6 +23,8 @@ class Game{
         // castling rights
         int castle = 0;
 
+        int activeColor;
+
     public:
 
         Game();

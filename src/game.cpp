@@ -1,7 +1,9 @@
 #include "game.h"
 #include "general.h"
 
-
+#include <iostream>
+#include <sstream>
+#include <string>
 
 Game::Game(){
     initialize_pieces_bitboards(initial_position_fen,bitboards);
@@ -29,6 +31,19 @@ void Game::initialize_pieces_bitboards(const std::string& fen, U64 bitboards[12]
     for (int i = 0; i < 12; ++i) {
         bitboards[i] = 0;
     }
+
+    // reset game state variables
+    side = 0;
+
+    enpassant = no_sq;
+
+    castle = 0;
+
+    std::istringstream fenStream(fen);
+    std::string board, activeColor, castlingRights, enPassant;
+
+    // Parse FEN string
+    fenStream >> board >> activeColor >> castlingRights >> enPassant;
 
 	for (char c : fen) {
 	if (c == '/') {
@@ -64,6 +79,27 @@ void Game::initialize_pieces_bitboards(const std::string& fen, U64 bitboards[12]
 	}
 	}
 
+    // Parse active color
+    side = (activeColor == "w") ? white : black;
+
+    // Parse castling rights
+    for (char c : castlingRights) {
+        switch (c) {
+            case 'K': castle |= wk; break;
+            case 'Q': castle |= wq; break;
+            case 'k': castle |= bk; break;
+            case 'q': castle |= bq; break;
+        }
+    }
+
+    // Parse en passant target square
+    if (enPassant != "-") {
+        int file = enPassant[0] - 'a'; // File index (0-7)
+        int rank = 8 - (enPassant[1] - '0'); // Rank index (0-7), inverted
+        enpassant = rank * 8 + file;
+    } else {
+        enpassant = no_sq;
+    }
 }
 
 
@@ -109,7 +145,7 @@ void Game::print_board()
     // print board files
     printf("\n     a b c d e f g h\n\n");
     
-    // print side to move
+    // print side to move (white = 0, black = 1)
     printf("     Side:     %s\n", !side ? "white" : "black");
     
     // print enpassant square
