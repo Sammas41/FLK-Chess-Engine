@@ -326,7 +326,8 @@ U64 Attacks::get_bishop_attack(int square, U64 occupancy)
 		return 0ULL;
 	}
 
-	int magic_index = compute_magic_index(square, occupancy, bishop);
+	U64 bishop_occupancy = occupancy & bishop_mask[square];
+	int magic_index = compute_magic_index(square, bishop_occupancy, bishop);
 
 	return bishop_attacks[square][magic_index];
 }
@@ -340,7 +341,8 @@ U64 Attacks::get_rook_attack(int square, U64 occupancy)
 		return 0ULL;
 	}
 
-	int magic_index = compute_magic_index(square, occupancy, rook);
+	U64 rook_occupancy = occupancy & rook_mask[square];
+	int magic_index = compute_magic_index(square, rook_occupancy, rook);
 
 	return rook_attacks[square][magic_index];
 }

@@ -3,7 +3,8 @@
 
 #include "general.h"
 #include "attacks.h"
-
+#include <sstream> // For std::istringstream
+#include <algorithm> // For std::count
 
 class Game{
     private:
@@ -49,9 +50,12 @@ class Game{
         enum { wk = 1, wq = 2, bk = 4, bq = 8 };
 
         U64 get_bitboard(int);
+        U64 get_occupancy(int);
         void set_bitboard(int, U64);
-        void initialize_pieces_bitboards(const std::string&, U64[]);
+        void initialize_pieces_bitboards(const std::string&);
         void print_board();
+
+        bool is_valid(const std::string &);
 
 };
 
