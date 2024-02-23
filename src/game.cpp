@@ -105,6 +105,7 @@ void Game::initialize_pieces_bitboards(const std::string& fen) {
 
     // Parse en passant target square
     if (enPassant != "-") {
+        // obtain index subtracting ascii values of strings a and 0
         int file = enPassant[0] - 'a'; // File index (0-7)
         int rank = 8 - (enPassant[1] - '0'); // Rank index (0-7), inverted
         enpassant = rank * 8 + file;
@@ -113,9 +114,9 @@ void Game::initialize_pieces_bitboards(const std::string& fen) {
     }
 
     // Parse halfmove clock and fullmove number
-    // Assuming these are integers and stored in your class
     halfmoveClock = std::stoi(halfmove);
     fullmoveNumber = std::stoi(fullmove);
+    
     // Initialize white pieces bitboard
     for(int piece = P; piece <= K; piece++)
     {

@@ -346,3 +346,11 @@ U64 Attacks::get_rook_attack(int square, U64 occupancy)
 
 	return rook_attacks[square][magic_index];
 }
+
+U64 Attacks::get_queen_attack(int square, U64 occupancy){
+
+	U64 result = get_bishop_attack(square, occupancy);
+	result |= get_rook_attack(square, occupancy);
+
+	return result;
+}
