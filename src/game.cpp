@@ -1,6 +1,10 @@
 #include "game.h"
+#include "general.h"
+
+
 
 Game::Game(){
+    initialize_pieces_bitboards(initial_position_fen,bitboards);
     std::cout << "Game constructed\n";
 }
 
@@ -17,6 +21,52 @@ void Game::set_bitboard(int index, U64 value) {
         std::cerr << "Index out of range in set_bitboard function." << std::endl;
     }
 }
+
+void Game::initialize_pieces_bitboards(const std::string& fen, U64 bitboards[12]) {
+    int square = 0;
+
+    // Initialize all bitboards to 0
+    for (int i = 0; i < 12; ++i) {
+        bitboards[i] = 0;
+    }
+
+	for (char c : fen) {
+	if (c == '/') {
+		continue; // Skip to the next row
+	}
+
+	if (isdigit(c)) {
+		square += c - '0'; // Skip empty squares
+	} else {
+		// Find the index corresponding to the piece type
+		int pieceIndex;
+		switch (c) {
+			case 'P': pieceIndex = P; break;
+			case 'N': pieceIndex = N; break;
+			case 'B': pieceIndex = B; break;
+			case 'R': pieceIndex = R; break;
+			case 'Q': pieceIndex = Q; break;
+			case 'K': pieceIndex = K; break;
+			case 'p': pieceIndex = p; break;
+			case 'n': pieceIndex = n; break;
+			case 'b': pieceIndex = b; break;
+			case 'r': pieceIndex = r; break;
+			case 'q': pieceIndex = q; break;
+			case 'k': pieceIndex = k; break;
+			default: pieceIndex = -1; break;
+		}
+
+		if (pieceIndex != -1) {
+			// Set the bit corresponding to the square
+			bitboards[pieceIndex] |= 1ULL << square;
+		}
+		square++;
+	}
+	}
+
+}
+
+
 
 // print board
 void Game::print_board()

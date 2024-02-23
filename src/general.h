@@ -2,6 +2,7 @@
 #define GENERAL_H
 
 #include <iostream>
+#include <unordered_map>
 
 typedef unsigned long long U64;
 
@@ -28,6 +29,15 @@ enum { white, black, both };
 
 // Piece_type
 enum { king, queen, rook, bishop, knight, pawn };
+
+// encode pieces
+enum {P, N, B, R, Q, K, p, n, b, r, q, k};
+
+
+extern const char *square_to_coordinates[64];
+extern char ascii_pieces[13];
+extern std::unordered_map<char, int> char_pieces;
+extern std::string initial_position_fen;
 
 // Useful functions for manipulating bits in bitboards
 U64 get_bit(U64, int);

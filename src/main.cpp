@@ -6,9 +6,6 @@ int main()
 {
 	Game game;
 	
-	game.set_bitboard(Game::P , FENtoBitboard("8/8/8/8/8/8/PPPPPPPP/8"));
-	
-	print_bitboard(game.get_bitboard(Game::P));
-	printf("piece %c\n", game.ascii_pieces[Game::P]);
+	game.print_board();
 	return 0;
 }
