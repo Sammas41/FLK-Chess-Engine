@@ -24,6 +24,7 @@ class Attacks {
         U64 get_king_attack(int);
         U64 get_bishop_attack(int, U64);
         U64 get_rook_attack(int, U64);
+        U64 get_queen_attack(int, U64);
 
         // Masks
         U64 bishop_mask[SQUARES];

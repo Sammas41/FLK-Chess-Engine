@@ -3,7 +3,8 @@
 
 #include "general.h"
 #include "attacks.h"
-
+#include <sstream> // For std::istringstream
+#include <algorithm> // For std::count
 
 class Game{
     private:
@@ -22,6 +23,16 @@ class Game{
 
         // castling rights
         int castle = 0;
+
+        int activeColor;
+
+        // This is the number of halfmoves (or moves by one player) since the last capture or pawn advance.
+        // This is used for the fifty-move rule.
+        int halfmoveClock;
+
+        // Fullmove Counter: This counts the number of full moves in the game.
+        // It starts at 1 and is incremented after Black's move.
+        int fullmoveNumber;
 
     public:
 
@@ -49,9 +60,12 @@ class Game{
         enum { wk = 1, wq = 2, bk = 4, bq = 8 };
 
         U64 get_bitboard(int);
+        U64 get_occupancy(int);
         void set_bitboard(int, U64);
-        void initialize_pieces_bitboards(const std::string&, U64[]);
+        void initialize_pieces_bitboards(const std::string&);
         void print_board();
+
+        bool is_valid(const std::string &);
 
 };
 
