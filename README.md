@@ -1,5 +1,2 @@
-Chi legge è gay
 
-... work in progress ...
-
-liverking
+liverking official chess engine
