@@ -1,10 +1,10 @@
 #include "general.h"
 
 // initial position FEN
-std::string initial_position_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+//std::string initial_position_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
 //test FEN
-/* std::string initial_position_fen = "r3kb1r/3n1pp1/p6p/2pPp2q/Pp2N3/3B2PP/1PQ2P2/R3K2R w KQkq - 0 1"; */
+std::string initial_position_fen = "8/7P/8/8/8/8/8/8 w KQkq - 0 1"; 
 // convert squares to coordinates
 const char *square_to_coordinates[64] = {
 	"a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8",
@@ -16,6 +16,7 @@ const char *square_to_coordinates[64] = {
 	"a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2",
 	"a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1",
 };
+
 
 // ASCII pieces
 char ascii_pieces[13] = "PNBRQKpnbrqk";

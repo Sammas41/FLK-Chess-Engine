@@ -7,5 +7,5 @@
 
 int is_square_attacked(int , int );
 void print_attacked_squares(int);
-
+void generate_moves();
 #endif

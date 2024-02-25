@@ -9,6 +9,8 @@ int main()
 	Game game;
 	
 	print_attacked_squares(white);
+	generate_moves();
+	
 
 	return 0;
 }
