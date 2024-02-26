@@ -144,12 +144,8 @@ void generate_moves(){
                         }
                     }
 
-
-
-                    // pop ls1b from piece bitboard copy
-                    // TODO:check pop bit function, do we need to pass reference of the bb?
                     new_pop_bit(bitboard, source_square);
-                    //pop_bit(bitboard, source_square);
+                    
                 }
             }
 

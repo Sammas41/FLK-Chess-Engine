@@ -37,6 +37,7 @@ class Game{
     public:
 
         Game();
+        Game(std::string& fen);
 
         // castling rights binary encoding
 
