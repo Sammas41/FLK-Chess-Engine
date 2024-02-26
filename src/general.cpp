@@ -1,10 +1,10 @@
 #include "general.h"
 
 // initial position FEN
-//std::string initial_position_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+//std::string initial_position_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1";
 
 //test FEN
-std::string initial_position_fen = "8/7P/8/8/8/8/8/8 w KQkq - 0 1"; 
+std::string initial_position_fen = "rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2"; 
 // convert squares to coordinates
 const char *square_to_coordinates[64] = {
 	"a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8",
@@ -16,7 +16,6 @@ const char *square_to_coordinates[64] = {
 	"a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2",
 	"a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1",
 };
-
 
 // ASCII pieces
 char ascii_pieces[13] = "PNBRQKpnbrqk";
@@ -53,6 +52,10 @@ U64 set_bit(U64 bitboard, int square)
 U64 pop_bit(U64 bitboard, int square)
 {
 	return (get_bit(bitboard, square) ? bitboard ^= (1ULL << square) : 0);
+}
+
+void new_pop_bit(U64 &bb, int square) {
+    bb &= ~(1ULL << square);
 }
 
 // Counts the number of active bits in a bitboard

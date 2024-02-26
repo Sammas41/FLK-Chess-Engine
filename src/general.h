@@ -43,6 +43,7 @@ extern std::string initial_position_fen;
 U64 get_bit(U64, int);
 U64 set_bit(U64, int);
 U64 pop_bit(U64, int);
+void new_pop_bit(U64 &, int);
 
 U64 FENtoBitboard(std::string);
 

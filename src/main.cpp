@@ -7,8 +7,9 @@ int main()
 {
 	
 	Game game;
+	game.print_board();	
 	
-	print_attacked_squares(white);
+	print_attacked_squares(black);
 	generate_moves();
 	
 

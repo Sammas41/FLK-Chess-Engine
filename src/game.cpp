@@ -36,6 +36,10 @@ void Game::set_bitboard(int index, U64 value) {
     }
 }
 
+int Game::get_enpassant(){
+    return enpassant;
+}
+
 void Game::initialize_pieces_bitboards(const std::string& fen) {
     
     if(!is_valid(fen))
