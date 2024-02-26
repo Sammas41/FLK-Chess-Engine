@@ -1,17 +1,17 @@
-#include "general.h"
-#include "attacks.h"
-#include "game.h"
 #include "moveGenerator.h"
 
 int main()
 {
-	
-	Game game;
+	//test FEN
+	std::string test = "rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2"; 
+
+	Game game(test);
 	game.print_board();	
 	
-	print_attacked_squares(black);
-	generate_moves();
+	MoveGenerator move_gen(game);
+	move_gen.print_attacked_squares(white);
 	
+	move_gen.generate_moves();
 
 	return 0;
 }

@@ -1,39 +1,47 @@
 #include "moveGenerator.h"
 
+MoveGenerator::MoveGenerator(Game & g)
+{
+    game = Game(g);
+    ptr_attacks = std::make_unique<Attacks>();
+}
 
-Attacks a;
-Game game;
-
-// is current given square attacked by current given side?
-int is_square_attacked(int square, int side){
-
+int MoveGenerator::is_square_attacked(int square, int side){
+    
     // attacked by white pawns
-    if((side == white) && (a.get_pawn_attack(black,square) & game.get_bitboard(P))) return 1;
-
+    if((side == white) && 
+       (ptr_attacks->get_pawn_attack(black,square) & game.get_bitboard(P))) return 1;
+    
     // attacked by black pawns
-    if((side == black) && (a.get_pawn_attack(white,square) & game.get_bitboard(p))) return 1;
-
+    if((side == black) && 
+       (ptr_attacks->get_pawn_attack(white,square) & game.get_bitboard(p))) return 1;
+    
     // attacked by knights
-    if(a.get_knight_attack(square) & ((side == white) ? game.get_bitboard(N) : game.get_bitboard(n))) return 1;
-
+    if(ptr_attacks->get_knight_attack(square) & 
+      ((side == white) ? game.get_bitboard(N) : game.get_bitboard(n))) return 1;
+    
     // attacked by king
-    if(a.get_king_attack(square) & ((side == white) ? game.get_bitboard(K) : game.get_bitboard(k))) return 1;
-
+    if(ptr_attacks->get_king_attack(square) & 
+      ((side == white) ? game.get_bitboard(K) : game.get_bitboard(k))) return 1;
+    
     // attacked by bishops
-    if(a.get_bishop_attack(square, game.get_occupancy(both)) & ((side == white) ? game.get_bitboard(B) : game.get_bitboard(b))) return 1;
-
+    if(ptr_attacks->get_bishop_attack(square, game.get_occupancy(both)) & 
+      ((side == white) ? game.get_bitboard(B) : game.get_bitboard(b))) return 1;
+    
     // attacked by rooks
-    if(a.get_rook_attack(square, game.get_occupancy(both)) & ((side == white) ? game.get_bitboard(R) : game.get_bitboard(r))) return 1;
+    if(ptr_attacks->get_rook_attack(square, game.get_occupancy(both)) & 
+      ((side == white) ? game.get_bitboard(R) : game.get_bitboard(r))) return 1;
 
     // attacked by queens
-    if(a.get_queen_attack(square, game.get_occupancy(both)) & ((side == white) ? game.get_bitboard(Q) : game.get_bitboard(q))) return 1;
-
+    if(ptr_attacks->get_queen_attack(square, game.get_occupancy(both)) & 
+      ((side == white) ? game.get_bitboard(Q) : game.get_bitboard(q))) return 1;
+    
     // by default return false (square not attacked)
     return 0;
 }
 
 // print attacked squares
-void print_attacked_squares(int side){
+void MoveGenerator::print_attacked_squares(int side){
 
     printf("\n");
 
@@ -61,8 +69,8 @@ void print_attacked_squares(int side){
     printf("\n      a b c d e f g h\n\n");
 }
 
-// generate moves
-void generate_moves(){
+// Generate pawn moves (push, double push, captures and en passant)
+void MoveGenerator::generate_moves(){
     // define source and target square
     int source_square;
     int target_square;
@@ -108,7 +116,7 @@ void generate_moves(){
                         }
                     }
 
-                    attacks = a.get_pawn_attack(white,source_square) & game.get_occupancy(black);
+                    attacks = ptr_attacks->get_pawn_attack(white,source_square) & game.get_occupancy(black);
 
                     // generate pawn captures
                     while(attacks){
@@ -127,13 +135,13 @@ void generate_moves(){
                             // CAPTURE
                             printf("pawn capture: %s%s\n",square_to_coordinates[source_square],square_to_coordinates[target_square]);
                         }
-                        new_pop_bit(attacks, target_square);
+                        pop_bit(attacks, target_square);
 
                         // ENPASSANT
                         if( game.get_enpassant() != no_sq){
 
                             // look pawn attacks and bitwise and with enpassant square
-                            U64 enpassant_attacks = a.get_pawn_attack(game.get_side(),source_square) & (1ULL << game.get_enpassant());
+                            U64 enpassant_attacks = ptr_attacks->get_pawn_attack(game.get_side(),source_square) & (1ULL << game.get_enpassant());
 
                             // make sure enpassant capture available
                             if (enpassant_attacks){
@@ -144,12 +152,8 @@ void generate_moves(){
                         }
                     }
 
-
-
                     // pop ls1b from piece bitboard copy
-                    // TODO:check pop bit function, do we need to pass reference of the bb?
-                    new_pop_bit(bitboard, source_square);
-                    //pop_bit(bitboard, source_square);
+                    pop_bit(bitboard, source_square);
                 }
             }
 
@@ -186,7 +190,7 @@ void generate_moves(){
                         }
                     }
 
-                    attacks = a.get_pawn_attack(black,source_square) & game.get_occupancy(white);
+                    attacks = ptr_attacks->get_pawn_attack(black,source_square) & game.get_occupancy(white);
 
                     // generate pawn captures
                     while(attacks){
@@ -205,13 +209,13 @@ void generate_moves(){
                             // CAPTURE
                             printf("pawn capture: %s%s\n",square_to_coordinates[source_square],square_to_coordinates[target_square]);
                         }
-                        new_pop_bit(attacks, target_square);
+                        pop_bit(attacks, target_square);
 
                         // ENPASSANT
                         if( game.get_enpassant() != no_sq){
 
                             // look pawn attacks and bitwise and with enpassant square
-                            U64 enpassant_attacks = a.get_pawn_attack(game.get_side(),source_square) & (1ULL << game.get_enpassant());
+                            U64 enpassant_attacks = ptr_attacks->get_pawn_attack(game.get_side(),source_square) & (1ULL << game.get_enpassant());
 
                             // make sure enpassant capture available
                             if (enpassant_attacks){
@@ -222,12 +226,8 @@ void generate_moves(){
                         }
                     }
 
-
-
                     // pop ls1b from piece bitboard copy
-                    // TODO:check pop bit function, do we need to pass reference of the bb?
-                    new_pop_bit(bitboard, source_square);
-                    //pop_bit(bitboard, source_square);
+                    pop_bit(bitboard, source_square);
                 }
             }
 

@@ -4,7 +4,6 @@
 #ifndef MAGIC_H
 #define MAGIC_H
 
-#include "general.h"
 #include "attacks.h"
 #include <stdint.h> // Needed for uint32_t type
 

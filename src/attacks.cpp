@@ -15,7 +15,7 @@ void Attacks::init_leaper_pieces_attacks()
 	
 	for(int square = 0; square < SQUARES; square++)
 	{		
-		bitboard = set_bit(bitboard, square);
+		set_bit(bitboard, square);
 
 		pawn_attacks[white][square] = generate_pawn_attacks(white, bitboard);
 		pawn_attacks[black][square] = generate_pawn_attacks(black, bitboard);
@@ -24,7 +24,7 @@ void Attacks::init_leaper_pieces_attacks()
 
 		king_attacks[square] = generate_king_attacks(bitboard);
 
-		bitboard = pop_bit(bitboard, square);
+		pop_bit(bitboard, square);
 	}
 }
 
@@ -244,7 +244,7 @@ U64 Attacks::generate_occupancy(int index, int bit_count, U64 mask)
 	{
 		int square = get_ls1b_index(mask);
 
-		mask = pop_bit(mask, square);
+		pop_bit(mask, square);
 
 		if(index & (1 << count))
 			occupancy |= (1ULL << square);

@@ -2,11 +2,10 @@
 #define GAME_H
 
 #include "general.h"
-#include "attacks.h"
 #include <sstream> // For std::istringstream
 #include <algorithm> // For std::count
 
-class Game{
+class Game {
     private:
 
         // array of pieces bitboards (black and white)
@@ -36,7 +35,9 @@ class Game{
 
     public:
 
-        Game();
+        Game();     // Default constructor
+        Game(std::string &);    // Constructior from a FEN
+        Game(const Game &);     // Copy constructor
 
         // castling rights binary encoding
 
