@@ -1,11 +1,30 @@
 #include "game.h"
-#include "general.h"
 
-#include <sstream>
-
-
-Game::Game(){
+Game::Game()
+{
     initialize_pieces_bitboards(initial_position_fen);
+}
+
+Game::Game(std::string & fen)
+{
+    if(is_valid(fen)) initialize_pieces_bitboards(fen);
+    else std::cerr << "Invalid FEN, cannot build Game object\n";
+}
+
+Game::Game(const Game & g)
+{
+    for(int i = 0; i < 12; i++)
+    {
+        bitboards[i] = g.bitboards[i];
+        if(i < 3) occupancies[i] = g.occupancies[i];
+    }
+
+    side = g.side;
+    castle = g.castle;
+    enpassant = g.enpassant;
+    activeColor = g.activeColor;
+    halfmoveClock = g.halfmoveClock;
+    fullmoveNumber = g.fullmoveNumber;
 }
 
 Game::Game(std::string& fen){
@@ -32,12 +51,27 @@ void Game::set_side(int side_to_move){
 }
 
 void Game::set_bitboard(int index, U64 value) {
-    if (index >= 0 && index < 12) { // Assuming you have 12 bitboards
-        bitboards[index] = value;
-    } else {
-        // Handle error: index out of range
-        std::cerr << "Index out of range in set_bitboard function." << std::endl;
+    // Update bitboards, assuming you have 12 bitboards
+    if (index >= 0 && index < 12) bitboards[index] = value;
+    else std::cerr << "Index out of range in set_bitboard function." << std::endl;
+    
+    // Update occupancies
+    for(int i = 0; i < 3; i++) occupancies[i] = 0ULL;
+
+    // White occupancy
+    for(int piece = P; piece <= K; piece++)
+    {
+        occupancies[white] |= bitboards[piece];
     }
+
+    // Black occupancy
+    for(int piece = p; piece <= k; piece++)
+    {
+        occupancies[black] |= bitboards[piece];
+    }
+
+    // Total occupancy
+    occupancies[both] = occupancies[white] | occupancies[black];
 }
 
 int Game::get_enpassant(){
@@ -52,8 +86,6 @@ void Game::initialize_pieces_bitboards(const std::string& fen) {
         return;
     }
     
-    int square = 0;
-
     // Initialize all bitboards to 0
     for (int i = 0; i < 12; ++i) {
         bitboards[i] = 0ULL;
@@ -62,9 +94,7 @@ void Game::initialize_pieces_bitboards(const std::string& fen) {
 
     // reset game state variables
     side = 0;
-
     enpassant = no_sq;
-
     castle = 0;
 
     std::istringstream fenStream(fen);
@@ -73,6 +103,7 @@ void Game::initialize_pieces_bitboards(const std::string& fen) {
     // Parse FEN string
     fenStream >> board >> activeColor >> castlingRights >> enPassant >> halfmove >> fullmove;
 
+    int square = 0;
 	for (char c : board) {
         if (c == '/') {
             continue; // Skip to the next row

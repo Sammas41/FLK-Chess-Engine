@@ -41,9 +41,8 @@ extern std::string initial_position_fen;
 
 // Useful functions for manipulating bits in bitboards
 U64 get_bit(U64, int);
-U64 set_bit(U64, int);
-U64 pop_bit(U64, int);
-void new_pop_bit(U64 &, int);
+void set_bit(U64 &, int);
+void pop_bit(U64 &, int);
 
 U64 FENtoBitboard(std::string);
 

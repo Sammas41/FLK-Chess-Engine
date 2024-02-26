@@ -41,18 +41,13 @@ U64 get_bit(U64 bitboard, int square)
 }
 
 // Sets the bit on the chosen square
-U64 set_bit(U64 bitboard, int square)
+void set_bit(U64 & bitboard, int square)
 {
-	return bitboard | (1ULL << square);
+	bitboard |= (1ULL << square);
 }
 
 // Pops the bit on the chosen square
-U64 pop_bit(U64 bitboard, int square)
-{
-	return (get_bit(bitboard, square) ? bitboard ^= (1ULL << square) : 0);
-}
-
-void new_pop_bit(U64 &bb, int square) {
+void pop_bit(U64 &bb, int square) {
     bb &= ~(1ULL << square);
 }
 

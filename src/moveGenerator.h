@@ -1,11 +1,23 @@
 #ifndef MOVEGENERATOR_H
 #define MOVEGENERATOR_H
 
-#include "general.h"
 #include "attacks.h"
 #include "game.h"
+#include <memory>
 
-int is_square_attacked(int , int );
-void print_attacked_squares(int);
-void generate_moves();
+class MoveGenerator
+{
+    Game game;
+    std::unique_ptr<Attacks> ptr_attacks;
+
+    public:
+        MoveGenerator() = delete;   // Cannot initialize MoveGenerator without a game
+        MoveGenerator(Game &);      // Default constructor
+
+        int is_square_attacked(int, int);
+        void print_attacked_squares(int);
+
+        void generate_moves();
+};
+
 #endif
