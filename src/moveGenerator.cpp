@@ -152,8 +152,10 @@ void MoveGenerator::generate_moves(){
                         }
                     }
 
+
                     // pop ls1b from piece bitboard copy
                     pop_bit(bitboard, source_square);
+
                 }
             }
 

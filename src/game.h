@@ -35,9 +35,11 @@ class Game {
 
     public:
 
+
         Game();     // Default constructor
         Game(std::string &);    // Constructior from a FEN
         Game(const Game &);     // Copy constructor
+
 
         // castling rights binary encoding
 

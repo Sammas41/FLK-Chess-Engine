@@ -27,6 +27,10 @@ Game::Game(const Game & g)
     fullmoveNumber = g.fullmoveNumber;
 }
 
+Game::Game(std::string& fen){
+    initialize_pieces_bitboards(fen);
+}
+
 // getters and setters
 U64 Game::get_bitboard(int index)
 {	
