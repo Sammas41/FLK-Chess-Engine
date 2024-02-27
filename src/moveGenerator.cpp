@@ -4,37 +4,36 @@
 MoveGenerator::MoveGenerator(Game & g)
 {
     game = Game(g);
-    ptr_attacks = std::make_unique<Attacks>();
 }
 
 int MoveGenerator::is_square_attacked(int square, int side){
     
     // attacked by white pawns
     if((side == white) && 
-       (ptr_attacks->get_pawn_attack(black,square) & game.get_bitboard(P))) return 1;
+       (get_pawn_attack(black,square) & game.get_bitboard(P))) return 1;
     
     // attacked by black pawns
     if((side == black) && 
-       (ptr_attacks->get_pawn_attack(white,square) & game.get_bitboard(p))) return 1;
+       (get_pawn_attack(white,square) & game.get_bitboard(p))) return 1;
     
     // attacked by knights
-    if(ptr_attacks->get_knight_attack(square) & 
+    if(get_knight_attack(square) & 
       ((side == white) ? game.get_bitboard(N) : game.get_bitboard(n))) return 1;
     
     // attacked by king
-    if(ptr_attacks->get_king_attack(square) & 
+    if(get_king_attack(square) & 
       ((side == white) ? game.get_bitboard(K) : game.get_bitboard(k))) return 1;
     
     // attacked by bishops
-    if(ptr_attacks->get_bishop_attack(square, game.get_occupancy(both)) & 
+    if(get_bishop_attack(square, game.get_occupancy(both)) & 
       ((side == white) ? game.get_bitboard(B) : game.get_bitboard(b))) return 1;
     
     // attacked by rooks
-    if(ptr_attacks->get_rook_attack(square, game.get_occupancy(both)) & 
+    if(get_rook_attack(square, game.get_occupancy(both)) & 
       ((side == white) ? game.get_bitboard(R) : game.get_bitboard(r))) return 1;
 
     // attacked by queens
-    if(ptr_attacks->get_queen_attack(square, game.get_occupancy(both)) & 
+    if(get_queen_attack(square, game.get_occupancy(both)) & 
       ((side == white) ? game.get_bitboard(Q) : game.get_bitboard(q))) return 1;
     
     // by default return false (square not attacked)
@@ -117,7 +116,7 @@ void MoveGenerator::generate_moves(){
                         }
                     }
 
-                    attacks = ptr_attacks->get_pawn_attack(white,source_square) & game.get_occupancy(black);
+                    attacks = get_pawn_attack(white,source_square) & game.get_occupancy(black);
 
                     // generate pawn captures
                     while(attacks){
@@ -142,7 +141,7 @@ void MoveGenerator::generate_moves(){
                         if( game.get_enpassant() != no_sq){
 
                             // look pawn attacks and bitwise and with enpassant square
-                            U64 enpassant_attacks = ptr_attacks->get_pawn_attack(game.get_side(),source_square) & (1ULL << game.get_enpassant());
+                            U64 enpassant_attacks = get_pawn_attack(game.get_side(),source_square) & (1ULL << game.get_enpassant());
 
                             // make sure enpassant capture available
                             if (enpassant_attacks){
@@ -220,7 +219,7 @@ void MoveGenerator::generate_moves(){
                         }
                     }
 
-                    attacks = ptr_attacks->get_pawn_attack(black,source_square) & game.get_occupancy(white);
+                    attacks = get_pawn_attack(black,source_square) & game.get_occupancy(white);
 
                     // generate pawn captures
                     while(attacks){
@@ -245,7 +244,7 @@ void MoveGenerator::generate_moves(){
                         if( game.get_enpassant() != no_sq){
 
                             // look pawn attacks and bitwise and with enpassant square
-                            U64 enpassant_attacks = ptr_attacks->get_pawn_attack(game.get_side(),source_square) & (1ULL << game.get_enpassant());
+                            U64 enpassant_attacks = get_pawn_attack(game.get_side(),source_square) & (1ULL << game.get_enpassant());
 
                             // make sure enpassant capture available
                             if (enpassant_attacks){
@@ -291,7 +290,31 @@ void MoveGenerator::generate_moves(){
         }
 
         // generate knight moves
+        if(piece == N)
+        {
+            while(bitboard)
+            {
+                source_square = get_ls1b_index(bitboard);
+                attacks = get_knight_attack(source_square);
+                
+                while(attacks)
+                {
+                    target_square = get_ls1b_index(attacks);
 
+                    if(!get_bit(game.get_occupancy(both), target_square))
+                        std::cout << "knight move: " << square_to_coordinates[source_square] 
+                                                     << square_to_coordinates[target_square] << "\n";
+                    if(get_bit(game.get_occupancy(black), target_square))
+                        std::cout << "knight capture: " << square_to_coordinates[source_square] 
+                                                        << square_to_coordinates[target_square] << "\n";
+
+                    pop_bit(attacks, target_square);
+                }
+
+                pop_bit(bitboard, source_square);
+            }
+
+        }
 
         // generate bishop moves
 

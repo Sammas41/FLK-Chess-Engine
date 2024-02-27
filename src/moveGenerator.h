@@ -8,8 +8,7 @@
 class MoveGenerator
 {
     Game game;
-    std::unique_ptr<Attacks> ptr_attacks;
-
+    
     public:
         MoveGenerator() = delete;   // Cannot initialize MoveGenerator without a game
         MoveGenerator(Game &);      // Default constructor
