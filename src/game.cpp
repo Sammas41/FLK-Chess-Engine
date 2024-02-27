@@ -5,7 +5,7 @@ Game::Game()
     initialize_pieces_bitboards(initial_position_fen);
 }
 
-Game::Game(std::string & fen)
+Game::Game(std::string& fen)
 {
     if(is_valid(fen)) initialize_pieces_bitboards(fen);
     else std::cerr << "Invalid FEN, cannot build Game object\n";
@@ -27,10 +27,6 @@ Game::Game(const Game & g)
     fullmoveNumber = g.fullmoveNumber;
 }
 
-Game::Game(std::string& fen){
-    initialize_pieces_bitboards(fen);
-}
-
 // getters and setters
 U64 Game::get_bitboard(int index)
 {	
@@ -44,6 +40,10 @@ U64 Game::get_occupancy(int index)
 
 int Game::get_side(){
     return side;
+}
+
+int Game::get_castle(){
+    return castle;
 }
 
 void Game::set_side(int side_to_move){

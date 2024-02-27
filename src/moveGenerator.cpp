@@ -1,5 +1,6 @@
 #include "moveGenerator.h"
 
+
 MoveGenerator::MoveGenerator(Game & g)
 {
     game = Game(g);
@@ -159,6 +160,33 @@ void MoveGenerator::generate_moves(){
                 }
             }
 
+            // CASTLING
+            if(piece == K){
+                // king side castling available
+                if (game.get_castle() & game.wk){
+                    // check no pieces between K and R
+                    if(!get_bit(game.get_occupancy(both), f1) && !get_bit(game.get_occupancy(both), g1)){
+                        // king and f1 squares not attacked
+                        if(!is_square_attacked(e1,black) && !is_square_attacked(f1,black)){
+                            printf("castling king side: %s\n","e1g1\n");
+                        }
+                    }
+                }
+
+                // queen side available
+                if (game.get_castle() & game.wq){
+                    // make sure square between king and queen's rook are empty
+                    if (!get_bit(game.get_occupancy(both), d1) && !get_bit(game.get_occupancy(both), c1) && !get_bit(game.get_occupancy(both), b1))
+                    {
+                        // make sure king and the d1 squares are not under attacks
+                        if (!is_square_attacked(e1, black) && !is_square_attacked(d1, black))
+                            printf("castling queen side: e1c1\n");
+                    }
+                    
+                }
+            }
+
+
         }
         // generate black pawns & black king castling
         else{
@@ -230,6 +258,33 @@ void MoveGenerator::generate_moves(){
 
                     // pop ls1b from piece bitboard copy
                     pop_bit(bitboard, source_square);
+                }
+            }
+            // castling moves
+            if (piece == k)
+            {
+                // king side castling is available
+                if (game.get_castle() & game.bk)
+                {
+                    // make sure square between king and king's rook are empty
+                    if (!get_bit(game.get_occupancy(both), f8) && !get_bit(game.get_occupancy(both), g8))
+                    {
+                        // make sure king and the f8 squares are not under attacks
+                        if (!is_square_attacked(e8, white) && !is_square_attacked(f8, white))
+                            printf("castling king side: e8g8\n");
+                    }
+                }
+                
+                // queen side castling is available
+                if (game.get_castle() & game.bq)
+                {
+                    // make sure square between king and queen's rook are empty
+                    if (!get_bit(game.get_occupancy(both), d8) && !get_bit(game.get_occupancy(both), c8) && !get_bit(game.get_occupancy(both), b8))
+                    {
+                        // make sure king and the d8 squares are not under attacks
+                        if (!is_square_attacked(e8, white) && !is_square_attacked(d8, white))
+                            printf("castling queen side: e8c8\n");
+                    }
                 }
             }
 

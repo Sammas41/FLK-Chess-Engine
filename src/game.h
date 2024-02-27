@@ -65,6 +65,7 @@ class Game {
         U64 get_bitboard(int);
         U64 get_occupancy(int);
         int get_side();
+        int get_castle();
         int get_enpassant();
         void set_side(int);
         void set_bitboard(int, U64);
