@@ -14,9 +14,6 @@
     1000 0000 0000 0000 0000 0000    castling flag       0x800000
 */
 
-Mover::Mover(){
-    moves move_list;
-}
 
 
 unsigned int Mover::encodeMove(unsigned int source, unsigned int target, unsigned int piece, unsigned int promoted, unsigned int capture, unsigned int doublePush, unsigned int enpassant, unsigned int castling) {
@@ -63,10 +60,11 @@ unsigned int Mover::getMoveCastling(unsigned int move) {
 }
 
 // Add a move to the move list
-void Mover::add_move(moves &move_list, int move) {
-    move_list.movesArray[move_list.count] = move;  // Store move
-    move_list.count++;  // Increment move count
+void Mover::add_move(int move) {
+    moveList.movesArray[moveList.count] = move;  // Store move
+    moveList.count++;  // Increment move count
 }
+
 
 // Print move 
 void Mover::print_move(int move) {
@@ -75,21 +73,32 @@ void Mover::print_move(int move) {
                        promoted_pieces[getMovePromoted(move)]);
 }
 
+moves Mover::get_move_list(){
+    return moveList;
+}
 
-void Mover::print_move_list(moves move_list){
+
+void Mover::print_move_list(){
+
+    // do nothing on empty move list
+    if (!moveList.count)
+    {
+        printf("\n     No move in the move list!\n");
+        return;
+    }
 
     printf("\n    move    piece   capture   double    enpass    castling\n\n");
     
     // loop over moves within a move list
-    for (int move_count = 0; move_count < move_list.count; move_count++)
+    for (int move_count = 0; move_count < moveList.count; move_count++)
     {
         // init move
-        int move = move_list.movesArray[move_count];
+        int move = moveList.movesArray[move_count];
 
         // print move
         printf("    %s%s%c   %c       %d         %d         %d         %d\n", square_to_coordinates[Mover::getMoveSource(move)],
                                                                                 square_to_coordinates[Mover::getMoveTarget(move)],
-                                                                                promoted_pieces[Mover::getMovePromoted(move)],
+                                                                                Mover::getMovePromoted(move) ? promoted_pieces[Mover::getMovePromoted(move)] : ' ',
                                                                                 ascii_pieces[Mover::getMovePiece(move)],
                                                                                 Mover::getMoveCapture(move) ? 1 : 0,
                                                                                 Mover::getMoveDouble(move) ? 1 : 0,
@@ -97,7 +106,8 @@ void Mover::print_move_list(moves move_list){
                                                                                 Mover::getMoveCastling(move) ? 1 : 0);
     
         
-        // print total number of moves
-        printf("\n\n    Total number of moves: %d\n\n", move_list.count);
     }
+    // print total number of moves
+    printf("\n\n    Total number of moves: %d\n\n", moveList.count);
 }
+

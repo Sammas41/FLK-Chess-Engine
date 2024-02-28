@@ -2,12 +2,12 @@
 
 Game::Game()
 {
-    initialize_pieces_bitboards(initial_position_fen);
+    parse_fen(initial_position_fen);
 }
 
 Game::Game(std::string& fen)
 {
-    if(is_valid(fen)) initialize_pieces_bitboards(fen);
+    if(is_valid(fen)) parse_fen(fen);
     else std::cerr << "Invalid FEN, cannot build Game object\n";
 }
 
@@ -33,9 +33,23 @@ U64 Game::get_bitboard(int index)
 	return bitboards[index];
 }
 
+U64& Game::get_bitboard_reference(int index)
+{	
+	return bitboards[index];
+}
+
+U64* Game::get_bitboards(){
+    return bitboards;
+}
+
 U64 Game::get_occupancy(int index)
 {
     return occupancies[index];
+}
+
+U64* Game::get_occupancies()
+{
+    return occupancies;
 }
 
 int Game::get_side(){
@@ -46,8 +60,28 @@ int Game::get_castle(){
     return castle;
 }
 
+int Game::get_enpassant(){
+    return enpassant;
+}
+
 void Game::set_side(int side_to_move){
     side = side_to_move;
+}
+
+void Game::set_castle(int setcastle){
+    castle = setcastle;
+}
+
+void Game::set_enpassant(int enpassant_square){
+    enpassant = enpassant_square;
+}
+
+void Game::set_bitboards(U64 new_bitboards[12]){
+    memcpy(bitboards, new_bitboards, 96);//96=sizeof(bitboards)
+}
+
+void Game::set_occupancies(U64 new_occupancies[3]){
+    memcpy(occupancies, new_occupancies, 24);//24=sizeof(occupancies)
 }
 
 void Game::set_bitboard(int index, U64 value) {
@@ -74,11 +108,9 @@ void Game::set_bitboard(int index, U64 value) {
     occupancies[both] = occupancies[white] | occupancies[black];
 }
 
-int Game::get_enpassant(){
-    return enpassant;
-}
 
-void Game::initialize_pieces_bitboards(const std::string& fen) {
+
+void Game::parse_fen(const std::string& fen) {
     
     if(!is_valid(fen))
     {

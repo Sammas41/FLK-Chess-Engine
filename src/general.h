@@ -33,6 +33,8 @@ enum { king, queen, rook, bishop, knight, pawn };
 // encode pieces
 enum {P, N, B, R, Q, K, p, n, b, r, q, k};
 
+// type of moves
+enum { all_moves, only_captures};
 
 extern const char *square_to_coordinates[64];
 extern char ascii_pieces[13];

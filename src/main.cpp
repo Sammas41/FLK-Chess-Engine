@@ -1,5 +1,5 @@
 
-#include "mover.h"
+#include "moveGenerator.h"
 
 
 int main()
@@ -7,30 +7,31 @@ int main()
 
 	init_all_attacks();
 
-    Mover mover;
 
-    Mover::moves move_list;
-
-    std::string test = "rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 1 2"; 
+    std::string test = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1"; 
 
 	Game game(test);
 	game.print_board();	
 
-	MoveGenerator move_gen(game);
-	move_gen.print_attacked_squares(white);
+	MoveGenerator movegen(game);
+	movegen.generate_moves();
 
-	move_gen.generate_moves();
-
-	int move = Mover::encodeMove(d7,d8,B,R,0,0,0,1);
+	moves mov = movegen.getMover().get_move_list();
+	int move_count = movegen.getMover().get_move_list().count;
 	
-   
-    mover.print_move( move);
-    mover.add_move(move_list, move);
-    mover.print_move_list(move_list);
+	for (int i=0; i<move_count;i++){
+		int move = mov.movesArray[i];
+		movegen.copyBoardState();
+		movegen.make_move(move, all_moves);
+		game.print_board();
 
+		movegen.takeBack();
+		game.print_board();
 
+	}
 	
 
+	
 
 	return 0;
 }

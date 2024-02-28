@@ -8,11 +8,16 @@
 
 class MoveGenerator
 {
-    Game game;
-    std::unique_ptr<Attacks> ptr_attacks;
+
     Mover mover;
 
     private:
+
+        Game& game; // Reference to a Game object
+
+        // Additional state variables for copying
+        U64 bitboards_copy[12], occupancies_copy[3];
+        int side_copy, enpassant_copy, castle_copy;
 
         void generate_white_pawns_moves(int ,U64&);
         void generate_white_king_castling_moves(int , U64&);
@@ -26,12 +31,15 @@ class MoveGenerator
 
     public:
         MoveGenerator() = delete;   // Cannot initialize MoveGenerator without a game
-        MoveGenerator(Game &);      // Default constructor
-
+        MoveGenerator(Game& g) : game(g){};      // Default constructor
+        Mover& getMover() {return mover;}
         int is_square_attacked(int, int);
         void print_attacked_squares(int);
-
+        void copyBoardState();
+        void takeBack();
         void generate_moves();
+        int make_move(int, int);
+
 
 };
 
