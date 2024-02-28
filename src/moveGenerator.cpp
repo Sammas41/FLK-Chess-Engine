@@ -168,7 +168,7 @@ void MoveGenerator::generate_white_pawns_moves(int piece, U64 & bitboard){
                     if (enpassant_attacks){
                         //init enpassant capture square
                         int target_enpassant = get_ls1b_index(enpassant_attacks);
-                        mover.add_move(mover.encodeMove(source_square, target_square, piece, 0, 1, 0, 1, 0));
+                        mover.add_move(mover.encodeMove(source_square, target_enpassant, piece, 0, 1, 0, 1, 0));
                     }
                 }
             }
@@ -536,15 +536,101 @@ int MoveGenerator::make_move(int move, int move_flag){
         int source_square = Mover::getMoveSource(move);
         int target_square = Mover::getMoveTarget(move);
         int piece = Mover::getMovePiece(move);
-        int promoted = Mover::getMovePromoted(move);
+        int promoted_piece = Mover::getMovePromoted(move);
         int capture = Mover::getMoveCapture(move);
         int double_push = Mover::getMoveDouble(move);
-        int enpassant_move = Mover::getMoveEnpassant(move);
-        int castling_move = Mover::getMoveCastling(move);
+        int enpassant_flag = Mover::getMoveEnpassant(move);
+        int castling_flag = Mover::getMoveCastling(move);
 
-        // quiet move piece
+        // move piece
         pop_bit(game.get_bitboard_reference(piece),source_square);
         set_bit(game.get_bitboard_reference(piece),target_square);
+
+        // handling captures
+        if (capture){
+            // pick up bitboard of opposide side to move
+            int start_piece, end_piece;
+
+            if (game.get_side() == white ){
+                // black pieces range
+                start_piece = p;
+                end_piece = k;
+            } else {
+                // white pieces range
+                start_piece = P;
+                end_piece = K;               
+            }
+
+            for (int bb_piece = start_piece; bb_piece<=end_piece; bb_piece++){
+                // check if there's piece on target square
+                if (get_bit(game.get_bitboard_reference(bb_piece), target_square)){
+                    // remove from correspondant bitboard
+                    pop_bit(game.get_bitboard_reference(bb_piece), target_square);
+                    break;
+                }
+            }
+
+        }
+
+        // handling pawn promotion
+        if (promoted_piece){
+            // erase pawn from target square
+            pop_bit(game.get_bitboard_reference(game.get_side()==white?P:p), target_square);
+
+            // create new selected piece on target square
+            set_bit(game.get_bitboard_reference(promoted_piece), target_square);
+        }   
+
+        // handling enpassant
+        if (enpassant_flag){
+            // erase opposed pawn
+            if (game.get_side()==white){
+                pop_bit(game.get_bitboard_reference(p), target_square + 8);
+            } else {
+                 pop_bit(game.get_bitboard_reference(P), target_square - 8);
+               
+            }
+        }
+
+        // reset enpassant square
+        game.set_enpassant(no_sq);
+
+        // handle double pawn push
+        if (double_push){
+            // set enpassant square 
+            if (game.get_side()== white){
+                game.set_enpassant(target_square + 8);
+            } else {
+                game.set_enpassant(target_square - 8);
+            }
+        } 
+
+        // handle castling
+        if (castling_flag){
+            
+            switch(target_square){
+                // white kingside
+                case (g1):
+                    pop_bit(game.get_bitboard_reference(R),h1);
+                    set_bit(game.get_bitboard_reference(R),f1);
+                    break;
+                // white queenside
+                case (c1):
+                    pop_bit(game.get_bitboard_reference(R),a1);
+                    set_bit(game.get_bitboard_reference(R),d1);
+                    break;
+                // black kingside
+                case (g8):
+                    pop_bit(game.get_bitboard_reference(R),h8);
+                    set_bit(game.get_bitboard_reference(R),f8);
+                    break;
+                // black queenside
+                case (c8):
+                    pop_bit(game.get_bitboard_reference(R),a8);
+                    set_bit(game.get_bitboard_reference(R),d8);
+                    break;
+            }
+        }
 
         return 1;
 
