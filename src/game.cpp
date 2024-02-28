@@ -47,6 +47,10 @@ U64 Game::get_occupancy(int index)
     return occupancies[index];
 }
 
+U64& Game::get_occupancy_reference(int index){
+    return occupancies[index];
+}
+
 U64* Game::get_occupancies()
 {
     return occupancies;
@@ -82,6 +86,14 @@ void Game::set_bitboards(U64 new_bitboards[12]){
 
 void Game::set_occupancies(U64 new_occupancies[3]){
     memcpy(occupancies, new_occupancies, 24);//24=sizeof(occupancies)
+}
+
+void Game::update_occupancy(int side,U64 occupancy){
+    occupancies[side] |= occupancy;
+}
+
+void Game::reset_occupancies(){
+    memset(occupancies, 0ULL, 24);//24=sizeof(occupancies)
 }
 
 void Game::set_bitboard(int index, U64 value) {

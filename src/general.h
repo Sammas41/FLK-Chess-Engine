@@ -41,6 +41,7 @@ extern char ascii_pieces[13];
 extern std::unordered_map<char, int> char_pieces;
 extern std::unordered_map<int, char> promoted_pieces;
 extern std::string initial_position_fen;
+extern const int castling_rights[64];
 
 // Useful functions for manipulating bits in bitboards
 U64 get_bit(U64, int);

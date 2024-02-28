@@ -66,6 +66,7 @@ class Game {
         U64& get_bitboard_reference(int);
         U64* get_bitboards();
         U64 get_occupancy(int);
+        U64& get_occupancy_reference(int);
         U64* get_occupancies();
         int get_side();
         int get_castle();
@@ -76,6 +77,8 @@ class Game {
         void set_bitboard(int, U64);
         void set_bitboards(U64 [12]);
         void set_occupancies(U64 [3]);
+        void update_occupancy(int,U64);
+        void reset_occupancies();
         void parse_fen(const std::string&);
         void print_board();
 

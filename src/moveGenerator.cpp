@@ -548,7 +548,7 @@ int MoveGenerator::make_move(int move, int move_flag){
 
         // handling captures
         if (capture){
-            // pick up bitboard of opposide side to move
+            // pick up bitboard of opposide side to move to capture opponent pieces
             int start_piece, end_piece;
 
             if (game.get_side() == white ){
@@ -563,7 +563,7 @@ int MoveGenerator::make_move(int move, int move_flag){
 
             for (int bb_piece = start_piece; bb_piece<=end_piece; bb_piece++){
                 // check if there's piece on target square
-                if (get_bit(game.get_bitboard_reference(bb_piece), target_square)){
+                if (get_bit(game.get_bitboard(bb_piece), target_square)){
                     // remove from correspondant bitboard
                     pop_bit(game.get_bitboard_reference(bb_piece), target_square);
                     break;
@@ -631,8 +631,45 @@ int MoveGenerator::make_move(int move, int move_flag){
                     break;
             }
         }
+        // update castling rights
+        game.set_castle(game.get_castle() & castling_rights[source_square]);
+        game.set_castle(game.get_castle() & castling_rights[target_square]);
 
-        return 1;
+        // reset occupancies
+        game.reset_occupancies();
+
+        for (int bb_piece=P;bb_piece<=K;bb_piece++){
+            // update white occupancies
+            game.update_occupancy(white, game.get_bitboard(bb_piece));
+        }
+
+        for (int bb_piece=p;bb_piece<=k;bb_piece++){
+            // update black occupancies
+            game.update_occupancy(black, game.get_bitboard(bb_piece));
+        }
+
+        // update both sides
+        game.update_occupancy(both,game.get_occupancy(white));
+        game.update_occupancy(both,game.get_occupancy(black));
+
+        // change side
+        (game.get_side() == white) ? game.set_side(black) : game.set_side(white);
+
+        // make sure king not exposed in check
+        if (is_square_attacked(( game.get_side()==white) ? get_ls1b_index(game.get_bitboard(k))
+                                                         : get_ls1b_index(game.get_bitboard(K)),
+                                                           game.get_side())){
+
+            // move is illegal, take it back
+            takeBack();
+
+            // return illegal move
+            return 0;
+
+            } else {
+                // return legal move
+                return 1;
+            }
 
     }
     //capture moves
