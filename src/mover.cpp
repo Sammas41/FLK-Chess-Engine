@@ -57,3 +57,43 @@ unsigned int Mover::getMoveEnpassant(unsigned int move) {
 unsigned int Mover::getMoveCastling(unsigned int move) {
     return move & 0x800000;
 }
+
+// Add a move to the move list
+void Mover::add_move(moves &move_list, int move) {
+    move_list.movesArray[move_list.count] = move;  // Store move
+    move_list.count++;  // Increment move count
+}
+
+// Print move 
+void Mover::print_move(int move) {
+    printf("%s%s%c\n", square_to_coordinates[getMoveSource(move)],
+                       square_to_coordinates[getMoveTarget(move)],
+                       promoted_pieces[getMovePromoted(move)]);
+}
+
+
+void Mover::print_move_list(moves move_list){
+
+    printf("\n    move    piece   capture   double    enpass    castling\n\n");
+    
+    // loop over moves within a move list
+    for (int move_count = 0; move_count < move_list.count; move_count++)
+    {
+        // init move
+        int move = move_list.movesArray[move_count];
+
+        // print move
+        printf("    %s%s%c   %c       %d         %d         %d         %d\n", square_to_coordinates[Mover::getMoveSource(move)],
+                                                                                square_to_coordinates[Mover::getMoveTarget(move)],
+                                                                                promoted_pieces[Mover::getMovePromoted(move)],
+                                                                                ascii_pieces[Mover::getMovePiece(move)],
+                                                                                Mover::getMoveCapture(move) ? 1 : 0,
+                                                                                Mover::getMoveDouble(move) ? 1 : 0,
+                                                                                Mover::getMoveEnpassant(move) ? 1 : 0,
+                                                                                Mover::getMoveCastling(move) ? 1 : 0);
+    
+        
+        // print total number of moves
+        printf("\n\n    Total number of moves: %d\n\n", move_list.count);
+    }
+}

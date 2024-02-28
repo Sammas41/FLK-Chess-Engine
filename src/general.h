@@ -37,6 +37,7 @@ enum {P, N, B, R, Q, K, p, n, b, r, q, k};
 extern const char *square_to_coordinates[64];
 extern char ascii_pieces[13];
 extern std::unordered_map<char, int> char_pieces;
+extern std::unordered_map<int, char> promoted_pieces;
 extern std::string initial_position_fen;
 
 // Useful functions for manipulating bits in bitboards

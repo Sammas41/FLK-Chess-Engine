@@ -34,6 +34,17 @@ std::unordered_map<char, int> char_pieces = {
 	{'k', k}
 };
 
+std::unordered_map<int, char> promoted_pieces = {
+    {Q, 'q'},
+    {R, 'r'},
+    {B, 'b'},
+    {N, 'n'},
+    {q, 'q'},
+    {r, 'r'},
+    {b, 'b'},
+    {n, 'n'}
+};
+
 // Returns the bit of a chosen square
 U64 get_bit(U64 bitboard, int square)
 {

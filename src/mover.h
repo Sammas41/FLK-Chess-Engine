@@ -14,6 +14,22 @@ public:
     static unsigned int getMoveDouble(unsigned int move);
     static unsigned int getMoveEnpassant(unsigned int move);
     static unsigned int getMoveCastling(unsigned int move);
-};
+
+    struct moves {
+        int movesArray[256];  
+        int count;       // Count of moves
+
+        moves() : count(0) {}  // Constructor to initialize count
+    };
+
+    // Function declarations
+    void add_move(moves &move_list, int move);
+    void print_move(int move);
+
+    void print_move_list(moves);
+
+
+
+    };
 
 #endif
