@@ -8,7 +8,7 @@ int main()
 	init_all_attacks();
 
 
-    std::string test = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPqP/R3K2R w KQkq - 0 1"; 
+    std::string test = "r3k2r/p1ppqpb1/1n2pnp1/3PN3/1p2P3/2N2Q1p/PPPBqPPP/R3K2R w KQkq - 0 1"; 
 
 	Game game(test);
 	game.print_board();	
@@ -23,13 +23,15 @@ int main()
 		int move = mov.movesArray[i];
 		movegen.copyBoardState();
 
-		
-		movegen.make_move(move, all_moves);
-		game.print_board();
+		if(movegen.make_move(move, all_moves)
+){
+game.print_board();
 		//print_bitboard(game.get_occupancy(both));
 
 		movegen.takeBack();
 		game.print_board();
+}
+		
 		//print_bitboard(game.get_occupancy(both));
 
 
