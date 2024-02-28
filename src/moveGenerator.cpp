@@ -4,38 +4,37 @@
 MoveGenerator::MoveGenerator(Game & g)
 {
     game = Game(g);
-    ptr_attacks = std::make_unique<Attacks>();
-    
+
 }
 
 int MoveGenerator::is_square_attacked(int square, int side){
     
     // attacked by white pawns
     if((side == white) && 
-       (ptr_attacks->get_pawn_attack(black,square) & game.get_bitboard(P))) return 1;
+       (get_pawn_attack(black,square) & game.get_bitboard(P))) return 1;
     
     // attacked by black pawns
     if((side == black) && 
-       (ptr_attacks->get_pawn_attack(white,square) & game.get_bitboard(p))) return 1;
+       (get_pawn_attack(white,square) & game.get_bitboard(p))) return 1;
     
     // attacked by knights
-    if(ptr_attacks->get_knight_attack(square) & 
+    if(get_knight_attack(square) & 
       ((side == white) ? game.get_bitboard(N) : game.get_bitboard(n))) return 1;
     
     // attacked by king
-    if(ptr_attacks->get_king_attack(square) & 
+    if(get_king_attack(square) & 
       ((side == white) ? game.get_bitboard(K) : game.get_bitboard(k))) return 1;
     
     // attacked by bishops
-    if(ptr_attacks->get_bishop_attack(square, game.get_occupancy(both)) & 
+    if(get_bishop_attack(square, game.get_occupancy(both)) & 
       ((side == white) ? game.get_bitboard(B) : game.get_bitboard(b))) return 1;
     
     // attacked by rooks
-    if(ptr_attacks->get_rook_attack(square, game.get_occupancy(both)) & 
+    if(get_rook_attack(square, game.get_occupancy(both)) & 
       ((side == white) ? game.get_bitboard(R) : game.get_bitboard(r))) return 1;
 
     // attacked by queens
-    if(ptr_attacks->get_queen_attack(square, game.get_occupancy(both)) & 
+    if(get_queen_attack(square, game.get_occupancy(both)) & 
       ((side == white) ? game.get_bitboard(Q) : game.get_bitboard(q))) return 1;
     
     // by default return false (square not attacked)
@@ -98,6 +97,7 @@ void MoveGenerator::generate_moves(){
             
         }
 
+
         // generate knight moves
         generate_knights_moves(piece,bitboard,game.get_side());
 
@@ -116,8 +116,6 @@ void MoveGenerator::generate_moves(){
     }
 
 }
-
-
 
 void MoveGenerator::generate_white_pawns_moves(int piece, U64 & bitboard){
     if (piece == P){
@@ -293,7 +291,6 @@ void MoveGenerator::generate_black_pawns_moves(int piece, U64 & bitboard){
         }
     }
 }
-
 
 
 

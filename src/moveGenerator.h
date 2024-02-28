@@ -24,7 +24,6 @@ class MoveGenerator
         void generate_queens_moves(int, U64&, int);
         void generate_kings_moves(int, U64&, int);
 
-
     public:
         MoveGenerator() = delete;   // Cannot initialize MoveGenerator without a game
         MoveGenerator(Game &);      // Default constructor

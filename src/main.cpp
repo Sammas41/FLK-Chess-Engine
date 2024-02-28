@@ -4,6 +4,9 @@
 
 int main()
 {
+
+	init_all_attacks();
+
     Mover mover;
 
     Mover::moves move_list;
@@ -16,7 +19,6 @@ int main()
 	MoveGenerator move_gen(game);
 	move_gen.print_attacked_squares(white);
 
-	
 	move_gen.generate_moves();
 
 	int move = Mover::encodeMove(d7,d8,B,R,0,0,0,1);

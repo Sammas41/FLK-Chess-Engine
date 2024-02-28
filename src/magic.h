@@ -7,7 +7,7 @@
 #include "attacks.h"
 #include <stdint.h> // Needed for uint32_t type
 
-void initialize_magic_numbers(Attacks &);
+void initialize_magic_numbers();
 
 // For reproducibilty purposes we coded our own 32 bit RNG using
 // X-OR shift algorithm
@@ -15,6 +15,6 @@ uint32_t generate_random_number();
 
 U64 generate_random_64bit_number();
 U64 generate_magic_candidate();
-U64 generate_magic_number(int, int, int, Attacks &);
+U64 generate_magic_number(int, int, int);
 
 #endif
