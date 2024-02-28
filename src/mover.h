@@ -5,6 +5,8 @@
 
 class Mover {
 public:
+    Mover();
+
     static unsigned int encodeMove(unsigned int source, unsigned int target, unsigned int piece, unsigned int promoted, unsigned int capture, unsigned int doublePush, unsigned int enpassant, unsigned int castling);
     static unsigned int getMoveSource(unsigned int move);
     static unsigned int getMoveTarget(unsigned int move);
@@ -27,6 +29,7 @@ public:
     void print_move(int move);
 
     void print_move_list(moves);
+    
 
 
 

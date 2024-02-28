@@ -5,6 +5,7 @@ MoveGenerator::MoveGenerator(Game & g)
 {
     game = Game(g);
     ptr_attacks = std::make_unique<Attacks>();
+    
 }
 
 int MoveGenerator::is_square_attacked(int square, int side){
@@ -72,18 +73,14 @@ void MoveGenerator::print_attacked_squares(int side){
 
 // Generate pawn moves (push, double push, captures and en passant)
 void MoveGenerator::generate_moves(){
-    // define source and target square
-    int source_square;
-    int target_square;
 
-    // define current pieces bitboard copy and relative attacks
-    U64 bitboard;
-    U64 attacks;
- 
+    // init move count 
+    
+
     // loop through all bitboards
     for(int piece = P; piece < k; piece++){
         // init piece bitboard copy
-        bitboard = game.get_bitboard(piece);
+        U64 bitboard = game.get_bitboard(piece);
 
         // generate white pawns & white king castling
         // not relying on precalculated attack tables

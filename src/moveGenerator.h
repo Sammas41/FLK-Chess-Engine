@@ -3,12 +3,14 @@
 
 #include "attacks.h"
 #include "game.h"
+#include "mover.h"
 #include <memory>
 
 class MoveGenerator
 {
     Game game;
     std::unique_ptr<Attacks> ptr_attacks;
+    Mover mover;
 
     private:
 
