@@ -2,11 +2,10 @@
 #define GAME_H
 
 #include "general.h"
-#include "attacks.h"
 #include <sstream> // For std::istringstream
 #include <algorithm> // For std::count
 
-class Game{
+class Game {
     private:
 
         // array of pieces bitboards (black and white)
@@ -36,7 +35,11 @@ class Game{
 
     public:
 
-        Game();
+
+        Game();     // Default constructor
+        Game(std::string &);    // Constructior from a FEN
+        Game(const Game &);     // Copy constructor
+
 
         // castling rights binary encoding
 
@@ -60,9 +63,23 @@ class Game{
         enum { wk = 1, wq = 2, bk = 4, bq = 8 };
 
         U64 get_bitboard(int);
+        U64& get_bitboard_reference(int);
+        U64* get_bitboards();
         U64 get_occupancy(int);
+        U64& get_occupancy_reference(int);
+        U64* get_occupancies();
+        int get_side();
+        int get_castle();
+        int get_enpassant();
+        void set_side(int);
+        void set_castle(int);
+        void set_enpassant(int);
         void set_bitboard(int, U64);
-        void initialize_pieces_bitboards(const std::string&);
+        void set_bitboards(U64 [12]);
+        void set_occupancies(U64 [3]);
+        void update_occupancy(int,U64);
+        void reset_occupancies();
+        void parse_fen(const std::string&);
         void print_board();
 
         bool is_valid(const std::string &);

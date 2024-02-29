@@ -1,15 +1,42 @@
-#include "general.h"
-#include "attacks.h"
-#include "game.h"
+
+#include "moveGenerator.h"
+
 
 int main()
 {
-	Attacks attacks;
-	Game game;
-	U64 bitboard = FENtoBitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
+
+	init_all_attacks();
+
+
+    std::string test = "r3k2r/p1ppqpb1/1n2pnp1/3PN3/1p2P3/2N2Q1p/PPPBqPPP/R3K2R w KQkq - 0 1"; 
+
+	Game game(test);
+	game.print_board();	
+
+	MoveGenerator movegen(game);
+	movegen.generate_moves();
+
+	moves mov = movegen.getMover().get_move_list();
+	int move_count = movegen.getMover().get_move_list().count;
 	
-	print_bitboard(attacks.get_queen_attack(e4, bitboard));
-	game.print_board();
+	for (int i=0; i<move_count;i++){
+		int move = mov.movesArray[i];
+		movegen.copyBoardState();
+
+		if(movegen.make_move(move, all_moves)
+){
+		game.print_board();
+		movegen.takeBack();
+		game.print_board();
+}
+		
+		
+
+
+	}
+	
+
+	
 
 	return 0;
 }

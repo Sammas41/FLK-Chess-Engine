@@ -3,80 +3,77 @@
 
 #include "general.h"
 
-class Attacks {
+// Retrieve the attacks from the tables
+U64 get_pawn_attack(int, int);
+U64 get_knight_attack(int);
+U64 get_king_attack(int);
+U64 get_bishop_attack(int, U64);
+U64 get_rook_attack(int, U64);
+U64 get_queen_attack(int, U64);
 
-    private:
-        // Attack tables
-        U64 pawn_attacks[COLORS][SQUARES];
-        U64 knight_attacks[SQUARES];
-        U64 king_attacks[SQUARES];
-        U64 bishop_attacks[SQUARES][512];
-        U64 rook_attacks[SQUARES][4096];
-        
-    public:
+void init_all_attacks();
+
+// Namespace Fried Liver King
+namespace flk {
     
-        Attacks();
-        ~Attacks() { }
+    // Attack tables
+    extern U64 pawn_attacks[COLORS][SQUARES];
+    extern U64 knight_attacks[SQUARES];
+    extern U64 king_attacks[SQUARES];
+    extern U64 bishop_attacks[SQUARES][512];
+    extern U64 rook_attacks[SQUARES][4096];
+    
+    // Masks
+    extern U64 bishop_mask[SQUARES];
+    extern U64 rook_mask[SQUARES];
 
-        // Retrieve the attacks from the tables
-        U64 get_pawn_attack(int, int);
-        U64 get_knight_attack(int);
-        U64 get_king_attack(int);
-        U64 get_bishop_attack(int, U64);
-        U64 get_rook_attack(int, U64);
-        U64 get_queen_attack(int, U64);
+    // Initialization functions
+    void init_leaper_pieces_attacks();
+    void init_slider_pieces_attacks();
 
-        // Masks
-        U64 bishop_mask[SQUARES];
-        U64 rook_mask[SQUARES];
+    // Attacks generation
+    U64 generate_pawn_attacks(int, U64);
+    U64 generate_knight_attacks(U64);
+    U64 generate_king_attacks(U64); 
+
+    // Masks and occupancies generation
+    U64 generate_bishop_mask(int);
+    U64 generate_rook_mask(int);
+    U64 generate_occupancy(int, int, U64);
+
+    U64 generate_bishop_attacks_with_blockers(int, U64);
+    U64 generate_rook_attacks_with_blockers(int, U64);
+
+    // Magic indices generation
+    int compute_magic_index(int, U64, int);
+
+    // Constants
+    const U64 NOT_A_FILE = 18374403900871474942ULL;
+    const U64 NOT_H_FILE = 9187201950435737471ULL;
+    const U64 NOT_GH_FILE = 4557430888798830399ULL;
+    const U64 NOT_AB_FILE = 18229723555195321596ULL;
         
-        // Initialization functions
-        void init_leaper_pieces_attacks();
-        void init_slider_pieces_attacks();
+    const int bits_in_bishop_mask[SQUARES] = {	
+        6, 5, 5, 5, 5, 5, 5, 6, 
+        5, 5, 5, 5, 5, 5, 5, 5, 
+        5, 5, 7, 7, 7, 7, 5, 5, 
+        5, 5, 7, 9, 9, 7, 5, 5, 
+        5, 5, 7, 9, 9, 7, 5, 5, 
+        5, 5, 7, 7, 7, 7, 5, 5, 
+        5, 5, 5, 5, 5, 5, 5, 5, 
+        6, 5, 5, 5, 5, 5, 5, 6  
+    };
 
-        // Attacks generation
-        U64 generate_pawn_attacks(int, U64);
-        U64 generate_knight_attacks(U64);
-        U64 generate_king_attacks(U64); 
-
-        // Masks and occupancies generation
-        U64 generate_bishop_mask(int);
-        U64 generate_rook_mask(int);
-        U64 generate_occupancy(int, int, U64);
-
-        U64 generate_bishop_attacks_with_blockers(int, U64);
-        U64 generate_rook_attacks_with_blockers(int, U64);
-
-        // Magic indices generation
-        int compute_magic_index(int, U64, int);
-
-        // Constants
-        const U64 NOT_A_FILE = 18374403900871474942ULL;
-        const U64 NOT_H_FILE = 9187201950435737471ULL;
-        const U64 NOT_GH_FILE = 4557430888798830399ULL;
-        const U64 NOT_AB_FILE = 18229723555195321596ULL;
-        
-        const int bits_in_bishop_mask[SQUARES] = {	
-            6, 5, 5, 5, 5, 5, 5, 6, 
-            5, 5, 5, 5, 5, 5, 5, 5, 
-            5, 5, 7, 7, 7, 7, 5, 5, 
-            5, 5, 7, 9, 9, 7, 5, 5, 
-            5, 5, 7, 9, 9, 7, 5, 5, 
-            5, 5, 7, 7, 7, 7, 5, 5, 
-            5, 5, 5, 5, 5, 5, 5, 5, 
-            6, 5, 5, 5, 5, 5, 5, 6  
-        };
-
-        const int bits_in_rook_mask[SQUARES] = {
-            12, 11, 11, 11, 11, 11, 11, 12, 
-            11, 10, 10, 10, 10, 10, 10, 11, 
-            11, 10, 10, 10, 10, 10, 10, 11, 
-            11, 10, 10, 10, 10, 10, 10, 11, 
-            11, 10, 10, 10, 10, 10, 10, 11, 
-            11, 10, 10, 10, 10, 10, 10, 11, 
-            11, 10, 10, 10, 10, 10, 10, 11, 
-            12, 11, 11, 11, 11, 11, 11, 12 
-        };
+    const int bits_in_rook_mask[SQUARES] = {
+        12, 11, 11, 11, 11, 11, 11, 12, 
+        11, 10, 10, 10, 10, 10, 10, 11, 
+        11, 10, 10, 10, 10, 10, 10, 11, 
+        11, 10, 10, 10, 10, 10, 10, 11, 
+        11, 10, 10, 10, 10, 10, 10, 11, 
+        11, 10, 10, 10, 10, 10, 10, 11, 
+        11, 10, 10, 10, 10, 10, 10, 11, 
+        12, 11, 11, 11, 11, 11, 11, 12 
+    };
 
         // Magic numbers
         const U64 rook_magics[SQUARES] = {
@@ -212,6 +209,6 @@ class Attacks {
             9878791228517523968ULL,
             4616190786973859872ULL
         };
-};
+}
 
 #endif
