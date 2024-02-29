@@ -27,6 +27,8 @@ class Mover {
 
         // Function declarations
         moves get_move_list();
+        moves get_quiet_move_list();
+        moves get_capture_move_list();
         void add_move(int move);
         void print_move(int move);
 

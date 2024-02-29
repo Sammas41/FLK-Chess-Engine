@@ -25,14 +25,12 @@ int main()
 
 		if(movegen.make_move(move, all_moves)
 ){
-game.print_board();
-		//print_bitboard(game.get_occupancy(both));
-
+		game.print_board();
 		movegen.takeBack();
 		game.print_board();
 }
 		
-		//print_bitboard(game.get_occupancy(both));
+		
 
 
 	}

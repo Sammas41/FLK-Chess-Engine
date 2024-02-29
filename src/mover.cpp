@@ -16,7 +16,14 @@
 
 
 
-unsigned int Mover::encodeMove(unsigned int source, unsigned int target, unsigned int piece, unsigned int promoted, unsigned int capture, unsigned int doublePush, unsigned int enpassant, unsigned int castling) {
+unsigned int Mover::encodeMove( unsigned int source,
+                                unsigned int target, 
+                                unsigned int piece, 
+                                unsigned int promoted, 
+                                unsigned int capture, 
+                                unsigned int doublePush, 
+                                unsigned int enpassant, 
+                                unsigned int castling) {
     return source |
            (target << 6) |
            (piece << 12) |
@@ -75,6 +82,34 @@ void Mover::print_move(int move) {
 
 moves Mover::get_move_list(){
     return moveList;
+}
+
+moves Mover::get_quiet_move_list(){
+    moves quiet_list;
+    int j = 0;
+    for(int i=0; i<moveList.count; i++){
+        int move = moveList.movesArray[i];
+        if (!getMoveCapture(move)){
+            quiet_list.movesArray[j] = move;
+            j++;
+            quiet_list.count = j;
+        }
+    }
+    return quiet_list;
+}
+
+moves Mover::get_capture_move_list(){
+    moves capture_list;
+    int j = 0;
+    for(int i=0; i<moveList.count; i++){
+        int move = moveList.movesArray[i];
+        if (getMoveCapture(move)){
+            capture_list.movesArray[j] = move;
+            j++;
+            capture_list.count = j;
+        }
+    }
+    return capture_list;
 }
 
 
