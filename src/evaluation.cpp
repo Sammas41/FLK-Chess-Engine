@@ -98,6 +98,6 @@ namespace flk {
             }
         }
 
-        return pos_score;
+        return (game.get_side() == white) ? pos_score : -pos_score;
     }
 }
