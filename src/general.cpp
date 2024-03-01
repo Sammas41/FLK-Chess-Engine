@@ -1,7 +1,7 @@
 #include "general.h"
 
 // initial position FEN
-std::string initial_position_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1";
+std::string initial_position_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
 // convert squares to coordinates
 const char *square_to_coordinates[64] = {
