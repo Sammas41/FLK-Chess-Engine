@@ -33,11 +33,15 @@ enum { king, queen, rook, bishop, knight, pawn };
 // encode pieces
 enum {P, N, B, R, Q, K, p, n, b, r, q, k};
 
+// type of moves
+enum { all_moves, only_captures};
 
 extern const char *square_to_coordinates[64];
 extern char ascii_pieces[13];
 extern std::unordered_map<char, int> char_pieces;
+extern std::unordered_map<int, char> promoted_pieces;
 extern std::string initial_position_fen;
+extern const int castling_rights[64];
 
 // Useful functions for manipulating bits in bitboards
 U64 get_bit(U64, int);

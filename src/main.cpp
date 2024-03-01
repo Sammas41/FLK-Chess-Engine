@@ -1,19 +1,36 @@
+
 #include "moveGenerator.h"
 #include "evaluation.h"
 
+
 int main()
 {
+
 	init_all_attacks();
 
-	//test FEN
-	std::string test = "rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 1 2"; 
 
-	std::string test2 = "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 1";
+  std::string test = "r3k2r/p1ppqpb1/1n2pnp1/3PN3/1p2P3/2N2Q1p/PPPBqPPP/R3K2R w KQkq - 0 1"; 
 
-	Game game(test2);
+	Game game(test);
+	game.print_board();	
+
+	MoveGenerator movegen(game);
+	movegen.generate_moves();
+
+	moves mov = movegen.getMover().get_move_list();
+	int move_count = movegen.getMover().get_move_list().count;
 	
-	game.print_board();
-	std::cout << "Evaluation: " << evaluate(game) << "\n";
+	for (int i=0; i<move_count;i++){
+		int move = mov.movesArray[i];
+		movegen.copyBoardState();
+
+		if(movegen.make_move(move, all_moves)){
+		game.print_board();
+		movegen.takeBack();
+		game.print_board();
+}
+	
+	}
 
 	return 0;
 }
