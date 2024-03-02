@@ -7,44 +7,19 @@ int main()
 {
 	init_all_attacks();
 
+	std::string test = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1";
+	std::string test2 = "r3k2r/p1ppqpb1/bn1Ppnp1/4N3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R b KQkq - 0 1";
+	//std::string per = "rnbqkbnr/1ppppppp/p7/8/P7/8/1PPPPPPP/RNBQKBNR b KQkq - 0 1";
+
 	Game game;
 	game.print_board();	
-	
-	int debug = 0;
-	if(debug == 0)
-	{
-		MoveGenerator m(game);
-		m.generate_moves();
 
-		m.copyBoardState();
+	int depth = 3, total_moves = 0, total_captures = 0;
 
-		std::cout << "Game bitboards before a3 move:\n";
-        for(int piece = P; piece <= k; piece++)
-        {
-            std::cout << "  [" << piece << "]: " << game.get_bitboard(piece) << "\n";
-        }
-        system("PAUSE");
-		
-		m.make_move(m.getMover().moveList.movesArray[0], all_moves);
+	Perft(game, depth, total_moves, total_captures);
 
-		std::cout << "Game bitboards after a3 move:\n";
-        for(int piece = P; piece <= k; piece++)
-        {
-            std::cout << "  [" << piece << "]: " << game.get_bitboard(piece) << "\n";
-        }
-        system("PAUSE");
+	std::cout << "Nodes: " << total_moves - 420 << "\n";
+	std::cout << "Nodes: " << total_captures << "\n";
 
-		m.takeBack();
-	}
-	else
-	{
-		int best_move = 0;
-		int b = flk::negamax(&game, 1, -50000, 50000, best_move);
-
-		std::cout << "Best move: ";
-		//m.getMover().print_move(best_move);
-		std::cout << "\n";
-	}
-	
 	return 0;
 }

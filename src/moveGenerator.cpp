@@ -64,10 +64,10 @@ void MoveGenerator::print_attacked_squares(int side){
 }
 
 // Generate pawn moves (push, double push, captures and en passant)
-void MoveGenerator::generate_moves(){
+std::vector<int> MoveGenerator::generate_moves(){
 
     // loop through all bitboards
-    for(int piece = P; piece < k; piece++){
+    for(int piece = P; piece <= k; piece++){
         // init piece bitboard copy
         U64 bitboard = game.get_bitboard(piece);
 
@@ -87,7 +87,6 @@ void MoveGenerator::generate_moves(){
             
         }
 
-
         // generate knight moves
         generate_knights_moves(piece,bitboard,game.get_side());
 
@@ -105,9 +104,20 @@ void MoveGenerator::generate_moves(){
 
     }
 
+    std::vector<int> legal_moves = {};
+
+    for(int count = 0; count < mover.moveList.count; count++)
+    {
+        if(is_legal(mover.moveList.movesArray[count]))
+        {
+            legal_moves.push_back(mover.moveList.movesArray[count]);
+        }
+    }
+
+    return legal_moves;
 }
 
-void MoveGenerator::generate_white_pawns_moves(int piece, U64 & bitboard){
+void MoveGenerator::generate_white_pawns_moves(int piece, U64 bitboard) {
     if (piece == P){
         // loop over white pawns (while theres bits(pieces) available)
         while (bitboard){
@@ -182,7 +192,7 @@ void MoveGenerator::generate_white_pawns_moves(int piece, U64 & bitboard){
 
 
 // castling moves
-void MoveGenerator::generate_white_king_castling_moves(int piece, U64 & bitboard){
+void MoveGenerator::generate_white_king_castling_moves(int piece, U64 bitboard) {
     if(piece == K){
         // king side castling available
         if (game.get_castle() & game.wk){
@@ -209,8 +219,7 @@ void MoveGenerator::generate_white_king_castling_moves(int piece, U64 & bitboard
     }
 }
 
-void MoveGenerator::generate_black_pawns_moves(int piece, U64 & bitboard){
-
+void MoveGenerator::generate_black_pawns_moves(int piece, U64 bitboard) {
     if (piece == p){
         // loop over black pawns (while theres bits(pieces) available)
         while (bitboard){
@@ -284,7 +293,7 @@ void MoveGenerator::generate_black_pawns_moves(int piece, U64 & bitboard){
 
 
 
-void MoveGenerator::generate_black_king_castling_moves(int piece, U64 & bitboard){
+void MoveGenerator::generate_black_king_castling_moves(int piece, U64 bitboard) {
     // castling moves
     if (piece == k){
         // king side castling is available
@@ -313,7 +322,7 @@ void MoveGenerator::generate_black_king_castling_moves(int piece, U64 & bitboard
     }
 }
 
-void MoveGenerator::generate_knights_moves(int piece, U64 & bitboard, int side){
+void MoveGenerator::generate_knights_moves(int piece, U64 bitboard, int side) {
      // genarate knight moves
     if ((side == white) ? piece == N : piece == n)
     {
@@ -351,7 +360,7 @@ void MoveGenerator::generate_knights_moves(int piece, U64 & bitboard, int side){
     }
 }
 
-void MoveGenerator::generate_bishops_moves(int piece, U64& bitboard, int side){
+void MoveGenerator::generate_bishops_moves(int piece, U64 bitboard, int side){
     // generate bishop moves
     if ((side == white) ? piece == B : piece == b)
     {
@@ -392,7 +401,7 @@ void MoveGenerator::generate_bishops_moves(int piece, U64& bitboard, int side){
 
 
 
-void MoveGenerator::generate_rooks_moves(int piece, U64& bitboard, int side){
+void MoveGenerator::generate_rooks_moves(int piece, U64 bitboard, int side){
 
     // generate rook moves
     if ((side == white) ? piece == R : piece == r)
@@ -431,7 +440,7 @@ void MoveGenerator::generate_rooks_moves(int piece, U64& bitboard, int side){
     }
         
 }
-void MoveGenerator::generate_queens_moves(int piece, U64& bitboard, int side){
+void MoveGenerator::generate_queens_moves(int piece, U64 bitboard, int side){
 
     // generate queen moves
     if ((side == white) ? piece == Q : piece == q)
@@ -470,7 +479,7 @@ void MoveGenerator::generate_queens_moves(int piece, U64& bitboard, int side){
     }
 }
 
-void MoveGenerator::generate_kings_moves(int piece, U64& bitboard, int side){
+void MoveGenerator::generate_kings_moves(int piece, U64 bitboard, int side){
 
     // generate king moves
     if ((side == white) ? piece == K : piece == k)
@@ -513,13 +522,7 @@ void MoveGenerator::copyBoardState(){
 
     memcpy(bitboards_copy, game.get_bitboards(), 96); // 96=sizeof(U64) * 12
     memcpy(occupancies_copy, game.get_occupancies(), 24); // 24 = sizeof(U64)*3
-    /*
-    for(int i = 0; i < 12; i++)
-        bitboards_copy[i] = game.get_bitboard(i);
-    
-    for(int i = 0; i < 3; i++)
-        occupancies_copy[i] = game.get_occupancy(i);
-    */
+
     side_copy = game.get_side();
     enpassant_copy = game.get_enpassant();
     castle_copy = game.get_castle();
@@ -692,4 +695,65 @@ int MoveGenerator::make_move(int move, int move_flag){
         
     } 
     return 0;
+}
+
+moves MoveGenerator::get_capture_move_list(){
+    moves capture_list;
+    int j = 0;
+    for(int i=0; i < getMover().moveList.count; i++){
+        int move = getMover().moveList.movesArray[i];
+        if (getMover().getMoveCapture(move) && is_legal(move)){
+            
+            capture_list.movesArray[j] = move;
+            j++;
+            capture_list.count = j;
+        }
+    }
+
+    return capture_list;
+}
+
+bool MoveGenerator::is_legal(int move)
+{
+    Game copy(game);
+
+    game.make_move(move);
+
+    // make sure king not exposed in check
+    if (is_square_attacked((game.get_side() == white) ? 
+                            get_ls1b_index(game.get_bitboard(k)) : get_ls1b_index(game.get_bitboard(K)),
+                            game.get_side()))
+    {
+        game.take_back_to(copy);
+        return false;
+    }
+    else
+    {
+        game.take_back_to(copy);
+        return true;
+    }
+}
+
+void Perft(Game& game, int depth, int& total_moves, int& total_captures)
+{
+    if (depth == 0)
+        return;
+    
+    MoveGenerator m(game);
+    std::vector<int> legal_moves = m.generate_moves();
+
+    total_moves += legal_moves.size();
+    total_captures += m.getMover().get_capture_move_list().count;
+    
+    Game g(game);
+
+    for(int count = 0; count < legal_moves.size(); count++)
+	{
+        g.make_move(legal_moves.at(count));
+        Perft(g, depth - 1, total_moves, total_captures);
+        
+        g.take_back_to(game);
+    }
+
+    return;
 }

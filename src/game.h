@@ -5,6 +5,7 @@
 #include <sstream> // For std::istringstream
 #include <algorithm> // For std::count
 #include <cstring> // For memset() function
+#include "mover.h"
 
 class Game {
     private:
@@ -23,8 +24,6 @@ class Game {
 
         // castling rights
         int castle = 0;
-
-        int activeColor;
 
         // This is the number of halfmoves (or moves by one player) since the last capture or pawn advance.
         // This is used for the fifty-move rule.
@@ -85,6 +84,9 @@ class Game {
 
         bool is_valid(const std::string &);
 
+        void make_move(int);
+        Game copyBoardState();
+        void take_back_to(Game);
 };
 
 #endif

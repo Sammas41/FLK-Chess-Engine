@@ -109,6 +109,8 @@ moves Mover::get_capture_move_list(){
             capture_list.count = j;
         }
     }
+
+    
     return capture_list;
 }
 

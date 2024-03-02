@@ -22,7 +22,6 @@ Game::Game(const Game & g)
     side = g.side;
     castle = g.castle;
     enpassant = g.enpassant;
-    activeColor = g.activeColor;
     halfmoveClock = g.halfmoveClock;
     fullmoveNumber = g.fullmoveNumber;
 }
@@ -362,4 +361,158 @@ bool Game::is_valid(const std::string & fen)
 
     // Hopefully the FEN is ok
     return true;
+}
+
+Game Game::copyBoardState()
+{
+    Game game_copy;
+
+    memcpy(game_copy.bitboards, bitboards, 96); // 96=sizeof(U64) * 12
+    memcpy(game_copy.occupancies, occupancies, 24); // 24 = sizeof(U64)*3
+    game_copy.side = side;
+    game_copy.enpassant= enpassant;
+    game_copy.castle = castle;
+
+    return game_copy;
+}
+
+void Game::take_back_to(Game revert_to)
+{
+    for(int piece = P; piece <= k; piece++)
+        bitboards[piece] = revert_to.bitboards[piece];
+    
+    for(int i = 0; i < 3; i++)
+        occupancies[i] = revert_to.occupancies[i];
+
+    side = revert_to.side;
+    castle = revert_to.castle;
+    enpassant = revert_to.enpassant;
+    halfmoveClock = revert_to.halfmoveClock;
+    fullmoveNumber = revert_to.fullmoveNumber;
+}
+
+void Game::make_move(int move)
+{
+    // parse move
+    int source_square = Mover::getMoveSource(move);
+    int target_square = Mover::getMoveTarget(move);
+    int piece = Mover::getMovePiece(move);
+    int promoted_piece = Mover::getMovePromoted(move);
+    int capture = Mover::getMoveCapture(move);
+    int double_push = Mover::getMoveDouble(move);
+    int enpassant_flag = Mover::getMoveEnpassant(move);
+    int castling_flag = Mover::getMoveCastling(move);
+
+    // do the move
+    pop_bit(bitboards[piece], source_square);
+    set_bit(bitboards[piece], target_square);
+
+    // handling captures
+    if (capture) {
+        // pick up bitboard of opposide side to move to capture opponent pieces
+        int start_piece, end_piece;
+
+        if (side == white) {
+            // black pieces range
+            start_piece = p;
+            end_piece = k;
+        } else {
+            // white pieces range
+            start_piece = P;
+            end_piece = K;               
+        }
+
+        for (int bb_piece = start_piece; bb_piece <= end_piece; bb_piece++) {
+            // check if there's piece on target square
+            if (get_bit(bitboards[bb_piece], target_square)) {
+                // remove from correspondant bitboard
+                pop_bit(bitboards[bb_piece], target_square);
+                break;
+            }
+        }
+    }
+
+    // handling pawn promotion
+    if (promoted_piece) {
+        // erase pawn from target square
+        pop_bit(bitboards[side==white ? P : p], target_square);
+
+        // create new selected piece on target square
+        set_bit(bitboards[promoted_piece], target_square);
+    }
+
+    // handling enpassant
+    if (enpassant_flag) {
+        // erase opposed pawn
+        if (side == white) {
+            pop_bit(bitboards[p], target_square + 8);
+        } else {
+            pop_bit(bitboards[P], target_square - 8);
+        }
+    }
+
+    // reset enpassant square
+    enpassant = no_sq;
+
+    // handle double pawn push
+    if (double_push) {
+        // set enpassant square 
+        if (side == white) {
+            enpassant = target_square + 8;
+        } else {
+            enpassant = target_square - 8;
+        }
+    }  
+
+    // handle castling
+    if (castling_flag) {
+            
+        switch(target_square) {
+            // white kingside
+            case (g1):
+                pop_bit(bitboards[R],h1);
+                set_bit(bitboards[R],f1);
+                break;
+            // white queenside
+            case (c1):
+                pop_bit(bitboards[R],a1);
+                set_bit(bitboards[R],d1);
+                break;
+            // black kingside
+            case (g8):
+                pop_bit(bitboards[r],h8);
+                set_bit(bitboards[r],f8);
+                break;
+            // black queenside
+            case (c8):
+                pop_bit(bitboards[r],a8);
+                set_bit(bitboards[r],d8);
+                break;
+        }
+    }
+
+    // update castling rights
+    castle = castle & castling_rights[source_square];
+    castle = castle & castling_rights[target_square];
+
+    // reset and update occupancy tables
+    memset(occupancies, 0ULL, 24);
+
+    // white occupancy
+    for(int piece = P; piece <= K; piece++)
+    {
+        occupancies[white] |= bitboards[piece];
+    }
+
+    // black occupancy
+    for(int piece = p; piece <= k; piece++)
+    {
+        occupancies[black] |= bitboards[piece];
+    }
+
+    // total occupancy
+    occupancies[both] = occupancies[white] | occupancies[black];
+
+    // change side after the move is done
+    side == white ? side = black : side = white;
 }
