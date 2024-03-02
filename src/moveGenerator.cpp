@@ -513,6 +513,13 @@ void MoveGenerator::copyBoardState(){
 
     memcpy(bitboards_copy, game.get_bitboards(), 96); // 96=sizeof(U64) * 12
     memcpy(occupancies_copy, game.get_occupancies(), 24); // 24 = sizeof(U64)*3
+    /*
+    for(int i = 0; i < 12; i++)
+        bitboards_copy[i] = game.get_bitboard(i);
+    
+    for(int i = 0; i < 3; i++)
+        occupancies_copy[i] = game.get_occupancy(i);
+    */
     side_copy = game.get_side();
     enpassant_copy = game.get_enpassant();
     castle_copy = game.get_castle();
@@ -683,5 +690,6 @@ int MoveGenerator::make_move(int move, int move_flag){
             return 0; // don't make the move
         }
         
-    }  
+    } 
+    return 0;
 }

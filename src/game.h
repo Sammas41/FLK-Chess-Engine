@@ -4,6 +4,7 @@
 #include "general.h"
 #include <sstream> // For std::istringstream
 #include <algorithm> // For std::count
+#include <cstring> // For memset() function
 
 class Game {
     private:

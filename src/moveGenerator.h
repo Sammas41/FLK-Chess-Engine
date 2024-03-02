@@ -39,8 +39,7 @@ class MoveGenerator
         void takeBack();
         void generate_moves();
         int make_move(int, int);
-
-
+        
 };
 
 #endif
