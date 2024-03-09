@@ -36,15 +36,10 @@ class MoveGenerator
 
         int is_square_attacked(int, int);
         void print_attacked_squares(int);
-        void copyBoardState();
-        void takeBack();
         std::vector<int> generate_moves();
-        int make_move(int, int);
         
         bool is_legal(int);
         moves get_capture_move_list();
 };
-
-void Perft(Game&, int, int&, int&);
 
 #endif

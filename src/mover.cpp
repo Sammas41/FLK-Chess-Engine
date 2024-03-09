@@ -75,7 +75,7 @@ void Mover::add_move(int move) {
 
 // Print move 
 void Mover::print_move(int move) {
-    printf("%s%s%c\n", square_to_coordinates[getMoveSource(move)],
+    printf("%s%s%c", square_to_coordinates[getMoveSource(move)],
                        square_to_coordinates[getMoveTarget(move)],
                        promoted_pieces[getMovePromoted(move)]);
 }

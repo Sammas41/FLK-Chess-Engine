@@ -6,81 +6,81 @@ namespace flk {
 
     int negamax(Game* game, int depth, int alpha, int beta, int& best_move)
     {
-        std::cout << "Game bitboards:\n";
-        for(int piece = P; piece <= k; piece++)
-        {
-            std::cout << "  [" << piece << "]: " << game->get_bitboard(piece) << "\n";
-        }
-        system("PAUSE");
-
-        // if we reached the maximum depth, return
-        // the evaluation of the position
-        if(depth == 0)
-        {
-            std::cout << "Evaluation: " << evaluate(*game) << "\n";
-            return evaluate(*game);
-        }
-
-        nodes++;
-        
-        // generate all possible moves in the current position
-        MoveGenerator move_gen(*game);
-        move_gen.generate_moves();
-
-        // loop over all the moves
-        for(int count = 0; count < move_gen.getMover().moveList.count; count++)
-        {  
-            // save the current state of the board 
-            Game copy_game(*game);
-            
-            // increase the ply counter
-            ply++;
-
-            int legal_move = move_gen.make_move(move_gen.getMover().moveList.movesArray[count], all_moves);
-
-            // checks if we are making an illegal move
-            if(!legal_move)
-            {   
-                // skips the search in this case
-                ply--;
-                continue;
-            }
-
-            std::cout << "Game bitboards after a3 move:\n";
-            for(int piece = P; piece <= k; piece++)
-            {
-                std::cout << "  [" << piece << "]: " << game->get_bitboard(piece) << "\n";
-            }
-            system("PAUSE");
-            // if the move is legal then keep searching along this
-            // branch of the moves-tree
-            int score = -negamax(game, depth - 1, -beta, -alpha, best_move);
-
-            // restore the board to its original state when we have
-            // evaluate the move
-            move_gen.takeBack();
-            ply--;
-            /*
-            std::cout << "After takeback\n";
-            game.print_board();
-            std::cout << "depth: " << depth << "\n";
-            system("PAUSE");
-            */
-            // if nodes "fails high" we can prune the search on
-            // this branch
-            if(score >= beta) return beta;
-            
-            if(score > alpha)
-            {
-                alpha = score;
-
-                // if we are at the root node, save this move as best
-                if(ply == 0) best_move = move_gen.getMover().moveList.movesArray[count];
-
-            }
-        }
-
         // if the node "fails low"
         return alpha;
+    }
+
+    void perft_search(Game& game, int depth, std::vector<int>& move_count)
+    {   
+        if (depth == 0)
+            return;
+        
+        MoveGenerator m(game);
+        std::vector<int> legal_moves = m.generate_moves();
+
+        if(legal_moves.empty()) return;
+
+        move_count.at(depth - 1) += legal_moves.size();
+
+        Game g(game);
+
+        for(int count = 0; count < legal_moves.size(); count++)
+        {
+            g.make_move(legal_moves.at(count));
+            perft_search(g, depth - 1, move_count);
+            
+            g.take_back_to(game);
+        }
+
+        return;
+    }
+
+    void Perft(Game& game, int depth)
+    {
+        std::vector<int> move_count(depth, 0);
+
+        MoveGenerator move_gen(game);
+        std::vector<int> initial_moves = move_gen.generate_moves();
+
+        Game g(game);
+
+        int previous_nodes = 0;
+
+        std::cout << "\n**********************\n";
+        std::cout << "     Perft Results\n";
+        std::cout << "**********************\n\n";
+
+        std::cout << "Nodes per move:\n";
+        for(int m : initial_moves)
+        {
+            move_count.at(depth - 1)++;
+            if(depth == 1)
+            {
+                move_gen.getMover().print_move(m);
+                std::cout << ": 1\n"; 
+            }
+            else
+            {
+                g.make_move(m);
+                perft_search(g, depth - 1, move_count);
+
+                move_gen.getMover().print_move(m);
+                std::cout << ": " << move_count.at(0) - previous_nodes << "\n";
+                previous_nodes = move_count.at(0);
+
+                g.take_back_to(game);
+            }
+        }
+        
+        int total_nodes = 1;
+
+        std::cout << "\nTotal nodes per depth level:\n";
+        std::cout << "Nodes at depth 0: 1\n";
+        for(int i = 0; i < move_count.size(); i++)
+        {
+            std::cout << "Nodes at depth " << i + 1 << ": " << move_count.at(move_count.size() - 1 - i) << "\n";
+            total_nodes += move_count.at(i);
+        }
+        std::cout << "\nTotal nodes searched: " << total_nodes << "\n";
     }
 }
