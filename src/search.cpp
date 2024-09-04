@@ -4,11 +4,127 @@ namespace flk {
 
     int nodes = 0, ply = 0;
 
-    int negamax(Game* game, int depth, int alpha, int beta, int& best_move)
+    int Negamax(Game& game, int depth, int alpha, int beta, int& best_move)
     {
-        // if the node "fails low"
+        if (depth == 0)
+            return 0; // Quiescence_search(game, alpha, beta);
+        
+        // Only used to check if the new features that
+        // we will introduce will actually reduce the
+        // number of nodes searched
+        nodes++;
+
+        // Generate all possible moves in the position
+        MoveGenerator m(game);
+        std::vector<int> legal_moves = m.generate_moves();
+
+        // If there are no legal moves then it is either
+        // checkmate or stalemate
+        int is_check = m.is_square_attacked(game.get_side() == white ? 
+                                             get_ls1b_index(game.get_bitboard(K)) :
+                                             get_ls1b_index(game.get_bitboard(k)), game.get_side() ^ 1);
+        if(legal_moves.empty())
+        {
+            if(is_check) return -1000 + ply;
+            else return 0;
+        }
+
+        int score;
+
+        // Copy the game state
+        Game g(game);
+
+        // Loop through all the legal moves
+        for(int count = 0; count < legal_moves.size(); count++)
+        {
+            // Play the move and increment the ply counter
+            g.make_move(legal_moves.at(count));
+            ply++;
+
+            // Call negamax again for the opposite side and depth - 1
+            score = -Negamax(g, depth - 1, -beta, -alpha, best_move);
+            
+            // Take back the move and reduce the ply counter
+            ply--;
+            g.take_back_to(game);
+
+            // Alpha - Beta pruning
+            // f the move is better than I
+            if(score >= beta)
+                return beta;
+
+            // If the best move 
+            if(score > alpha)
+            {
+                alpha = score;
+                // If we are at the root node (thus ply = 0)
+                // then save the best move
+                if(ply == 0)
+                    best_move = legal_moves.at(count);
+            }
+        }
+        // return
         return alpha;
     }
+
+    int Quiescence_search(Game& game, int alpha, int beta)
+    {
+        MoveGenerator m(game);
+        moves captures = m.getMover().get_capture_move_list();
+
+        // If there are no legal moves then it is either
+        // checkmate or stalemate
+        if(captures.count == 0)
+        {
+            std::cout << "No captures available, checking for mate/stalemate\n";
+            game.print_board();
+            std::cin.get();
+
+            if(m.generate_moves().empty())
+            {
+                std::cout << "No legal moves\n";
+                std::cin.get();
+                int is_check = m.is_square_attacked(game.get_side() == white ? 
+                                                get_ls1b_index(game.get_bitboard(K)) :
+                                                get_ls1b_index(game.get_bitboard(k)), game.get_side() ^ 1);
+                
+                if(is_check) return -1000 + ply;
+                else return 0;
+            }
+            else
+            {
+                std::cout << "Return static evaluation\n";
+                std::cin.get();
+                return 5;
+            }
+        }
+
+        Game g(game);
+        int score;
+
+        std::cout << "Search until no captures\n";
+        std::cin.get();
+
+        for(int i = 0; i < captures.count; i++)
+        {
+            g.make_move(captures.movesArray[i]);
+            ply++;
+
+            score = -Quiescence_search(g, -beta, -alpha);
+
+            g.take_back_to(game);
+            ply--;
+
+            if(score >= beta)
+                return beta;
+
+            // If the best move 
+            if(score > alpha)
+                alpha = score;
+        }
+        // return
+        return alpha;
+    } 
 
     void perft_search(Game& game, int depth, std::vector<int>& move_count)
     {   
