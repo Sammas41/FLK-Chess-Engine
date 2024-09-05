@@ -14,26 +14,6 @@
     1000 0000 0000 0000 0000 0000    castling flag       0x800000
 */
 
-
-
-unsigned int Mover::encodeMove( unsigned int source,
-                                unsigned int target, 
-                                unsigned int piece, 
-                                unsigned int promoted, 
-                                unsigned int capture, 
-                                unsigned int doublePush, 
-                                unsigned int enpassant, 
-                                unsigned int castling) {
-    return source |
-           (target << 6) |
-           (piece << 12) |
-           (promoted << 16) |
-           (capture << 20) |
-           (doublePush << 21) |
-           (enpassant << 22) |
-           (castling << 23);
-}
-
 unsigned int Mover::getMoveSource(unsigned int move) {
     return move & 0x3f;
 }

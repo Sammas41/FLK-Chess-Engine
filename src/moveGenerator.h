@@ -5,10 +5,10 @@
 #include "game.h"
 #include "mover.h"
 #include <vector>
+#include <forward_list>
 
 class MoveGenerator
 {
-
     Mover mover;
 
     private:
@@ -29,17 +29,33 @@ class MoveGenerator
         void generate_queens_moves(int, U64, int);
         void generate_kings_moves(int, U64, int);
 
-    public:
+        public:
+        // Encode moves in the correct format
+        unsigned int encode_move(unsigned int,       // source square
+                                unsigned int,       // target square
+                                unsigned int,       // piece
+                                unsigned int,       // promotion
+                                unsigned int,       // capture
+                                unsigned int,       // double pawn push
+                                unsigned int,       // en passant
+                                unsigned int);      // castling
+
+        std::forward_list<int> legal_moves;
+        int size;
+
         MoveGenerator() = delete;   // Cannot initialize MoveGenerator without a game
         MoveGenerator(Game& g) : game(g){};      // Default constructor
         Mover& getMover() {return mover;}
 
         int is_square_attacked(int, int);
         void print_attacked_squares(int);
-        std::vector<int> generate_moves();
+        void generate_moves();
         
         bool is_legal(int);
         moves get_capture_move_list();
+
+        int get_move_list_size();
+        void print_move_list();
 };
 
 #endif

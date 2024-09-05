@@ -3,7 +3,7 @@
 namespace flk {
 
     int nodes = 0, ply = 0;
-
+    /*
     int Negamax(Game& game, int depth, int alpha, int beta, int& best_move)
     {
         if (depth == 0)
@@ -125,26 +125,27 @@ namespace flk {
         // return
         return alpha;
     } 
-
+    */
     void perft_search(Game& game, int depth, std::vector<int>& move_count)
     {   
         if (depth == 0)
             return;
         
         MoveGenerator m(game);
-        std::vector<int> legal_moves = m.generate_moves();
+        m.generate_moves();
 
-        if(legal_moves.empty()) return;
+        if(m.legal_moves.empty())
+            return;
 
-        move_count.at(depth - 1) += legal_moves.size();
+        int moves_in_this_position = m.get_move_list_size();
+        move_count.at(depth - 1) += moves_in_this_position;
 
         Game g(game);
-
-        for(int count = 0; count < legal_moves.size(); count++)
+    
+        for(int move : m.legal_moves)
         {
-            g.make_move(legal_moves.at(count));
+            g.make_move(move);
             perft_search(g, depth - 1, move_count);
-            
             g.take_back_to(game);
         }
 
@@ -156,7 +157,7 @@ namespace flk {
         std::vector<int> move_count(depth, 0);
 
         MoveGenerator move_gen(game);
-        std::vector<int> initial_moves = move_gen.generate_moves();
+        move_gen.generate_moves();
 
         Game g(game);
 
@@ -167,7 +168,7 @@ namespace flk {
         std::cout << "**********************\n\n";
 
         std::cout << "Nodes per move:\n";
-        for(int m : initial_moves)
+        for(int m : move_gen.legal_moves)
         {
             move_count.at(depth - 1)++;
             if(depth == 1)

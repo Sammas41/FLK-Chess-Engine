@@ -7,13 +7,13 @@
 int main()
 {
 	init_all_attacks();
-	/*
+	
 	std::string trickyPos = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1";
 	std::string endgamePos = "8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1";
 	std::string checkPos = "r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1";
 	std::string bugPos = "rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8";
 	std::string genericPos = "r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10";
-	*/
+	
 
 	std::string matePos = "3k4/8/3K4/8/Q7/8/8/8 w - - 0 1";
 	std::string morphy = "kbK5/pp6/1P6/8/8/8/8/R7 w - - 0 1";
@@ -24,13 +24,15 @@ int main()
 	
 	//std::string quiescenceTest = "qrr3k1/5ppp/8/8/8/2Q5/2R5/2R3K1 w - - 0 1";
 	
-	Game game(pos3_1);
+	std::string c = "rnbqkbnr/pppppppp/8/8/8/P7/1PPPPPPP/RNBQKBNR b KQkq - 0 1";
+
+	Game game(bugPos);
 	game.print_board();	
 
-	int depth = 6, bestMove = 0;
-	Mover m;
-	//flk::Perft(game, depth);
+	int depth = 5, bestMove = 0;
 
+	flk::Perft(game, depth);
+	/*
 	auto t1 = std::chrono::high_resolution_clock::now();
 	int score = flk::Negamax(game, depth, -10000, 10000, bestMove);
 	auto t2 = std::chrono::high_resolution_clock::now();
@@ -43,6 +45,7 @@ int main()
 	std::cout << "Number of nodes searched: " << flk::nodes << "\n";
 
 	std::cout << "Score: " << score << "\n";
-	std::cout << "Found in: " << t.count() * 0.001 << " seconds\n";
+	std::cout << "Found in: " << t.count() * 0.001 << " seconds\n";*/
+
 	return 0;
 }

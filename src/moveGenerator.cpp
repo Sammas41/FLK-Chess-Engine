@@ -64,7 +64,7 @@ void MoveGenerator::print_attacked_squares(int side){
 }
 
 // Generate pawn moves (push, double push, captures and en passant)
-std::vector<int> MoveGenerator::generate_moves(){
+void MoveGenerator::generate_moves(){
 
     // loop through all bitboards
     for(int piece = P; piece <= k; piece++){
@@ -81,10 +81,8 @@ std::vector<int> MoveGenerator::generate_moves(){
         }
         // generate black pawns & black king castling
         else{
-
             generate_black_pawns_moves(piece, bitboard);
             generate_black_king_castling_moves(piece, bitboard);
-            
         }
 
         // generate knight moves
@@ -92,7 +90,7 @@ std::vector<int> MoveGenerator::generate_moves(){
 
         // generate bishop moves
         generate_bishops_moves(piece,bitboard,game.get_side());
-
+        
         // generate rook moves
         generate_rooks_moves(piece,bitboard,game.get_side());
 
@@ -101,20 +99,21 @@ std::vector<int> MoveGenerator::generate_moves(){
 
         // generate king moves
         generate_kings_moves(piece,bitboard,game.get_side());
-
     }
-    
-    std::vector<int> legal_moves = {};
 
-    for(int count = 0; count < mover.moveList.count; count++)
+    size = 0;
+    
+    std::forward_list<int>::iterator previous_it = legal_moves.before_begin();
+    for(std::forward_list<int>::iterator it = legal_moves.begin(); it != legal_moves.end(); )
     {
-        if(is_legal(mover.moveList.movesArray[count]))
-        {
-            legal_moves.push_back(mover.moveList.movesArray[count]);
+        if(!is_legal(*it))
+            it = legal_moves.erase_after(previous_it);
+        else {
+            previous_it = it;
+            ++it;
+            size++;
         }
     }
-
-    return legal_moves;
 }
 
 void MoveGenerator::generate_white_pawns_moves(int piece, U64 bitboard) {
@@ -130,18 +129,18 @@ void MoveGenerator::generate_white_pawns_moves(int piece, U64 bitboard) {
                 // three type of moves
                 // PAWN PROMOTION
                 if (source_square >= a7 && source_square <= h7){
-                    mover.add_move(mover.encodeMove(source_square,target_square,piece, Q, 0,0,0,0));
-                    mover.add_move(mover.encodeMove(source_square,target_square,piece, R, 0,0,0,0));
-                    mover.add_move(mover.encodeMove(source_square,target_square,piece, B, 0,0,0,0));
-                    mover.add_move(mover.encodeMove(source_square,target_square,piece, N, 0,0,0,0));    
+                    legal_moves.push_front(encode_move(source_square,target_square,piece, Q, 0,0,0,0));
+                    legal_moves.push_front(encode_move(source_square,target_square,piece, R, 0,0,0,0));
+                    legal_moves.push_front(encode_move(source_square,target_square,piece, B, 0,0,0,0));
+                    legal_moves.push_front(encode_move(source_square,target_square,piece, N, 0,0,0,0));    
                 } 
                 else{
                     // ONE SQUARE AHEAD MOVE
-                    mover.add_move(mover.encodeMove(source_square,target_square,piece, 0, 0,0,0,0));
+                    legal_moves.push_front(encode_move(source_square,target_square,piece, 0, 0,0,0,0));
 
                     // TWO SQUARES AHEAD MOVE
                     if((source_square >= a2 && source_square <= h2) && !get_bit(game.get_occupancy(both), target_square - 8)){
-                        mover.add_move(mover.encodeMove(source_square,target_square - 8,piece, 0, 0,1,0,0));
+                        legal_moves.push_front(encode_move(source_square,target_square - 8,piece, 0, 0,1,0,0));
                     }
 
                 }
@@ -154,28 +153,28 @@ void MoveGenerator::generate_white_pawns_moves(int piece, U64 bitboard) {
             if(en_passant_square != no_sq)
             {
                 if(source_square == a5 && en_passant_square == b6)
-                    mover.add_move(mover.encodeMove(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
+                    legal_moves.push_front(encode_move(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
 
                 if(source_square == b5 && (en_passant_square == a6 || en_passant_square == c6))
-                    mover.add_move(mover.encodeMove(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
+                    legal_moves.push_front(encode_move(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
 
                 if(source_square == c5 && (en_passant_square == b6 || en_passant_square == d6))
-                    mover.add_move(mover.encodeMove(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
+                    legal_moves.push_front(encode_move(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
 
                 if(source_square == d5 && (en_passant_square == c6 || en_passant_square == e6))
-                    mover.add_move(mover.encodeMove(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
+                    legal_moves.push_front(encode_move(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
 
                 if(source_square == e5 && (en_passant_square == d6 || en_passant_square == f6))
-                    mover.add_move(mover.encodeMove(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
+                    legal_moves.push_front(encode_move(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
 
                 if(source_square == f5 && (en_passant_square == e6 || en_passant_square == g6))
-                    mover.add_move(mover.encodeMove(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
+                    legal_moves.push_front(encode_move(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
 
                 if(source_square == g5 && (en_passant_square == f6 || en_passant_square == h6))
-                    mover.add_move(mover.encodeMove(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
+                    legal_moves.push_front(encode_move(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
 
                 if(source_square == h5 && en_passant_square == g6)
-                    mover.add_move(mover.encodeMove(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
+                    legal_moves.push_front(encode_move(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
             }
 
             // generate pawn captures
@@ -185,15 +184,15 @@ void MoveGenerator::generate_white_pawns_moves(int piece, U64 bitboard) {
 
                 // CAPTURE AND PROMOTION
                 if (source_square >= a7 && source_square <= h7){
-                    mover.add_move(mover.encodeMove(source_square, target_square, piece, Q, 1, 0, 0, 0));
-                    mover.add_move(mover.encodeMove(source_square, target_square, piece, R, 1, 0, 0, 0));
-                    mover.add_move(mover.encodeMove(source_square, target_square, piece, B, 1, 0, 0, 0));
-                    mover.add_move(mover.encodeMove(source_square, target_square, piece, N, 1, 0, 0, 0));
+                    legal_moves.push_front(encode_move(source_square, target_square, piece, Q, 1, 0, 0, 0));
+                    legal_moves.push_front(encode_move(source_square, target_square, piece, R, 1, 0, 0, 0));
+                    legal_moves.push_front(encode_move(source_square, target_square, piece, B, 1, 0, 0, 0));
+                    legal_moves.push_front(encode_move(source_square, target_square, piece, N, 1, 0, 0, 0));
 
                 } 
                 else{
                     // CAPTURE
-                    mover.add_move(mover.encodeMove(source_square, target_square, piece, 0, 1, 0, 0, 0));
+                    legal_moves.push_front(encode_move(source_square, target_square, piece, 0, 1, 0, 0, 0));
                 }
                 pop_bit(attacks, target_square);
             }
@@ -215,7 +214,7 @@ void MoveGenerator::generate_white_king_castling_moves(int piece, U64 bitboard) 
             if(!get_bit(game.get_occupancy(both), f1) && !get_bit(game.get_occupancy(both), g1)){
                 // king and f1 squares not attacked
                 if(!is_square_attacked(e1,black) && !is_square_attacked(f1,black)){
-                    mover.add_move(mover.encodeMove(e1, g1, piece, 0, 0, 0, 0, 1));
+                    legal_moves.push_front(encode_move(e1, g1, piece, 0, 0, 0, 0, 1));
                 }
             }
         }
@@ -227,7 +226,7 @@ void MoveGenerator::generate_white_king_castling_moves(int piece, U64 bitboard) 
             {
                 // make sure king and the d1 squares are not under attacks
                 if (!is_square_attacked(e1, black) && !is_square_attacked(d1, black))
-                    mover.add_move(mover.encodeMove(e1, c1, piece, 0, 0, 0, 0, 1));
+                    legal_moves.push_front(encode_move(e1, c1, piece, 0, 0, 0, 0, 1));
             }
             
         }
@@ -247,18 +246,18 @@ void MoveGenerator::generate_black_pawns_moves(int piece, U64 bitboard) {
                 // three type of moves
                 // PAWN PROMOTION
                 if (source_square >= a2 && source_square <= h2){
-                    mover.add_move(mover.encodeMove(source_square,target_square,piece, q, 0,0,0,0));
-                    mover.add_move(mover.encodeMove(source_square,target_square,piece, r, 0,0,0,0));
-                    mover.add_move(mover.encodeMove(source_square,target_square,piece, b, 0,0,0,0));
-                    mover.add_move(mover.encodeMove(source_square,target_square,piece, n, 0,0,0,0));
+                    legal_moves.push_front(encode_move(source_square,target_square,piece, q, 0,0,0,0));
+                    legal_moves.push_front(encode_move(source_square,target_square,piece, r, 0,0,0,0));
+                    legal_moves.push_front(encode_move(source_square,target_square,piece, b, 0,0,0,0));
+                    legal_moves.push_front(encode_move(source_square,target_square,piece, n, 0,0,0,0));
         
                 } 
                 else{
                     // ONE SQUARE AHEAD MOVE
-                    mover.add_move(mover.encodeMove(source_square,target_square,piece, 0, 0,0,0,0));
+                    legal_moves.push_front(encode_move(source_square,target_square,piece, 0, 0,0,0,0));
                     // TWO SQUARES AHEAD MOVE
                     if((source_square >= a7 && source_square <= h7) && !get_bit(game.get_occupancy(both), target_square + 8)){
-                        mover.add_move(mover.encodeMove(source_square,target_square + 8,piece,0, 0,1,0,0));
+                        legal_moves.push_front(encode_move(source_square,target_square + 8,piece,0, 0,1,0,0));
                     }
 
                 }
@@ -271,28 +270,28 @@ void MoveGenerator::generate_black_pawns_moves(int piece, U64 bitboard) {
             if(en_passant_square != no_sq)
             {
                 if(source_square == a4 && en_passant_square == b3)
-                    mover.add_move(mover.encodeMove(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
+                    legal_moves.push_front(encode_move(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
 
                 if(source_square == b4 && (en_passant_square == a3 || en_passant_square == c3))
-                    mover.add_move(mover.encodeMove(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
+                    legal_moves.push_front(encode_move(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
 
                 if(source_square == c4 && (en_passant_square == b3 || en_passant_square == d3))
-                    mover.add_move(mover.encodeMove(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
+                    legal_moves.push_front(encode_move(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
 
                 if(source_square == d4 && (en_passant_square == c3 || en_passant_square == e3))
-                    mover.add_move(mover.encodeMove(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
+                    legal_moves.push_front(encode_move(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
 
                 if(source_square == e4 && (en_passant_square == d3 || en_passant_square == f3))
-                    mover.add_move(mover.encodeMove(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
+                    legal_moves.push_front(encode_move(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
 
                 if(source_square == f4 && (en_passant_square == e3 || en_passant_square == g3))
-                    mover.add_move(mover.encodeMove(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
+                    legal_moves.push_front(encode_move(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
 
                 if(source_square == g4 && (en_passant_square == f3 || en_passant_square == h3))
-                    mover.add_move(mover.encodeMove(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
+                    legal_moves.push_front(encode_move(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
 
                 if(source_square == h4 && en_passant_square == g3)
-                    mover.add_move(mover.encodeMove(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
+                    legal_moves.push_front(encode_move(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
             }
 
             // generate pawn captures
@@ -302,15 +301,15 @@ void MoveGenerator::generate_black_pawns_moves(int piece, U64 bitboard) {
 
                 // CAPTURE AND PROMOTION
                 if (source_square >= a2 && source_square <= h2){
-                    mover.add_move(mover.encodeMove(source_square,target_square,piece, q, 1,0,0,0));
-                    mover.add_move(mover.encodeMove(source_square,target_square,piece, r, 1,0,0,0));
-                    mover.add_move(mover.encodeMove(source_square,target_square,piece, b, 1,0,0,0));
-                    mover.add_move(mover.encodeMove(source_square,target_square,piece, n, 1,0,0,0));
+                    legal_moves.push_front(encode_move(source_square,target_square,piece, q, 1,0,0,0));
+                    legal_moves.push_front(encode_move(source_square,target_square,piece, r, 1,0,0,0));
+                    legal_moves.push_front(encode_move(source_square,target_square,piece, b, 1,0,0,0));
+                    legal_moves.push_front(encode_move(source_square,target_square,piece, n, 1,0,0,0));
         
                 } 
                 else{
                     // CAPTURE
-                    mover.add_move(mover.encodeMove(source_square,target_square,piece, 0, 1,0,0,0));
+                    legal_moves.push_front(encode_move(source_square,target_square,piece, 0, 1,0,0,0));
                 }
                 pop_bit(attacks, target_square);
             }
@@ -334,7 +333,7 @@ void MoveGenerator::generate_black_king_castling_moves(int piece, U64 bitboard) 
             {
                 // make sure king and the f8 squares are not under attacks
                 if (!is_square_attacked(e8, white) && !is_square_attacked(f8, white))
-                    mover.add_move(mover.encodeMove(e8,g8,piece, 0, 0,0,0,1));
+                    legal_moves.push_front(encode_move(e8,g8,piece, 0, 0,0,0,1));
             }
         }
         
@@ -346,7 +345,7 @@ void MoveGenerator::generate_black_king_castling_moves(int piece, U64 bitboard) 
             {
                 // make sure king and the d8 squares are not under attacks
                 if (!is_square_attacked(e8, white) && !is_square_attacked(d8, white))
-                    mover.add_move(mover.encodeMove(e8,c8,piece, 0, 0,0,0,1));
+                    legal_moves.push_front(encode_move(e8,c8,piece, 0, 0,0,0,1));
             }
         }
     }
@@ -373,11 +372,11 @@ void MoveGenerator::generate_knights_moves(int piece, U64 bitboard, int side) {
                 
                 // quite move
                 if (!get_bit(((side == white) ? game.get_occupancy(black) : game.get_occupancy(white)), target_square))
-                    mover.add_move(mover.encodeMove(source_square,target_square,piece, 0, 0,0,0,0));
+                    legal_moves.push_front(encode_move(source_square,target_square,piece, 0, 0,0,0,0));
                 
                 else
                     // capture move
-                    mover.add_move(mover.encodeMove(source_square,target_square,piece, 0, 1,0,0,0));
+                    legal_moves.push_front(encode_move(source_square,target_square,piece, 0, 1,0,0,0));
                 
                 // pop ls1b in current attacks set
                 pop_bit(attacks, target_square);
@@ -411,11 +410,11 @@ void MoveGenerator::generate_bishops_moves(int piece, U64 bitboard, int side){
                 
                 // quite move
                 if (!get_bit(((side == white) ? game.get_occupancy(black) : game.get_occupancy(white)), target_square))
-                    mover.add_move(mover.encodeMove(source_square,target_square,piece, 0, 0,0,0,0));
+                    legal_moves.push_front(encode_move(source_square,target_square,piece, 0, 0,0,0,0));
                 
                 else
                     // capture move
-                    mover.add_move(mover.encodeMove(source_square,target_square,piece, 0, 1,0,0,0));
+                    legal_moves.push_front(encode_move(source_square,target_square,piece, 0, 1,0,0,0));
                 
                 // pop ls1b in current attacks set
                 pop_bit(attacks, target_square);
@@ -427,9 +426,6 @@ void MoveGenerator::generate_bishops_moves(int piece, U64 bitboard, int side){
         }
     }
 }
-
-
-
 
 void MoveGenerator::generate_rooks_moves(int piece, U64 bitboard, int side){
 
@@ -453,11 +449,11 @@ void MoveGenerator::generate_rooks_moves(int piece, U64 bitboard, int side){
                 
                 // quite move
                 if (!get_bit(((side == white) ? game.get_occupancy(black) : game.get_occupancy(white)), target_square))
-                    mover.add_move(mover.encodeMove(source_square,target_square,piece, 0, 0,0,0,0));
+                    legal_moves.push_front(encode_move(source_square,target_square,piece, 0, 0,0,0,0));
                 
                 else
                     // capture move
-                    mover.add_move(mover.encodeMove(source_square,target_square,piece, 0, 1,0,0,0));
+                    legal_moves.push_front(encode_move(source_square,target_square,piece, 0, 1,0,0,0));
                 
                 // pop ls1b in current attacks set
                 pop_bit(attacks, target_square);
@@ -492,11 +488,11 @@ void MoveGenerator::generate_queens_moves(int piece, U64 bitboard, int side){
                 
                 // quite move
                 if (!get_bit(((side == white) ? game.get_occupancy(black) : game.get_occupancy(white)), target_square))
-                    mover.add_move(mover.encodeMove(source_square,target_square,piece, 0, 0,0,0,0));
+                    legal_moves.push_front(encode_move(source_square,target_square,piece, 0, 0,0,0,0));
                 
                 else
                     // capture move
-                    mover.add_move(mover.encodeMove(source_square,target_square,piece, 0, 1,0,0,0));
+                    legal_moves.push_front(encode_move(source_square,target_square,piece, 0, 1,0,0,0));
                 
                 // pop ls1b in current attacks set
                 pop_bit(attacks, target_square);
@@ -531,11 +527,11 @@ void MoveGenerator::generate_kings_moves(int piece, U64 bitboard, int side){
                 
                 // quite move
                 if (!get_bit(((side == white) ? game.get_occupancy(black) : game.get_occupancy(white)), target_square))
-                    mover.add_move(mover.encodeMove(source_square,target_square,piece, 0, 0,0,0,0));
+                    legal_moves.push_front(encode_move(source_square,target_square,piece, 0, 0,0,0,0));
                 
                 else
                     // capture move
-                    mover.add_move(mover.encodeMove(source_square,target_square,piece, 0, 1,0,0,0));
+                    legal_moves.push_front(encode_move(source_square,target_square,piece, 0, 1,0,0,0));
                 
                 // pop ls1b in current attacks set
                 pop_bit(attacks, target_square);
@@ -547,6 +543,7 @@ void MoveGenerator::generate_kings_moves(int piece, U64 bitboard, int side){
     }
 }
 
+// checks if a move is legal or not
 bool MoveGenerator::is_legal(int move)
 {
     Game copy(game);
@@ -566,4 +563,49 @@ bool MoveGenerator::is_legal(int move)
         game.take_back_to(copy);
         return true;
     }
+}
+
+int MoveGenerator::get_move_list_size() {
+    return size;
+}
+
+void MoveGenerator::print_move_list() {
+    for(int move : legal_moves)
+    {
+        mover.print_move(move);
+        std::cout << "\n";
+    }
+}
+
+/*
+    move encoding
+            
+          binary move bits                               hexidecimal 
+    
+    0000 0000 0000 0000 0011 1111    source square       0x3f
+    0000 0000 0000 1111 1100 0000    target square       0xfc0
+    0000 0000 1111 0000 0000 0000    piece               0xf000
+    0000 1111 0000 0000 0000 0000    promoted piece      0xf0000
+    0001 0000 0000 0000 0000 0000    capture flag        0x100000
+    0010 0000 0000 0000 0000 0000    double push flag    0x200000
+    0100 0000 0000 0000 0000 0000    enpassant flag      0x400000
+    1000 0000 0000 0000 0000 0000    castling flag       0x800000
+*/
+
+unsigned int MoveGenerator::encode_move( unsigned int source,
+                                        unsigned int target, 
+                                        unsigned int piece, 
+                                        unsigned int promoted, 
+                                        unsigned int capture, 
+                                        unsigned int doublePush, 
+                                        unsigned int enpassant, 
+                                        unsigned int castling) {
+    return             source |
+                (target << 6) |
+                (piece << 12) |
+             (promoted << 16) |
+              (capture << 20) |
+           (doublePush << 21) |
+            (enpassant << 22) |
+             (castling << 23) ;
 }
