@@ -137,7 +137,7 @@ namespace flk {
         if(m.legal_moves.empty())
             return;
 
-        int moves_in_this_position = m.get_move_list_size();
+        int moves_in_this_position = m.legal_moves.size();
         move_count.at(depth - 1) += moves_in_this_position;
 
         Game g(game);

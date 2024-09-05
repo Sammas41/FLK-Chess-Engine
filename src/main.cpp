@@ -22,22 +22,26 @@ int main()
 	std::string pos3 = "2r3k1/p4p2/3Rp2p/1p2P1pK/8/1P4P1/P3Q2P/1q6 b - - 0 1";
 	std::string pos3_1 = "6k1/ppp2ppp/8/2n2K1P/2P2P1P/2Bpr3/PP4r1/4RR2 b - - 0 1"; 
 	
-	//std::string quiescenceTest = "qrr3k1/5ppp/8/8/8/2Q5/2R5/2R3K1 w - - 0 1";
+	std::string quiescenceTest = "qrr3k1/5ppp/8/8/8/2Q5/2R5/2R3K1 w - - 0 1";
 	
 	std::string c = "rnbqkbnr/pppppppp/8/8/8/P7/1PPPPPPP/RNBQKBNR b KQkq - 0 1";
 
-	Game game;
-	game.print_board();	
+	Game game(quiescenceTest);
+	game.print_board();
+
+	MoveGenerator m(game);
+	m.generate_moves();
+	m.print_move_list();
 
 	int depth = 6, bestMove = 0;
-
+	/*
 	auto t1 = std::chrono::high_resolution_clock::now();
 	flk::Perft(game, depth);
 	auto t2 = std::chrono::high_resolution_clock::now();
 
 	std::chrono::duration<double, std::milli> t = t2 - t1;
 	std::cout << "Time elapsed: " << t.count() * 0.001 << " seconds\n";
-
+	*/
 	/*
 	auto t1 = std::chrono::high_resolution_clock::now();
 	int score = flk::Negamax(game, depth, -10000, 10000, bestMove);
