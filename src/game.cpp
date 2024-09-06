@@ -394,14 +394,14 @@ void Game::take_back_to(Game revert_to)
 void Game::make_move(int move)
 {
     // parse move
-    int source_square = Mover::getMoveSource(move);
-    int target_square = Mover::getMoveTarget(move);
-    int piece = Mover::getMovePiece(move);
-    int promoted_piece = Mover::getMovePromoted(move);
-    int capture = Mover::getMoveCapture(move);
-    int double_push = Mover::getMoveDouble(move);
-    int enpassant_flag = Mover::getMoveEnpassant(move);
-    int castling_flag = Mover::getMoveCastling(move);
+    int source_square = get_source_square(move);
+    int target_square = get_target_square(move);
+    int piece = get_piece_moved(move);
+    int promoted_piece = get_promoted_piece(move);
+    int capture = is_capture(move);
+    int double_push = is_double_push(move);
+    int enpassant_flag = is_en_passant(move);
+    int castling_flag = is_castling(move);
 
     // do the move
     pop_bit(bitboards[piece], source_square);
@@ -515,4 +515,40 @@ void Game::make_move(int move)
 
     // change side after the move is done
     side == white ? side = black : side = white;
+}
+
+int Game::get_source_square(int move) {
+    return move & 0x3f;
+}
+
+int Game::get_target_square(int move) {
+    return (move & 0xfc0) >> 6;
+}
+
+int Game::get_piece_moved(int move) {
+    return (move & 0xf000) >> 12;
+}
+
+bool Game::is_capture(int move) {
+    return move & 0x100000;
+}
+
+bool Game::is_double_push(int move) {
+    return move & 0x200000;
+}
+
+bool Game::is_en_passant(int move) {
+    return move & 0x400000;
+}
+
+bool Game::is_castling(int move) {
+    return move & 0x800000;
+}
+
+int Game::get_promoted_piece(int move) {
+    return (move & 0xf0000) >> 16;
+}
+
+bool Game::is_promotion(int move) {
+    return (move & 0xf0000) >> 16;
 }

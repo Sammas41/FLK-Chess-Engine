@@ -3,7 +3,6 @@
 
 #include "attacks.h"
 #include "game.h"
-#include "mover.h"
 #include <vector>
 #include <array>
 
@@ -23,10 +22,7 @@ struct MoveArray
 
 class MoveGenerator
 {
-    Mover mover;
-
     private:
-
         Game game; // Reference to a Game object
 
         // Additional state variables for copying
@@ -53,35 +49,31 @@ class MoveGenerator
                                 unsigned int,       // double pawn push
                                 unsigned int,       // en passant
                                 unsigned int);      // castling
-        int get_source_square(int);
-        int get_target_square(int);
-        int get_piece_moved(int);
-        bool is_capture(int);
-        bool is_promotion(int);
-        bool is_castling(int);
-        bool is_en_passant(int);
-        bool is_double_push(int);
+        
+        // Move generation
+        void generate_moves();
 
-        void print_move(int);
+        // Print functions
+        void print_move_pretty(int);
 
-        public:
-
+    public:
         MoveArray possible_moves;
-        std::vector<int> legal_moves;
+        MoveArray legal_moves;
 
         MoveGenerator() = delete;   // Cannot initialize MoveGenerator without a game
-        MoveGenerator(Game& g) : game(g){};      // Default constructor
-        Mover& getMover() {return mover;}
+        MoveGenerator(Game& g) : game(g) { // Default constructor
+            generate_moves();
+        };
 
+        // Move logic
         int is_square_attacked(int, int);
-        void print_attacked_squares(int);
-        void generate_moves();
-        
         bool is_legal(int);
+        
+        MoveArray get_capture_moves();
 
-        std::vector<int> get_capture_moves();
-
+        void print_move(int);
         void print_move_list();
+        void print_attacked_squares(int);
 };
 
 #endif

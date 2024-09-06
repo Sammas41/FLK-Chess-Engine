@@ -26,12 +26,8 @@ int main()
 	
 	std::string c = "rnbqkbnr/pppppppp/8/8/8/P7/1PPPPPPP/RNBQKBNR b KQkq - 0 1";
 
-	Game game(quiescenceTest);
+	Game game(morphy);
 	game.print_board();
-
-	MoveGenerator m(game);
-	m.generate_moves();
-	m.print_move_list();
 
 	int depth = 6, bestMove = 0;
 	/*
@@ -42,12 +38,14 @@ int main()
 	std::chrono::duration<double, std::milli> t = t2 - t1;
 	std::cout << "Time elapsed: " << t.count() * 0.001 << " seconds\n";
 	*/
-	/*
+	
 	auto t1 = std::chrono::high_resolution_clock::now();
 	int score = flk::Negamax(game, depth, -10000, 10000, bestMove);
 	auto t2 = std::chrono::high_resolution_clock::now();
 	
 	std::chrono::duration<double, std::milli> t = t2 - t1;
+
+	MoveGenerator m(game);
 
 	std::cout << "BestMove: ";
 	m.print_move(bestMove);
@@ -55,7 +53,7 @@ int main()
 	std::cout << "Number of nodes searched: " << flk::nodes << "\n";
 
 	std::cout << "Score: " << score << "\n";
-	std::cout << "Found in: " << t.count() * 0.001 << " seconds\n";*/
-
+	std::cout << "Found in: " << t.count() * 0.001 << " seconds\n";
+	
 	return 0;
 }

@@ -3,7 +3,7 @@
 namespace flk {
 
     int nodes = 0, ply = 0;
-    /*
+    
     int Negamax(Game& game, int depth, int alpha, int beta, int& best_move)
     {
         if (depth == 0)
@@ -16,16 +16,17 @@ namespace flk {
 
         // Generate all possible moves in the position
         MoveGenerator m(game);
-        std::vector<int> legal_moves = m.generate_moves();
 
         // If there are no legal moves then it is either
         // checkmate or stalemate
         int is_check = m.is_square_attacked(game.get_side() == white ? 
-                                             get_ls1b_index(game.get_bitboard(K)) :
-                                             get_ls1b_index(game.get_bitboard(k)), game.get_side() ^ 1);
-        if(legal_moves.empty())
+                                            get_ls1b_index(game.get_bitboard(K)) :
+                                            get_ls1b_index(game.get_bitboard(k)), game.get_side() ^ 1);
+
+        if(m.legal_moves.count == 0)
         {
-            if(is_check) return -1000 + ply;
+            if(is_check)
+                return -1000 + ply;
             else return 0;
         }
 
@@ -35,10 +36,10 @@ namespace flk {
         Game g(game);
 
         // Loop through all the legal moves
-        for(int count = 0; count < legal_moves.size(); count++)
+        for(int i = 0; i < m.legal_moves.count; i++)
         {
             // Play the move and increment the ply counter
-            g.make_move(legal_moves.at(count));
+            g.make_move(m.legal_moves.move_list[i]);
             ply++;
 
             // Call negamax again for the opposite side and depth - 1
@@ -60,13 +61,13 @@ namespace flk {
                 // If we are at the root node (thus ply = 0)
                 // then save the best move
                 if(ply == 0)
-                    best_move = legal_moves.at(count);
+                    best_move = m.legal_moves.move_list[i];
             }
         }
         // return
         return alpha;
     }
-
+    /*
     int Quiescence_search(Game& game, int alpha, int beta)
     {
         MoveGenerator m(game);
@@ -132,19 +133,18 @@ namespace flk {
             return;
         
         MoveGenerator m(game);
-        m.generate_moves();
 
-        if(m.legal_moves.empty())
+        if(m.legal_moves.move_list.empty())
             return;
 
-        int moves_in_this_position = m.legal_moves.size();
+        int moves_in_this_position = m.legal_moves.count;
         move_count.at(depth - 1) += moves_in_this_position;
 
         Game g(game);
     
-        for(int move : m.legal_moves)
+        for(int i = 0; i < m.legal_moves.count; i++)
         {
-            g.make_move(move);
+            g.make_move(m.legal_moves.move_list[i]);
             perft_search(g, depth - 1, move_count);
             g.take_back_to(game);
         }
@@ -157,7 +157,6 @@ namespace flk {
         std::vector<int> move_count(depth, 0);
 
         MoveGenerator move_gen(game);
-        move_gen.generate_moves();
 
         Game g(game);
 
@@ -168,20 +167,20 @@ namespace flk {
         std::cout << "**********************\n\n";
 
         std::cout << "Nodes per move:\n";
-        for(int m : move_gen.legal_moves)
+        for(int i = 0; i < move_gen.legal_moves.count; i++)
         {
             move_count.at(depth - 1)++;
             if(depth == 1)
             {
-                move_gen.getMover().print_move(m);
+                move_gen.print_move(move_gen.legal_moves.move_list[i]);
                 std::cout << ": 1\n"; 
             }
             else
             {
-                g.make_move(m);
+                g.make_move(move_gen.legal_moves.move_list[i]);
                 perft_search(g, depth - 1, move_count);
 
-                move_gen.getMover().print_move(m);
+                move_gen.print_move(move_gen.legal_moves.move_list[i]);
                 std::cout << ": " << move_count.at(0) - previous_nodes << "\n";
                 previous_nodes = move_count.at(0);
 

@@ -104,7 +104,10 @@ void MoveGenerator::generate_moves(){
     for(int i = 0; i < possible_moves.count; i++)
     {
         if(is_legal(possible_moves.move_list[i]))
-            legal_moves.push_back(possible_moves.move_list[i]);
+        {
+            legal_moves.move_list[legal_moves.count] = possible_moves.move_list[i];
+            legal_moves.count++;
+        }
     }
 }
 
@@ -604,68 +607,39 @@ unsigned int MoveGenerator::encode_move( unsigned int source,
 }
 
 // Returns only moves that are captures
-std::vector<int> MoveGenerator::get_capture_moves() {
-    std::vector<int> capture_list;
-    for(int i = 0; i < legal_moves.size(); i++)
+MoveArray MoveGenerator::get_capture_moves() {
+    MoveArray capture_list;
+    for(int i = 0; i < legal_moves.count; i++)
     {
-        if(is_capture(legal_moves.at(i)))
-            capture_list.push_back(legal_moves.at(i));
+        if(game.is_capture(legal_moves.move_list[i]))
+            capture_list.add_move(legal_moves.move_list[i]);
     }
     return capture_list; 
 }
 
-int MoveGenerator::get_source_square(int move) {
-    return move & 0x3f;
+void MoveGenerator::print_move(int move) {
+    printf("%s%s%c", square_to_coordinates[game.get_source_square(move)],
+                       square_to_coordinates[game.get_target_square(move)],
+                       promoted_pieces[game.get_promoted_piece(move)]);
 }
 
-int MoveGenerator::get_target_square(int move) {
-    return (move & 0xfc0) >> 6;
+void MoveGenerator::print_move_pretty(int move) {
+    std::cout << "|   " << square_to_coordinates[game.get_source_square(move)] << "   |   "
+              << square_to_coordinates[game.get_target_square(move)] << "   |   "
+              << ascii_pieces[game.get_piece_moved(move)] << "   |   "
+              << (game.is_capture(move) ? " 1 " : " 0 ") << "   |     "
+              << (game.is_double_push(move) ? " 1 " : " 0 ") << "     |    "
+              << (game.is_promotion(move) ? " 1 " : " 0 ") << "    |    "
+              << (game.is_castling(move) ? " 1 " : " 0 ") << "   |     "
+              << (game.is_en_passant(move) ? " 1 " : " 0 ") << "    |\n";
 }
 
-int MoveGenerator::get_piece_moved(int move) {
-    return (move & 0xf000) >> 12;
-}
-
-bool MoveGenerator::is_promotion(int move) {
-    return (move & 0xf0000) >> 16;
-}
-
-bool MoveGenerator::is_capture(int move) {
-    return move & 0x100000;
-}
-
-bool MoveGenerator::is_double_push(int move) {
-    return move & 0x200000;
-}
-
-bool MoveGenerator::is_en_passant(int move) {
-    return move & 0x400000;
-}
-
-bool MoveGenerator::is_castling(int move) {
-    return move & 0x800000;
-}
-
-void MoveGenerator::print_move(int move)
-{
-    std::cout << "|   " << square_to_coordinates[get_source_square(move)] << "   |   "
-              << square_to_coordinates[get_target_square(move)] << "   |   "
-              << ascii_pieces[get_piece_moved(move)] << "   |   "
-              << (is_capture(move) ? " 1 " : " 0 ") << "   |     "
-              << (is_double_push(move) ? " 1 " : " 0 ") << "     |    "
-              << (is_promotion(move) ? " 1 " : " 0 ") << "    |    "
-              << (is_castling(move) ? " 1 " : " 0 ") << "   |     "
-              << (is_en_passant(move) ? " 1 " : " 0 ") << "    |\n";
-}
-
-void MoveGenerator::print_move_list()
-{
+void MoveGenerator::print_move_list() {
     std::cout << "---------------------------------------------------------------------------------------\n";
     std::cout << "| Source | Target | Piece | Capture | Double push | Promotion | Castling | En Passant |\n";
     std::cout << "---------------------------------------------------------------------------------------\n";
-    for(const int& m : legal_moves)
-        print_move(m);
-
+    for(int i = 0; i < legal_moves.count; i++)
+        print_move_pretty(legal_moves.move_list[i]);
     std::cout << "---------------------------------------------------------------------------------------\n";
 
 }
