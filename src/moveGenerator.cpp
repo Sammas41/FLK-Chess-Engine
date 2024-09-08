@@ -607,8 +607,10 @@ unsigned int MoveGenerator::encode_move( unsigned int source,
 }
 
 // Returns only moves that are captures
-MoveArray MoveGenerator::get_capture_moves() {
+MoveArray MoveGenerator::generate_captures() {
     MoveArray capture_list;
+
+    generate_moves();
     for(int i = 0; i < legal_moves.count; i++)
     {
         if(game.is_capture(legal_moves.move_list[i]))

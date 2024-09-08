@@ -14,7 +14,7 @@
 */
 struct MoveArray
 {
-    std::array<int, 70> move_list;
+    std::array<int, 80> move_list;
     unsigned int count = 0;
 
     void add_move(int);
@@ -49,9 +49,6 @@ class MoveGenerator
                                 unsigned int,       // double pawn push
                                 unsigned int,       // en passant
                                 unsigned int);      // castling
-        
-        // Move generation
-        void generate_moves();
 
         // Print functions
         void print_move_pretty(int);
@@ -61,16 +58,17 @@ class MoveGenerator
         MoveArray legal_moves;
 
         MoveGenerator() = delete;   // Cannot initialize MoveGenerator without a game
-        MoveGenerator(Game& g) : game(g) { // Default constructor
-            generate_moves();
-        };
+        MoveGenerator(Game& g) : game(g) { } // Default constructor
+
+        // Move generation
+        void generate_moves();
+        MoveArray generate_captures();
 
         // Move logic
         int is_square_attacked(int, int);
         bool is_legal(int);
-        
-        MoveArray get_capture_moves();
 
+        // Print functions
         void print_move(int);
         void print_move_list();
         void print_attacked_squares(int);

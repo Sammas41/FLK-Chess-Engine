@@ -7,7 +7,7 @@ namespace flk {
     int Negamax(Game& game, int depth, int alpha, int beta, int& best_move)
     {
         if (depth == 0)
-            return 0; // Quiescence_search(game, alpha, beta);
+            return Quiescence_search(game, alpha, beta);
         
         // Only used to check if the new features that
         // we will introduce will actually reduce the
@@ -16,6 +16,7 @@ namespace flk {
 
         // Generate all possible moves in the position
         MoveGenerator m(game);
+        m.generate_moves();
 
         // If there are no legal moves then it is either
         // checkmate or stalemate
@@ -67,24 +68,18 @@ namespace flk {
         // return
         return alpha;
     }
-    /*
+    
     int Quiescence_search(Game& game, int alpha, int beta)
     {
         MoveGenerator m(game);
-        moves captures = m.getMover().get_capture_move_list();
+        MoveArray captures = m.generate_captures();
 
-        // If there are no legal moves then it is either
-        // checkmate or stalemate
         if(captures.count == 0)
         {
-            std::cout << "No captures available, checking for mate/stalemate\n";
-            game.print_board();
-            std::cin.get();
-
-            if(m.generate_moves().empty())
+            // If there are no legal moves then it is either
+            // checkmate or stalemate
+            if(m.legal_moves.count == 0)
             {
-                std::cout << "No legal moves\n";
-                std::cin.get();
                 int is_check = m.is_square_attacked(game.get_side() == white ? 
                                                 get_ls1b_index(game.get_bitboard(K)) :
                                                 get_ls1b_index(game.get_bitboard(k)), game.get_side() ^ 1);
@@ -92,23 +87,17 @@ namespace flk {
                 if(is_check) return -1000 + ply;
                 else return 0;
             }
-            else
-            {
-                std::cout << "Return static evaluation\n";
-                std::cin.get();
-                return 5;
-            }
+            // Return classical evaluation (cambiare questa funzione con la
+            // funzione di valutazione vera e propria)
+            else return flk::lazy_evaluation(game);
         }
 
         Game g(game);
         int score;
 
-        std::cout << "Search until no captures\n";
-        std::cin.get();
-
         for(int i = 0; i < captures.count; i++)
         {
-            g.make_move(captures.movesArray[i]);
+            g.make_move(captures.move_list[i]);
             ply++;
 
             score = -Quiescence_search(g, -beta, -alpha);
@@ -126,13 +115,14 @@ namespace flk {
         // return
         return alpha;
     } 
-    */
+    
     void perft_search(Game& game, int depth, std::vector<int>& move_count)
     {   
         if (depth == 0)
             return;
         
         MoveGenerator m(game);
+        m.generate_moves();
 
         if(m.legal_moves.move_list.empty())
             return;
@@ -157,6 +147,7 @@ namespace flk {
         std::vector<int> move_count(depth, 0);
 
         MoveGenerator move_gen(game);
+        move_gen.generate_moves();
 
         Game g(game);
 
