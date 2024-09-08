@@ -71,6 +71,8 @@ namespace flk {
     
     int Quiescence_search(Game& game, int alpha, int beta)
     {
+        nodes++;
+
         MoveGenerator m(game);
         MoveArray captures = m.generate_captures();
 
