@@ -55,13 +55,13 @@ class MoveGenerator
 
     public:
         MoveArray possible_moves;
-        MoveArray legal_moves;
+        //MoveArray legal_moves;
 
         MoveGenerator() = delete;   // Cannot initialize MoveGenerator without a game
         MoveGenerator(Game& g) : game(g) { } // Default constructor
 
         // Move generation
-        void generate_moves();
+        MoveArray generate_moves();
         MoveArray generate_captures();
 
         // Move logic

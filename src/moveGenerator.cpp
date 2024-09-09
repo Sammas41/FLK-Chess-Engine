@@ -64,7 +64,7 @@ void MoveGenerator::print_attacked_squares(int side){
 }
 
 // Generate all possible moves in the position
-void MoveGenerator::generate_moves(){
+MoveArray MoveGenerator::generate_moves(){
 
     // loop through all bitboards
     for(int piece = P; piece <= k; piece++){
@@ -101,6 +101,8 @@ void MoveGenerator::generate_moves(){
         generate_kings_moves(piece,bitboard,game.get_side());
     }
 
+    MoveArray legal_moves;
+
     for(int i = 0; i < possible_moves.count; i++)
     {
         if(is_legal(possible_moves.move_list[i]))
@@ -109,6 +111,8 @@ void MoveGenerator::generate_moves(){
             legal_moves.count++;
         }
     }
+
+    return legal_moves;
 }
 
 // Generate white pawn moves (push, double push, captures and en passant)
@@ -609,8 +613,8 @@ unsigned int MoveGenerator::encode_move( unsigned int source,
 // Returns only moves that are captures
 MoveArray MoveGenerator::generate_captures() {
     MoveArray capture_list;
+    MoveArray legal_moves = generate_moves();
 
-    generate_moves();
     for(int i = 0; i < legal_moves.count; i++)
     {
         if(game.is_capture(legal_moves.move_list[i]))
@@ -637,6 +641,8 @@ void MoveGenerator::print_move_pretty(int move) {
 }
 
 void MoveGenerator::print_move_list() {
+    MoveArray legal_moves = generate_moves();
+
     std::cout << "---------------------------------------------------------------------------------------\n";
     std::cout << "| Source | Target | Piece | Capture | Double push | Promotion | Castling | En Passant |\n";
     std::cout << "---------------------------------------------------------------------------------------\n";

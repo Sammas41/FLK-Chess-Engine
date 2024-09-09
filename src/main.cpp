@@ -9,10 +9,10 @@ int main()
 {
 	init_all_attacks();
 
-	Game game(flk::test::quiescence_test);
+	Game game(flk::test::morphy_mate_in_2);
 	game.print_board();
 
-	int depth = 2, bestMove = 0;
+	int depth = 6, bestMove = 0;
 
 	/*
 	auto t1 = std::chrono::high_resolution_clock::now();
