@@ -12,8 +12,9 @@ namespace flk {
     void perft_search(Game&, int, std::vector<int>&);
     void Perft(Game&, int);
 
-    int Negamax(Game&, int, int, int, int&);
-    int Quiescence_search(Game&, int, int);
+    int negamax(Game&, int, int, int, int&);
+    int quiescence_search(Game&, int, int);
 }
 
 #endif
+

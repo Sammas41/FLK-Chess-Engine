@@ -4,10 +4,10 @@ namespace flk {
 
     int nodes = 0, ply = 0;
     
-    int Negamax(Game& game, int depth, int alpha, int beta, int& best_move)
+    int negamax(Game& game, int depth, int alpha, int beta, int& best_move)
     {
         if (depth == 0)
-            return Quiescence_search(game, alpha, beta);
+            return quiescence_search(game, alpha, beta);
         
         // Only used to check if the new features that
         // we will introduce will actually reduce the
@@ -17,12 +17,17 @@ namespace flk {
         // Generate all possible moves in the position
         MoveGenerator m(game);
         MoveArray legal_moves = m.generate_moves();
+        m.sort_moves(legal_moves);
 
         // If there are no legal moves then it is either
         // checkmate or stalemate
         int is_check = m.is_square_attacked(game.get_side() == white ? 
                                             get_ls1b_index(game.get_bitboard(K)) :
                                             get_ls1b_index(game.get_bitboard(k)), game.get_side() ^ 1);
+
+        // If the king is in check, search one move deeper
+        // to avoid mates
+        if(is_check) depth++; 
 
         if(legal_moves.count == 0)
         {
@@ -38,13 +43,13 @@ namespace flk {
 
         // Loop through all the legal moves
         for(int i = 0; i < legal_moves.count; i++)
-        {
+        {              
             // Play the move and increment the ply counter
             g.make_move(legal_moves.move_list[i]);
             ply++;
 
             // Call negamax again for the opposite side and depth - 1
-            score = -Negamax(g, depth - 1, -beta, -alpha, best_move);
+            score = -negamax(g, depth - 1, -beta, -alpha, best_move);
             
             // Take back the move and reduce the ply counter
             ply--;
@@ -69,54 +74,52 @@ namespace flk {
         return alpha;
     }
     
-    int Quiescence_search(Game& game, int alpha, int beta)
+    int quiescence_search(Game& game, int alpha, int beta)
     {
         nodes++;
 
+        // Evaluate the position
+        int evaluation = flk::lazy_evaluation(game);
+        
+        // If the score is better than the opponent's
+        // best response then prune the branch
+        if(evaluation >= beta)
+                return beta;
+
+        // If the score is the better than the current alpha, save it 
+        if(evaluation > alpha)
+            alpha = evaluation;
+
+        // Generate only captures
         MoveGenerator m(game);
         MoveArray captures = m.generate_captures();
-
-        if(captures.count == 0)
-        {
-            MoveArray legal_moves = m.generate_moves();
-
-            // If there are no legal moves then it is either
-            // checkmate or stalemate
-            if(legal_moves.count == 0)
-            {
-                int is_check = m.is_square_attacked(game.get_side() == white ? 
-                                                    get_ls1b_index(game.get_bitboard(K)) :
-                                                    get_ls1b_index(game.get_bitboard(k)), game.get_side() ^ 1);
-                
-                if(is_check) return -1000 + ply;
-                else return 0;
-            }
-            // Return classical evaluation (cambiare questa funzione con la
-            // funzione di valutazione vera e propria)
-            else return flk::lazy_evaluation(game);
-        }
+        m.sort_moves(captures);
 
         Game g(game);
         int score;
 
+        // Search
         for(int i = 0; i < captures.count; i++)
-        {
+        {        
             g.make_move(captures.move_list[i]);
             ply++;
 
-            score = -Quiescence_search(g, -beta, -alpha);
+            score = -quiescence_search(g, -beta, -alpha);
 
             g.take_back_to(game);
             ply--;
 
+            // If the score is better than the opponent's best
+            // response then prune the branch
             if(score >= beta)
                 return beta;
 
-            // If the best move 
+            // If the score is the better than the current alpha, save it 
             if(score > alpha)
                 alpha = score;
         }
-        // return
+
+        // return the best score in the position
         return alpha;
     } 
     

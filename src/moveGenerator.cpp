@@ -620,6 +620,7 @@ MoveArray MoveGenerator::generate_captures() {
         if(game.is_capture(legal_moves.move_list[i]))
             capture_list.add_move(legal_moves.move_list[i]);
     }
+
     return capture_list; 
 }
 
@@ -640,8 +641,7 @@ void MoveGenerator::print_move_pretty(int move) {
               << (game.is_en_passant(move) ? " 1 " : " 0 ") << "    |\n";
 }
 
-void MoveGenerator::print_move_list() {
-    MoveArray legal_moves = generate_moves();
+void MoveGenerator::print_move_list(MoveArray legal_moves) {
 
     std::cout << "---------------------------------------------------------------------------------------\n";
     std::cout << "| Source | Target | Piece | Capture | Double push | Promotion | Castling | En Passant |\n";
@@ -649,5 +649,59 @@ void MoveGenerator::print_move_list() {
     for(int i = 0; i < legal_moves.count; i++)
         print_move_pretty(legal_moves.move_list[i]);
     std::cout << "---------------------------------------------------------------------------------------\n";
+}
 
+int MoveGenerator::score_move(int move) {
+    if(game.is_capture(move))
+    {
+        int attacking_piece = game.get_piece_moved(move);
+        int attacked_square = game.get_target_square(move);
+
+        int start_piece, end_piece;
+        if(game.get_side() == white) { start_piece = p; end_piece = k;}
+        else { start_piece = P; end_piece = K; }
+
+        int attacked_piece = P;
+        // To get the captured piece, loop through all the pieces
+        for(int piece = start_piece; start_piece < end_piece; piece++)
+        {
+            // If there is a bit set on the attacked square then we
+            // have found the attacked piece.
+            // NOTE: in case of en passant capture then the attacked
+            //       square is empty but since attacked_piece is initialized
+            //       to P we return the correct value anyway. In case
+            //       of switched color it works fine also in this case
+            //       due to the symmetry of MVV_LVA matrix:
+            //       MVV_LVA[P][p] = MVV_LVA[p][P]  
+            if(get_bit(game.get_bitboard(piece), attacked_square))
+            {
+                attacked_piece = piece;
+                break;
+            }
+        }
+
+        return MVV_LVA[attacking_piece][attacked_piece];
+    }
+    // quiet moves are searched last so its score = 0
+    else return 0;
+}
+
+void MoveGenerator::sort_moves(MoveArray& moves) {
+    int max;
+    int index_to_swap = 0, temp;
+    for(int i = 0; i < moves.count; i++)
+    {
+        max = -50000;
+        for(int j = i; j < moves.count; j++)
+        {
+            if(max < score_move(moves.move_list[j]))
+            {
+                max = score_move(moves.move_list[j]);
+                index_to_swap = j;
+            }
+        }
+        temp = moves.move_list[index_to_swap];
+        moves.move_list[index_to_swap] = moves.move_list[i];
+        moves.move_list[i] = temp;
+    }
 }
