@@ -3,7 +3,6 @@
 
 #include "attacks.h"
 #include "game.h"
-#include <vector>
 #include <array>
 
 /* This set up allows for faster move generation:
@@ -14,10 +13,10 @@
 */
 struct MoveArray
 {
-    std::array<int, 80> move_list;
+    std::array<Move, 80> move_list;
     unsigned int count = 0;
 
-    void add_move(int);
+    void add_move(Move);
 };
 
 class MoveGenerator
@@ -27,27 +26,21 @@ class MoveGenerator
         MoveGenerator(Game& g) : game(g) { } // Default constructor
 
         // Move generation
-        MoveArray generate_moves();
-        MoveArray generate_captures();
+        MoveArray generate_moves(int);
 
         // Move logic
         int is_square_attacked(int, int);
-        bool is_legal(int);
-        int score_move(int);
+        bool is_legal(Move);
+        int score_move(Move);
         void sort_moves(MoveArray&);
 
         // Print functions
-        void print_move(int);
         void print_move_list(MoveArray);
         void print_attacked_squares(int);
 
     private:
         Game game; // Reference to a Game object
         MoveArray possible_moves;
-
-        // Additional state variables for copying
-        U64 bitboards_copy[12], occupancies_copy[3];
-        int side_copy, enpassant_copy, castle_copy;
 
         // Move generation
         void generate_white_pawns_moves(int ,U64);
@@ -60,18 +53,8 @@ class MoveGenerator
         void generate_queens_moves(int, U64, int);
         void generate_kings_moves(int, U64, int);
 
-        // Move encoding and decoding
-        unsigned int encode_move(unsigned int,       // source square
-                                unsigned int,       // target square
-                                unsigned int,       // piece
-                                unsigned int,       // promotion
-                                unsigned int,       // capture
-                                unsigned int,       // double pawn push
-                                unsigned int,       // en passant
-                                unsigned int);      // castling
-
         // Print functions
-        void print_move_pretty(int);
+        void print_move_pretty(Move);
 
         // This table is used to sort the list of captures such
         // that it searches first the most favourable captures

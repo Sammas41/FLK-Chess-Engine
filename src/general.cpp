@@ -34,6 +34,21 @@ std::unordered_map<char, int> char_pieces = {
 	{'k', k}
 };
 
+std::unordered_map<int, char> int_to_char_pieces = {
+	{P, 'P'},
+	{N, 'N'},
+	{B, 'B'},
+	{R, 'R'},
+	{Q, 'Q'},
+	{K, 'K'},
+	{p, 'p'},
+	{n, 'n'},
+	{b, 'b'},
+	{r, 'r'},
+	{q, 'q'},
+	{k, 'k'}
+};
+
 std::unordered_map<int, char> promoted_pieces = {
     {Q, 'q'},
     {R, 'r'},

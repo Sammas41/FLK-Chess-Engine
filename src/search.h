@@ -1,9 +1,9 @@
 #ifndef SEARCH_H
 #define SEARCH_H
 
-#include "game.h"
 #include "evaluation.h"
 #include "moveGenerator.h"
+#include <vector>
 
 namespace flk {
 
@@ -12,7 +12,7 @@ namespace flk {
     void perft_search(Game&, int, std::vector<int>&);
     void Perft(Game&, int);
 
-    int negamax(Game&, int, int, int, int&);
+    int negamax(Game&, int, int, int, Move&);
     int quiescence_search(Game&, int, int);
 }
 

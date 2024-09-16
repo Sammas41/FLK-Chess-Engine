@@ -4,7 +4,7 @@ namespace flk {
 
     int nodes = 0, ply = 0;
     
-    int negamax(Game& game, int depth, int alpha, int beta, int& best_move)
+    int negamax(Game& game, int depth, int alpha, int beta, Move& best_move)
     {
         if (depth == 0)
             return quiescence_search(game, alpha, beta);
@@ -16,7 +16,7 @@ namespace flk {
 
         // Generate all possible moves in the position
         MoveGenerator m(game);
-        MoveArray legal_moves = m.generate_moves();
+        MoveArray legal_moves = m.generate_moves(all_moves);
         m.sort_moves(legal_moves);
 
         // If there are no legal moves then it is either
@@ -32,7 +32,7 @@ namespace flk {
         if(legal_moves.count == 0)
         {
             if(is_check)
-                return -1000 + ply;
+                return -10000 + ply;
             else return 0;
         }
 
@@ -92,7 +92,7 @@ namespace flk {
 
         // Generate only captures
         MoveGenerator m(game);
-        MoveArray captures = m.generate_captures();
+        MoveArray captures = m.generate_moves(only_captures);
         m.sort_moves(captures);
 
         Game g(game);
@@ -129,7 +129,7 @@ namespace flk {
             return;
         
         MoveGenerator m(game);
-        MoveArray legal_moves = m.generate_moves();
+        MoveArray legal_moves = m.generate_moves(all_moves);
 
         if(legal_moves.count == 0)
             return;
@@ -154,7 +154,7 @@ namespace flk {
         std::vector<int> move_count(depth, 0);
 
         MoveGenerator move_gen(game);
-        MoveArray legal_moves = move_gen.generate_moves();
+        MoveArray legal_moves = move_gen.generate_moves(all_moves);
 
         Game g(game);
 
@@ -170,7 +170,7 @@ namespace flk {
             move_count.at(depth - 1)++;
             if(depth == 1)
             {
-                move_gen.print_move(legal_moves.move_list[i]);
+                legal_moves.move_list[i].print_move();
                 std::cout << ": 1\n"; 
             }
             else
@@ -178,7 +178,7 @@ namespace flk {
                 g.make_move(legal_moves.move_list[i]);
                 perft_search(g, depth - 1, move_count);
 
-                move_gen.print_move(legal_moves.move_list[i]);
+                legal_moves.move_list[i].print_move();
                 std::cout << ": " << move_count.at(0) - previous_nodes << "\n";
                 previous_nodes = move_count.at(0);
 

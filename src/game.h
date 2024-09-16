@@ -1,7 +1,7 @@
 #ifndef GAME_H
 #define GAME_H
 
-#include "general.h"
+#include "move.h"
 #include <sstream> // For std::istringstream
 #include <algorithm> // For std::count
 #include <cstring> // For memset() function
@@ -83,20 +83,7 @@ class Game {
 
         bool is_valid(const std::string &);
 
-        void make_move(int);
-
-        // Helper functions for make_move (used also by MoveGenerator)
-        int get_source_square(int);
-        int get_target_square(int);
-        int get_piece_moved(int);
-        int get_promoted_piece(int);
-        bool is_castling(int);
-        bool is_en_passant(int);
-        bool is_double_push(int);
-        bool is_capture(int);
-        bool is_promotion(int);
-
-        Game copyBoardState();
+        void make_move(Move);
         void take_back_to(Game);
 };
 

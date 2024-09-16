@@ -64,7 +64,7 @@ void MoveGenerator::print_attacked_squares(int side){
 }
 
 // Generate all possible moves in the position
-MoveArray MoveGenerator::generate_moves(){
+MoveArray MoveGenerator::generate_moves(int capture_flag){
 
     // loop through all bitboards
     for(int piece = P; piece <= k; piece++){
@@ -103,12 +103,26 @@ MoveArray MoveGenerator::generate_moves(){
 
     MoveArray legal_moves;
 
-    for(int i = 0; i < possible_moves.count; i++)
+    if(capture_flag == only_captures)
     {
-        if(is_legal(possible_moves.move_list[i]))
+        for(int i = 0; i < possible_moves.count; i++)
         {
-            legal_moves.move_list[legal_moves.count] = possible_moves.move_list[i];
-            legal_moves.count++;
+            if(is_legal(possible_moves.move_list[i]) && possible_moves.move_list[i].is_capture())
+            {
+                legal_moves.move_list[legal_moves.count] = possible_moves.move_list[i];
+                legal_moves.count++;
+            }
+        }
+    }
+    else
+    {
+        for(int i = 0; i < possible_moves.count; i++)
+        {
+            if(is_legal(possible_moves.move_list[i]))
+            {
+                legal_moves.move_list[legal_moves.count] = possible_moves.move_list[i];
+                legal_moves.count++;
+            }
         }
     }
 
@@ -129,18 +143,18 @@ void MoveGenerator::generate_white_pawns_moves(int piece, U64 bitboard) {
                 // three type of moves
                 // PAWN PROMOTION
                 if (source_square >= a7 && source_square <= h7){
-                    possible_moves.add_move(encode_move(source_square,target_square,piece, Q, 0,0,0,0));
-                    possible_moves.add_move(encode_move(source_square,target_square,piece, R, 0,0,0,0));
-                    possible_moves.add_move(encode_move(source_square,target_square,piece, B, 0,0,0,0));
-                    possible_moves.add_move(encode_move(source_square,target_square,piece, N, 0,0,0,0));    
+                    possible_moves.add_move(Move(source_square,target_square,piece, Q, 0,0,0,0));
+                    possible_moves.add_move(Move(source_square,target_square,piece, R, 0,0,0,0));
+                    possible_moves.add_move(Move(source_square,target_square,piece, B, 0,0,0,0));
+                    possible_moves.add_move(Move(source_square,target_square,piece, N, 0,0,0,0));    
                 } 
                 else{
                     // ONE SQUARE AHEAD MOVE
-                    possible_moves.add_move(encode_move(source_square,target_square,piece, 0, 0,0,0,0));
+                    possible_moves.add_move(Move(source_square,target_square,piece, 0, 0,0,0,0));
 
                     // TWO SQUARES AHEAD MOVE
                     if((source_square >= a2 && source_square <= h2) && !get_bit(game.get_occupancy(both), target_square - 8)){
-                        possible_moves.add_move(encode_move(source_square,target_square - 8,piece, 0, 0,1,0,0));
+                        possible_moves.add_move(Move(source_square,target_square - 8,piece, 0, 0,1,0,0));
                     }
 
                 }
@@ -153,28 +167,28 @@ void MoveGenerator::generate_white_pawns_moves(int piece, U64 bitboard) {
             if(en_passant_square != no_sq)
             {
                 if(source_square == a5 && en_passant_square == b6)
-                    possible_moves.add_move(encode_move(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
+                    possible_moves.add_move(Move(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
 
                 if(source_square == b5 && (en_passant_square == a6 || en_passant_square == c6))
-                    possible_moves.add_move(encode_move(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
+                    possible_moves.add_move(Move(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
 
                 if(source_square == c5 && (en_passant_square == b6 || en_passant_square == d6))
-                    possible_moves.add_move(encode_move(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
+                    possible_moves.add_move(Move(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
 
                 if(source_square == d5 && (en_passant_square == c6 || en_passant_square == e6))
-                    possible_moves.add_move(encode_move(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
+                    possible_moves.add_move(Move(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
 
                 if(source_square == e5 && (en_passant_square == d6 || en_passant_square == f6))
-                    possible_moves.add_move(encode_move(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
+                    possible_moves.add_move(Move(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
 
                 if(source_square == f5 && (en_passant_square == e6 || en_passant_square == g6))
-                    possible_moves.add_move(encode_move(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
+                    possible_moves.add_move(Move(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
 
                 if(source_square == g5 && (en_passant_square == f6 || en_passant_square == h6))
-                    possible_moves.add_move(encode_move(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
+                    possible_moves.add_move(Move(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
 
                 if(source_square == h5 && en_passant_square == g6)
-                    possible_moves.add_move(encode_move(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
+                    possible_moves.add_move(Move(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
             }
 
             // generate pawn captures
@@ -184,15 +198,15 @@ void MoveGenerator::generate_white_pawns_moves(int piece, U64 bitboard) {
 
                 // CAPTURE AND PROMOTION
                 if (source_square >= a7 && source_square <= h7){
-                    possible_moves.add_move(encode_move(source_square, target_square, piece, Q, 1, 0, 0, 0));
-                    possible_moves.add_move(encode_move(source_square, target_square, piece, R, 1, 0, 0, 0));
-                    possible_moves.add_move(encode_move(source_square, target_square, piece, B, 1, 0, 0, 0));
-                    possible_moves.add_move(encode_move(source_square, target_square, piece, N, 1, 0, 0, 0));
+                    possible_moves.add_move(Move(source_square, target_square, piece, Q, 1, 0, 0, 0));
+                    possible_moves.add_move(Move(source_square, target_square, piece, R, 1, 0, 0, 0));
+                    possible_moves.add_move(Move(source_square, target_square, piece, B, 1, 0, 0, 0));
+                    possible_moves.add_move(Move(source_square, target_square, piece, N, 1, 0, 0, 0));
 
                 } 
                 else{
                     // CAPTURE
-                    possible_moves.add_move(encode_move(source_square, target_square, piece, 0, 1, 0, 0, 0));
+                    possible_moves.add_move(Move(source_square, target_square, piece, 0, 1, 0, 0, 0));
                 }
                 pop_bit(attacks, target_square);
             }
@@ -213,7 +227,7 @@ void MoveGenerator::generate_white_king_castling_moves(int piece, U64 bitboard) 
             if(!get_bit(game.get_occupancy(both), f1) && !get_bit(game.get_occupancy(both), g1)){
                 // king and f1 squares not attacked
                 if(!is_square_attacked(e1,black) && !is_square_attacked(f1,black)){
-                    possible_moves.add_move(encode_move(e1, g1, piece, 0, 0, 0, 0, 1));
+                    possible_moves.add_move(Move(e1, g1, piece, 0, 0, 0, 0, 1));
                 }
             }
         }
@@ -225,7 +239,7 @@ void MoveGenerator::generate_white_king_castling_moves(int piece, U64 bitboard) 
             {
                 // make sure king and the d1 squares are not under attacks
                 if (!is_square_attacked(e1, black) && !is_square_attacked(d1, black))
-                    possible_moves.add_move(encode_move(e1, c1, piece, 0, 0, 0, 0, 1));
+                    possible_moves.add_move(Move(e1, c1, piece, 0, 0, 0, 0, 1));
             }
             
         }
@@ -246,18 +260,18 @@ void MoveGenerator::generate_black_pawns_moves(int piece, U64 bitboard) {
                 // three type of moves
                 // PAWN PROMOTION
                 if (source_square >= a2 && source_square <= h2){
-                    possible_moves.add_move(encode_move(source_square,target_square,piece, q, 0,0,0,0));
-                    possible_moves.add_move(encode_move(source_square,target_square,piece, r, 0,0,0,0));
-                    possible_moves.add_move(encode_move(source_square,target_square,piece, b, 0,0,0,0));
-                    possible_moves.add_move(encode_move(source_square,target_square,piece, n, 0,0,0,0));
+                    possible_moves.add_move(Move(source_square,target_square,piece, q, 0,0,0,0));
+                    possible_moves.add_move(Move(source_square,target_square,piece, r, 0,0,0,0));
+                    possible_moves.add_move(Move(source_square,target_square,piece, b, 0,0,0,0));
+                    possible_moves.add_move(Move(source_square,target_square,piece, n, 0,0,0,0));
         
                 } 
                 else{
                     // ONE SQUARE AHEAD MOVE
-                    possible_moves.add_move(encode_move(source_square,target_square,piece, 0, 0,0,0,0));
+                    possible_moves.add_move(Move(source_square,target_square,piece, 0, 0,0,0,0));
                     // TWO SQUARES AHEAD MOVE
                     if((source_square >= a7 && source_square <= h7) && !get_bit(game.get_occupancy(both), target_square + 8)){
-                        possible_moves.add_move(encode_move(source_square,target_square + 8,piece,0, 0,1,0,0));
+                        possible_moves.add_move(Move(source_square,target_square + 8,piece,0, 0,1,0,0));
                     }
 
                 }
@@ -270,28 +284,28 @@ void MoveGenerator::generate_black_pawns_moves(int piece, U64 bitboard) {
             if(en_passant_square != no_sq)
             {
                 if(source_square == a4 && en_passant_square == b3)
-                    possible_moves.add_move(encode_move(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
+                    possible_moves.add_move(Move(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
 
                 if(source_square == b4 && (en_passant_square == a3 || en_passant_square == c3))
-                    possible_moves.add_move(encode_move(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
+                    possible_moves.add_move(Move(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
 
                 if(source_square == c4 && (en_passant_square == b3 || en_passant_square == d3))
-                    possible_moves.add_move(encode_move(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
+                    possible_moves.add_move(Move(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
 
                 if(source_square == d4 && (en_passant_square == c3 || en_passant_square == e3))
-                    possible_moves.add_move(encode_move(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
+                    possible_moves.add_move(Move(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
 
                 if(source_square == e4 && (en_passant_square == d3 || en_passant_square == f3))
-                    possible_moves.add_move(encode_move(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
+                    possible_moves.add_move(Move(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
 
                 if(source_square == f4 && (en_passant_square == e3 || en_passant_square == g3))
-                    possible_moves.add_move(encode_move(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
+                    possible_moves.add_move(Move(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
 
                 if(source_square == g4 && (en_passant_square == f3 || en_passant_square == h3))
-                    possible_moves.add_move(encode_move(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
+                    possible_moves.add_move(Move(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
 
                 if(source_square == h4 && en_passant_square == g3)
-                    possible_moves.add_move(encode_move(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
+                    possible_moves.add_move(Move(source_square, en_passant_square, piece, 0, 1, 0, 1, 0));
             }
 
             // generate pawn captures
@@ -301,15 +315,15 @@ void MoveGenerator::generate_black_pawns_moves(int piece, U64 bitboard) {
 
                 // CAPTURE AND PROMOTION
                 if (source_square >= a2 && source_square <= h2){
-                    possible_moves.add_move(encode_move(source_square,target_square,piece, q, 1,0,0,0));
-                    possible_moves.add_move(encode_move(source_square,target_square,piece, r, 1,0,0,0));
-                    possible_moves.add_move(encode_move(source_square,target_square,piece, b, 1,0,0,0));
-                    possible_moves.add_move(encode_move(source_square,target_square,piece, n, 1,0,0,0));
+                    possible_moves.add_move(Move(source_square,target_square,piece, q, 1,0,0,0));
+                    possible_moves.add_move(Move(source_square,target_square,piece, r, 1,0,0,0));
+                    possible_moves.add_move(Move(source_square,target_square,piece, b, 1,0,0,0));
+                    possible_moves.add_move(Move(source_square,target_square,piece, n, 1,0,0,0));
         
                 } 
                 else{
                     // CAPTURE
-                    possible_moves.add_move(encode_move(source_square,target_square,piece, 0, 1,0,0,0));
+                    possible_moves.add_move(Move(source_square,target_square,piece, 0, 1,0,0,0));
                 }
                 pop_bit(attacks, target_square);
             }
@@ -332,7 +346,7 @@ void MoveGenerator::generate_black_king_castling_moves(int piece, U64 bitboard) 
             {
                 // make sure king and the f8 squares are not under attacks
                 if (!is_square_attacked(e8, white) && !is_square_attacked(f8, white))
-                    possible_moves.add_move(encode_move(e8,g8,piece, 0, 0,0,0,1));
+                    possible_moves.add_move(Move(e8,g8,piece, 0, 0,0,0,1));
             }
         }
         
@@ -344,7 +358,7 @@ void MoveGenerator::generate_black_king_castling_moves(int piece, U64 bitboard) 
             {
                 // make sure king and the d8 squares are not under attacks
                 if (!is_square_attacked(e8, white) && !is_square_attacked(d8, white))
-                    possible_moves.add_move(encode_move(e8,c8,piece, 0, 0,0,0,1));
+                    possible_moves.add_move(Move(e8,c8,piece, 0, 0,0,0,1));
             }
         }
     }
@@ -372,11 +386,11 @@ void MoveGenerator::generate_knights_moves(int piece, U64 bitboard, int side) {
                 
                 // quite move
                 if (!get_bit(((side == white) ? game.get_occupancy(black) : game.get_occupancy(white)), target_square))
-                    possible_moves.add_move(encode_move(source_square,target_square,piece, 0, 0,0,0,0));
+                    possible_moves.add_move(Move(source_square,target_square,piece, 0, 0,0,0,0));
                 
                 else
                     // capture move
-                    possible_moves.add_move(encode_move(source_square,target_square,piece, 0, 1,0,0,0));
+                    possible_moves.add_move(Move(source_square,target_square,piece, 0, 1,0,0,0));
                 
                 // pop ls1b in current attacks set
                 pop_bit(attacks, target_square);
@@ -411,11 +425,11 @@ void MoveGenerator::generate_bishops_moves(int piece, U64 bitboard, int side){
                 
                 // quite move
                 if (!get_bit(((side == white) ? game.get_occupancy(black) : game.get_occupancy(white)), target_square))
-                    possible_moves.add_move(encode_move(source_square,target_square,piece, 0, 0,0,0,0));
+                    possible_moves.add_move(Move(source_square,target_square,piece, 0, 0,0,0,0));
                 
                 else
                     // capture move
-                    possible_moves.add_move(encode_move(source_square,target_square,piece, 0, 1,0,0,0));
+                    possible_moves.add_move(Move(source_square,target_square,piece, 0, 1,0,0,0));
                 
                 // pop ls1b in current attacks set
                 pop_bit(attacks, target_square);
@@ -451,11 +465,11 @@ void MoveGenerator::generate_rooks_moves(int piece, U64 bitboard, int side){
                 
                 // quite move
                 if (!get_bit(((side == white) ? game.get_occupancy(black) : game.get_occupancy(white)), target_square))
-                    possible_moves.add_move(encode_move(source_square,target_square,piece, 0, 0,0,0,0));
+                    possible_moves.add_move(Move(source_square,target_square,piece, 0, 0,0,0,0));
                 
                 else
                     // capture move
-                    possible_moves.add_move(encode_move(source_square,target_square,piece, 0, 1,0,0,0));
+                    possible_moves.add_move(Move(source_square,target_square,piece, 0, 1,0,0,0));
                 
                 // pop ls1b in current attacks set
                 pop_bit(attacks, target_square);
@@ -492,11 +506,11 @@ void MoveGenerator::generate_queens_moves(int piece, U64 bitboard, int side){
                 
                 // quite move
                 if (!get_bit(((side == white) ? game.get_occupancy(black) : game.get_occupancy(white)), target_square))
-                    possible_moves.add_move(encode_move(source_square,target_square,piece, 0, 0,0,0,0));
+                    possible_moves.add_move(Move(source_square,target_square,piece, 0, 0,0,0,0));
                 
                 else
                     // capture move
-                    possible_moves.add_move(encode_move(source_square,target_square,piece, 0, 1,0,0,0));
+                    possible_moves.add_move(Move(source_square,target_square,piece, 0, 1,0,0,0));
                 
                 // pop ls1b in current attacks set
                 pop_bit(attacks, target_square);
@@ -532,11 +546,11 @@ void MoveGenerator::generate_kings_moves(int piece, U64 bitboard, int side){
                 
                 // quite move
                 if (!get_bit(((side == white) ? game.get_occupancy(black) : game.get_occupancy(white)), target_square))
-                    possible_moves.add_move(encode_move(source_square,target_square,piece, 0, 0,0,0,0));
+                    possible_moves.add_move(Move(source_square,target_square,piece, 0, 0,0,0,0));
                 
                 else
                     // capture move
-                    possible_moves.add_move(encode_move(source_square,target_square,piece, 0, 1,0,0,0));
+                    possible_moves.add_move(Move(source_square,target_square,piece, 0, 1,0,0,0));
                 
                 // pop ls1b in current attacks set
                 pop_bit(attacks, target_square);
@@ -549,7 +563,7 @@ void MoveGenerator::generate_kings_moves(int piece, U64 bitboard, int side){
 }
 
 // Checks if a move is legal or not
-bool MoveGenerator::is_legal(int move)
+bool MoveGenerator::is_legal(Move move)
 {
     Game copy(game);
     game.make_move(move);
@@ -570,75 +584,21 @@ bool MoveGenerator::is_legal(int move)
 }
 
 // Adds a move to the possible moves array
-void MoveArray::add_move(int move)
+void MoveArray::add_move(Move move)
 {
     move_list[count] = move;
     count++;
 }
 
-/*
-    move encoding
-            
-          binary move bits                               hexidecimal 
-    
-    0000 0000 0000 0000 0011 1111    source square       0x3f
-    0000 0000 0000 1111 1100 0000    target square       0xfc0
-    0000 0000 1111 0000 0000 0000    piece               0xf000
-    0000 1111 0000 0000 0000 0000    promoted piece      0xf0000
-    0001 0000 0000 0000 0000 0000    capture flag        0x100000
-    0010 0000 0000 0000 0000 0000    double push flag    0x200000
-    0100 0000 0000 0000 0000 0000    enpassant flag      0x400000
-    1000 0000 0000 0000 0000 0000    castling flag       0x800000
-*/
-
-// Encodes a move as in the format above
-unsigned int MoveGenerator::encode_move( unsigned int source,
-                                        unsigned int target, 
-                                        unsigned int piece, 
-                                        unsigned int promoted, 
-                                        unsigned int capture, 
-                                        unsigned int doublePush, 
-                                        unsigned int enpassant, 
-                                        unsigned int castling) {
-    return             source |
-                (target << 6) |
-                (piece << 12) |
-             (promoted << 16) |
-              (capture << 20) |
-           (doublePush << 21) |
-            (enpassant << 22) |
-             (castling << 23) ;
-}
-
-// Returns only moves that are captures
-MoveArray MoveGenerator::generate_captures() {
-    MoveArray capture_list;
-    MoveArray legal_moves = generate_moves();
-
-    for(int i = 0; i < legal_moves.count; i++)
-    {
-        if(game.is_capture(legal_moves.move_list[i]))
-            capture_list.add_move(legal_moves.move_list[i]);
-    }
-
-    return capture_list; 
-}
-
-void MoveGenerator::print_move(int move) {
-    printf("%s%s%c", square_to_coordinates[game.get_source_square(move)],
-                       square_to_coordinates[game.get_target_square(move)],
-                       promoted_pieces[game.get_promoted_piece(move)]);
-}
-
-void MoveGenerator::print_move_pretty(int move) {
-    std::cout << "|   " << square_to_coordinates[game.get_source_square(move)] << "   |   "
-              << square_to_coordinates[game.get_target_square(move)] << "   |   "
-              << ascii_pieces[game.get_piece_moved(move)] << "   |   "
-              << (game.is_capture(move) ? " 1 " : " 0 ") << "   |     "
-              << (game.is_double_push(move) ? " 1 " : " 0 ") << "     |    "
-              << (game.is_promotion(move) ? " 1 " : " 0 ") << "    |    "
-              << (game.is_castling(move) ? " 1 " : " 0 ") << "   |     "
-              << (game.is_en_passant(move) ? " 1 " : " 0 ") << "    |\n";
+void MoveGenerator::print_move_pretty(Move move) {
+    std::cout << "|   " << square_to_coordinates[move.get_source_square()] << "   |   "
+              << square_to_coordinates[move.get_target_square()] << "   |   "
+              << ascii_pieces[move.get_piece_moved()] << "   |   "
+              << (move.is_capture() ? " 1 " : " 0 ") << "   |     "
+              << (move.is_double_push() ? " 1 " : " 0 ") << "     |    "
+              << (move.get_promoted_piece() ? " 1 " : " 0 ") << "    |    "
+              << (move.is_castling() ? " 1 " : " 0 ") << "   |     "
+              << (move.is_en_passant() ? " 1 " : " 0 ") << "    |\n";
 }
 
 void MoveGenerator::print_move_list(MoveArray legal_moves) {
@@ -651,11 +611,11 @@ void MoveGenerator::print_move_list(MoveArray legal_moves) {
     std::cout << "---------------------------------------------------------------------------------------\n";
 }
 
-int MoveGenerator::score_move(int move) {
-    if(game.is_capture(move))
+int MoveGenerator::score_move(Move move) {
+    if(move.is_capture())
     {
-        int attacking_piece = game.get_piece_moved(move);
-        int attacked_square = game.get_target_square(move);
+        int attacking_piece = move.get_piece_moved();
+        int attacked_square = move.get_target_square();
 
         int start_piece, end_piece;
         if(game.get_side() == white) { start_piece = p; end_piece = k;}
@@ -687,16 +647,18 @@ int MoveGenerator::score_move(int move) {
 }
 
 void MoveGenerator::sort_moves(MoveArray& moves) {
-    int max;
-    int index_to_swap = 0, temp;
+    int max, score, index_to_swap = 0;
+    Move temp;
+
     for(int i = 0; i < moves.count; i++)
     {
         max = -50000;
         for(int j = i; j < moves.count; j++)
         {
-            if(max < score_move(moves.move_list[j]))
+            score = score_move(moves.move_list[j]);
+            if(max < score)
             {
-                max = score_move(moves.move_list[j]);
+                max = score;
                 index_to_swap = j;
             }
         }

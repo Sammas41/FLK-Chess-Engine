@@ -119,8 +119,6 @@ void Game::set_bitboard(int index, U64 value) {
     occupancies[both] = occupancies[white] | occupancies[black];
 }
 
-
-
 void Game::parse_fen(const std::string& fen) {
     
     if(!is_valid(fen))
@@ -282,7 +280,6 @@ void Game::print_board()
     std::cout << "     Fullmove: " << fullmoveNumber << std::endl;                                    
 }
 
-
 bool Game::is_valid(const std::string & fen)
 {
     std::istringstream iss(fen);
@@ -363,19 +360,6 @@ bool Game::is_valid(const std::string & fen)
     return true;
 }
 
-Game Game::copyBoardState()
-{
-    Game game_copy;
-
-    memcpy(game_copy.bitboards, bitboards, 96); // 96=sizeof(U64) * 12
-    memcpy(game_copy.occupancies, occupancies, 24); // 24 = sizeof(U64)*3
-    game_copy.side = side;
-    game_copy.enpassant= enpassant;
-    game_copy.castle = castle;
-
-    return game_copy;
-}
-
 void Game::take_back_to(Game revert_to)
 {
     for(int piece = P; piece <= k; piece++)
@@ -391,17 +375,17 @@ void Game::take_back_to(Game revert_to)
     fullmoveNumber = revert_to.fullmoveNumber;
 }
 
-void Game::make_move(int move)
+void Game::make_move(Move move)
 {
     // parse move
-    int source_square = get_source_square(move);
-    int target_square = get_target_square(move);
-    int piece = get_piece_moved(move);
-    int promoted_piece = get_promoted_piece(move);
-    int capture = is_capture(move);
-    int double_push = is_double_push(move);
-    int enpassant_flag = is_en_passant(move);
-    int castling_flag = is_castling(move);
+    int source_square = move.get_source_square();
+    int target_square = move.get_target_square();
+    int piece = move.get_piece_moved();
+    int promoted_piece = move.get_promoted_piece();
+    int capture = move.is_capture();
+    int double_push = move.is_double_push();
+    int enpassant_flag = move.is_en_passant();
+    int castling_flag = move.is_castling();
 
     // do the move
     pop_bit(bitboards[piece], source_square);
@@ -515,40 +499,4 @@ void Game::make_move(int move)
 
     // change side after the move is done
     side == white ? side = black : side = white;
-}
-
-int Game::get_source_square(int move) {
-    return move & 0x3f;
-}
-
-int Game::get_target_square(int move) {
-    return (move & 0xfc0) >> 6;
-}
-
-int Game::get_piece_moved(int move) {
-    return (move & 0xf000) >> 12;
-}
-
-bool Game::is_capture(int move) {
-    return move & 0x100000;
-}
-
-bool Game::is_double_push(int move) {
-    return move & 0x200000;
-}
-
-bool Game::is_en_passant(int move) {
-    return move & 0x400000;
-}
-
-bool Game::is_castling(int move) {
-    return move & 0x800000;
-}
-
-int Game::get_promoted_piece(int move) {
-    return (move & 0xf0000) >> 16;
-}
-
-bool Game::is_promotion(int move) {
-    return (move & 0xf0000) >> 16;
 }

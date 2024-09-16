@@ -21,7 +21,7 @@ void Engine::play(char side) {
             int player_move = get_player_move(white);
             
             // Make player's move
-            game.make_move(player_move);
+            // game.make_move(player_move);
         }
     }
     else

@@ -1,6 +1,4 @@
 #include "search.h"
-#include "moveGenerator.h"
-#include "evaluation.h"
 #include "test.h"
 #include "engine.h"
 
@@ -9,17 +7,12 @@
 int main()
 {
 	init_all_attacks();
-
-	//Engine e;
-
-	//e.play('w');
-
 	
-	Game game(flk::test::trickyPos);
+	Game game(flk::test::quiescence_test);
 	game.print_board();
 	
-	int depth = 6, bestMove = 0;
-
+	int depth = 5;
+	Move bestMove;
 	/*
 	auto t1 = std::chrono::high_resolution_clock::now();
 	flk::Perft(game, depth);
@@ -38,9 +31,8 @@ int main()
 	MoveGenerator m(game);
 
 	std::cout << "BestMove: ";
-	m.print_move(bestMove);
-	std::cout << "\n";
-	std::cout << "Number of nodes searched: " << flk::nodes << "\n";
+	bestMove.print_move();
+	std::cout << "\nNumber of nodes searched: " << flk::nodes << "\n";
 
 	std::cout << "Score: " << score << "\n";
 	std::cout << "Found in: " << t.count() * 0.001 << " seconds\n";
