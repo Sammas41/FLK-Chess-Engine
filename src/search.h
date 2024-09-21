@@ -8,6 +8,10 @@
 namespace flk {
 
     extern int nodes;
+    extern Move killer_moves[2][100];
+
+    // History moves matrix for each piece (12 pieces x 64 squares)
+    extern int history_moves[12][SQUARES];
     
     void perft_search(Game&, int, std::vector<int>&);
     void Perft(Game&, int);

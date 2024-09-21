@@ -24,6 +24,8 @@ namespace flk {
 
 		// Quiescence search:
 		std::string quiescence_test = "qrr3k1/5ppp/8/8/8/2Q5/2R5/2R3K1 w - - 0 1";
+		std::string random_position = "4nKb1/Np3p1P/1Pn2PB1/3k2PP/1R5r/1p1p1pB1/5P1p/2bq4 w - - 0 1";
+		std::string killer_test = "6k1/3q1pp1/pp5p/1r5n/5P2/1P4P1/PQ4BP/2R3K1 b - - 0 1";
 
 	} // End of namespace test
 	

@@ -27,6 +27,18 @@ class Move {
 
         void print_move(bool all_info = false);
 
+        // Overload of the == operator
+        bool operator==(const Move& another_move) {
+            if(another_move.move == move)
+                return true;
+            else return false;
+        }
+
+        bool operator !=(const Move& another_move) {
+            if(another_move.move != move)
+                return true;
+            else return false;
+        }
     private:
         int move;
 

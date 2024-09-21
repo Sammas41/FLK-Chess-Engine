@@ -598,7 +598,8 @@ void MoveGenerator::print_move_pretty(Move move) {
               << (move.is_double_push() ? " 1 " : " 0 ") << "     |    "
               << (move.get_promoted_piece() ? " 1 " : " 0 ") << "    |    "
               << (move.is_castling() ? " 1 " : " 0 ") << "   |     "
-              << (move.is_en_passant() ? " 1 " : " 0 ") << "    |\n";
+              << (move.is_en_passant() ? " 1 " : " 0 ") << "    |\n"; 
+              //<< score_move(move, 0, NULL, NULL) << "  |\n";
 }
 
 void MoveGenerator::print_move_list(MoveArray legal_moves) {
@@ -611,7 +612,8 @@ void MoveGenerator::print_move_list(MoveArray legal_moves) {
     std::cout << "---------------------------------------------------------------------------------------\n";
 }
 
-int MoveGenerator::score_move(Move move) {
+int MoveGenerator::score_move(Move move, int ply, 
+                              Move killer_moves[][MAX_KILLER_DEPTH], int history_moves[][SQUARES]) {
     if(move.is_capture())
     {
         int attacking_piece = move.get_piece_moved();
@@ -640,30 +642,54 @@ int MoveGenerator::score_move(Move move) {
             }
         }
 
-        return MVV_LVA[attacking_piece][attacked_piece];
+        return MVV_LVA[attacking_piece][attacked_piece] + 10000;
     }
-    // quiet moves are searched last so its score = 0
-    else return 0;
+    // quiet moves scores
+    else {
+        if(move == killer_moves[0][ply])
+            return 9000;
+        else if(move == killer_moves[1][ply])
+            return 8000;
+        else return history_moves[move.get_piece_moved()][move.get_target_square()];
+    }
+
+    return 0;
 }
 
-void MoveGenerator::sort_moves(MoveArray& moves) {
+void MoveGenerator::sort_moves(MoveArray& moves, int ply,
+                               Move killer_moves[][MAX_KILLER_DEPTH], int history_moves[][SQUARES]) {
     int max, score, index_to_swap = 0;
+    bool swap;
     Move temp;
 
     for(int i = 0; i < moves.count; i++)
     {
+        swap = false;
         max = -50000;
         for(int j = i; j < moves.count; j++)
         {
-            score = score_move(moves.move_list[j]);
+            score = score_move(moves.move_list[j], ply, killer_moves, history_moves);
             if(max < score)
             {
+                swap = true;
                 max = score;
                 index_to_swap = j;
             }
         }
-        temp = moves.move_list[index_to_swap];
-        moves.move_list[index_to_swap] = moves.move_list[i];
-        moves.move_list[i] = temp;
+    
+        if(swap) {
+            temp = moves.move_list[index_to_swap];
+            moves.move_list[index_to_swap] = moves.move_list[i];
+            moves.move_list[i] = temp;
+        }
+    }
+}
+
+void MoveGenerator::print_score(MoveArray list, Move killer[][MAX_KILLER_DEPTH], int hist[][SQUARES])
+{
+    for(int i = 0; i < list.count; i++) {
+        std::cout << i+1 << ": ";
+        list.move_list[i].print_move();
+        std::cout << "   Score: " << score_move(list.move_list[i], 0, killer, hist) << "\n";
     }
 }

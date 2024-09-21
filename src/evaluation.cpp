@@ -15,10 +15,10 @@ namespace flk {
     int lazy_evaluation(Game& game)
     {
         int lazy_score = 0;
-        
+
         // Material evaluation
         lazy_score += eval_material(game);
-        lazy_score += eval_position(game);
+        //lazy_score += eval_position(game);
 
         return lazy_score;
     }
@@ -27,7 +27,7 @@ namespace flk {
     {
         int material_score = 0, square = no_sq;
         U64 bitboard = 0ULL;
-
+        
         for(int piece = P; piece <= k; piece++)
         {
             bitboard = game.get_bitboard(piece);
@@ -37,7 +37,7 @@ namespace flk {
                 square = get_ls1b_index(bitboard);
 
                 material_score += piece_score[piece];
-
+                
                 pop_bit(bitboard, square);
             }
         }

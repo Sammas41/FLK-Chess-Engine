@@ -31,12 +31,13 @@ class MoveGenerator
         // Move logic
         int is_square_attacked(int, int);
         bool is_legal(Move);
-        int score_move(Move);
-        void sort_moves(MoveArray&);
+        int score_move(Move, int, Move[][MAX_KILLER_DEPTH], int[][SQUARES]);
+        void sort_moves(MoveArray&, int, Move[][MAX_KILLER_DEPTH], int[][SQUARES]);
 
         // Print functions
         void print_move_list(MoveArray);
         void print_attacked_squares(int);
+        void print_score(MoveArray, Move[][MAX_KILLER_DEPTH], int[][SQUARES]);
 
     private:
         Game game; // Reference to a Game object
