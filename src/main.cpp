@@ -8,21 +8,16 @@ int main()
 {
 	init_all_attacks();
 	
-	Game game(flk::test::killer_test);
+	Game game;
 	game.print_board();
 
-	int depth = 7;
+	// Engine e;
+	// e.play('w');
+	
+	int depth = 6;
 	Move bestMove;
 	MoveGenerator m(game);
 
-	/*
-	auto t1 = std::chrono::high_resolution_clock::now();
-	flk::Perft(game, depth);
-	auto t2 = std::chrono::high_resolution_clock::now();
-
-	std::chrono::duration<double, std::milli> t = t2 - t1;
-	std::cout << "Time elapsed: " << t.count() * 0.001 << " seconds\n";
-	*/
 	
 	auto t1 = std::chrono::high_resolution_clock::now();
 	int score = flk::negamax(game, depth, -50000, 50000, bestMove);
@@ -36,6 +31,14 @@ int main()
 
 	std::cout << "Score: " << score << "\n";
 	std::cout << "Found in: " << t.count() * 0.001 << " seconds\n";
+	
+	std::cout << "\nPrincipal variation: ";
+	for(int i = 0; i < flk::pv_length[0]; i++)
+	{
+		flk::pv_table[0][i].print_move();
+		std::cout << "  ";
+	}
+	std::cout << "\n";
 	
 	return 0;
 }

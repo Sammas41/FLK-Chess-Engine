@@ -16,9 +16,9 @@ namespace flk {
     {
         int lazy_score = 0;
 
-        // Material evaluation
+        // Material and positional evaluation
         lazy_score += eval_material(game);
-        //lazy_score += eval_position(game);
+        lazy_score += eval_position(game);
 
         return lazy_score;
     }

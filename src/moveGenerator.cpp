@@ -66,39 +66,41 @@ void MoveGenerator::print_attacked_squares(int side){
 // Generate all possible moves in the position
 MoveArray MoveGenerator::generate_moves(int capture_flag){
 
-    // loop through all bitboards
-    for(int piece = P; piece <= k; piece++){
-        // init piece bitboard copy
-        U64 bitboard = game.get_bitboard(piece);
+    if(possible_moves.count == 0) {
+        // loop through all bitboards
+        for(int piece = P; piece <= k; piece++){
+            // init piece bitboard copy
+            U64 bitboard = game.get_bitboard(piece);
 
-        // generate white pawns & white king castling
-        // not relying on precalculated attack tables
-        if(game.get_side() == white){
+            // generate white pawns & white king castling
+            // not relying on precalculated attack tables
+            if(game.get_side() == white){
+                
+                generate_white_pawns_moves(piece, bitboard);
+                generate_white_king_castling_moves(piece, bitboard);
+                
+            }
+            // generate black pawns & black king castling
+            else{
+                generate_black_pawns_moves(piece, bitboard);
+                generate_black_king_castling_moves(piece, bitboard);
+            }
+
+            // generate knight moves
+            generate_knights_moves(piece,bitboard,game.get_side());
+
+            // generate bishop moves
+            generate_bishops_moves(piece,bitboard,game.get_side());
             
-            generate_white_pawns_moves(piece, bitboard);
-            generate_white_king_castling_moves(piece, bitboard);
-            
+            // generate rook moves
+            generate_rooks_moves(piece,bitboard,game.get_side());
+
+            // generate queen moves
+            generate_queens_moves(piece,bitboard,game.get_side());
+
+            // generate king moves
+            generate_kings_moves(piece,bitboard,game.get_side());
         }
-        // generate black pawns & black king castling
-        else{
-            generate_black_pawns_moves(piece, bitboard);
-            generate_black_king_castling_moves(piece, bitboard);
-        }
-
-        // generate knight moves
-        generate_knights_moves(piece,bitboard,game.get_side());
-
-        // generate bishop moves
-        generate_bishops_moves(piece,bitboard,game.get_side());
-        
-        // generate rook moves
-        generate_rooks_moves(piece,bitboard,game.get_side());
-
-        // generate queen moves
-        generate_queens_moves(piece,bitboard,game.get_side());
-
-        // generate king moves
-        generate_kings_moves(piece,bitboard,game.get_side());
     }
 
     MoveArray legal_moves;
@@ -658,35 +660,32 @@ int MoveGenerator::score_move(Move move, int ply,
 
 void MoveGenerator::sort_moves(MoveArray& moves, int ply,
                                Move killer_moves[][MAX_KILLER_DEPTH], int history_moves[][SQUARES]) {
-    int max, score, index_to_swap = 0;
-    bool swap;
-    Move temp;
+    int move_scores[moves.count];
 
     for(int i = 0; i < moves.count; i++)
+        move_scores[i] = score_move(moves.move_list[i], ply, killer_moves, history_moves);
+
+    for(int current = 0; current < moves.count; current++)
     {
-        swap = false;
-        max = -50000;
-        for(int j = i; j < moves.count; j++)
+        for(int next = current + 1; next < moves.count; next++)
         {
-            score = score_move(moves.move_list[j], ply, killer_moves, history_moves);
-            if(max < score)
+            if(move_scores[current] < move_scores[next])
             {
-                swap = true;
-                max = score;
-                index_to_swap = j;
+                int temp = move_scores[current];
+                move_scores[current] = move_scores[next];
+                move_scores[next] = temp;
+
+                Move temp_move = moves.move_list[current];
+                moves.move_list[current] = moves.move_list[next];
+                moves.move_list[next] = temp_move;
             }
-        }
-    
-        if(swap) {
-            temp = moves.move_list[index_to_swap];
-            moves.move_list[index_to_swap] = moves.move_list[i];
-            moves.move_list[i] = temp;
         }
     }
 }
 
 void MoveGenerator::print_score(MoveArray list, Move killer[][MAX_KILLER_DEPTH], int hist[][SQUARES])
 {
+    std::cout << "Move scores:\n\n";
     for(int i = 0; i < list.count; i++) {
         std::cout << i+1 << ": ";
         list.move_list[i].print_move();

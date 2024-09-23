@@ -3,6 +3,7 @@
 
 #include "game.h"
 #include "moveGenerator.h"
+#include "search.h"
 
 class Engine {
     public:
@@ -14,9 +15,7 @@ class Engine {
         Game game;
 
         bool is_running();
-        int get_player_move(int);
-        int string_to_int(std::string, int);
-
+        Move get_player_move(int);
 };
 
 #endif

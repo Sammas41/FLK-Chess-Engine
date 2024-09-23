@@ -43,9 +43,9 @@ Move::Move(std::string move_string, int side) {
     }
 
     // Check if it is an en passant capture
-    found = move_string.find("e");
+    found = move_string.find("p");
     if(found != std::string::npos) {
-        // Set the capture flag an delete the en passant character
+        // Set the en passant flag an delete the en passant character
         en_passant = 1;
         move_string.erase(found, 1);
     }

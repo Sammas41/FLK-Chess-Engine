@@ -14,7 +14,7 @@ class Move {
             int,       // en passant
             int);      // castling
         Move(std::string, int);
-        Move() { }
+        Move() { move = 0; }
 
         int get_source_square();
         int get_target_square();
