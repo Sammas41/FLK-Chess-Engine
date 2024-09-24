@@ -28,7 +28,7 @@ namespace flk {
     void Perft(Game&, int);
 
     // Search functions
-    int negamax(Game&, int, int, int, Move&);
+    int negamax(Game&, int, int, int);
     int quiescence_search(Game&, int, int);
 }
 

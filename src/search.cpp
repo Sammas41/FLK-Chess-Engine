@@ -4,9 +4,6 @@ namespace flk {
 
     int nodes = 0, ply = 0;
 
-    bool check_depth_1 = false, check_depth_2 = false, check_depth_3 = false;
-    MoveArray test_moves;
-
     // Killer moves matrix (two killer moves are stored)
     Move killer_moves[2][100];
 
@@ -19,7 +16,7 @@ namespace flk {
     // This arrays contains the pv length at each ply
     int pv_length[MAX_PV_LENGTH];
 
-    int negamax(Game& game, int depth, int alpha, int beta, Move& best_move)
+    int negamax(Game& game, int depth, int alpha, int beta)
     {
         // Initialize pv
         pv_length[ply] = ply;
@@ -67,9 +64,7 @@ namespace flk {
             ply++;
 
             // Call negamax again for the opposite side and depth - 1
-            score = -negamax(g, depth - 1, -beta, -alpha, best_move);
-
-            check_depth_3 = false;
+            score = -negamax(g, depth - 1, -beta, -alpha);
 
             // Take back the move and reduce the ply counter
             ply--;
@@ -105,11 +100,6 @@ namespace flk {
                     pv_table[ply][next_ply] = pv_table[ply + 1][next_ply];
 
                 pv_length[ply] = pv_length[ply + 1];
-                
-                // If we are at the root node (thus ply = 0)
-                // then save the best move
-                if(ply == 0)
-                    best_move = legal_moves.move_list[i];
             }
         }
         // return

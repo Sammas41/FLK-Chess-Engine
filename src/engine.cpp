@@ -12,31 +12,50 @@ void Engine::play(char side) {
 
     if(side == 'w' || side == 'W')
     {
-        while(is_running())
-        {
-            // Print board
-            std::cout << "\n";
-            game.print_board();
+        // Print board
+        std::cout << "\n";
+        game.print_board();
+
+        while(is_running()) { 
 
             // Read player's move
             Move player_move = get_player_move(white);
 
             // Make player's move
             game.make_move(player_move);
+            
+            // Let the engine find the best move
+            flk::negamax(game, 6, -50000, 50000);
+            game.make_move(flk::pv_table[0][0]);
 
-            Move engine_move;
-            flk::negamax(game, 6, -50000, 50000, engine_move);
-            game.make_move(engine_move);
-
+            // Output the engine move
             std::cout << "Engine played: ";
-            engine_move.print_move();           
+            flk::pv_table[0][0].print_move();  
+            std::cout << "\n";
+
+            //Print board
+            game.print_board();         
         }
     }
     else
     {
         if (side == 'b' || side == 'B')
         {
-            Move player_move = get_player_move(black);
+            while(is_running()) {
+                // Same as before but reversed since now the engine
+                // plays with white
+                flk::negamax(game, 6, -50000, 50000);
+                game.make_move(flk::pv_table[0][0]);
+
+                game.print_board();
+                std::cout << "Engine played: ";
+                flk::pv_table[0][0].print_move();
+                std::cout << "\n";
+
+                Move player_move = get_player_move(black);
+
+                game.make_move(player_move);
+            }
         }
         else
             std::cout << "[ERROR] Chose a valid side\n";
