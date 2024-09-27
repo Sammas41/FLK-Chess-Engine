@@ -16,6 +16,7 @@ class Engine {
 
         bool is_running();
         Move get_player_move(int);
+        Move search_position(int);
 };
 
 #endif

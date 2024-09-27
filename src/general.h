@@ -12,7 +12,6 @@ constexpr int FILES = 8;
 constexpr int SQUARES = 64;
 constexpr int COLORS = 2;
 constexpr int PIECE_TYPES = 12;
-constexpr int MAX_KILLER_DEPTH = 100;
 constexpr int MAX_PV_LENGTH = 64;
 
 // Squares notation
