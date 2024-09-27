@@ -110,7 +110,7 @@ namespace flk {
                                  [legal_moves.move_list[i].get_target_square()] += depth;
                 }
 
-                // Update the score
+                // Update the alpha score
                 alpha = score;
 
                 // Save the move as part of the principal variation
@@ -256,13 +256,13 @@ namespace flk {
 
             // Search the current position at the current depth
             negamax(game, current_depth, alpha, beta);
-
+            /*
             std::cout << "Principal variation at depth " << current_depth << ": ";
 	        for(int i = 0; i < pv_length[0]; i++) {
                 pv_table[0][i].print_move();
                 std:: cout << "  ";
             }
-	        std::cout << "\nNumber of nodes searched: " << flk::nodes << "\n";
+	        std::cout << "\nNumber of nodes searched: " << flk::nodes << "\n";*/
         }
 
         return pv_table[0][0];
