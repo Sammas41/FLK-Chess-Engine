@@ -65,14 +65,36 @@ void Engine::play(char side) {
 bool Engine::is_running() {
     return true;
 }
+// crea movegenerator da game, -> feneratemoveall() ritorna move array.
+// prendi mosse legali 
 
 Move Engine::get_player_move(int colour) {
     std::string string_move;
-
-    std::cout << "Insert the move you want to play (Piece + starting square + landing square):\n";
-    std::cin >> string_move;
+    MoveGenerator move_generator(game);
+    MoveArray legal_moves = move_generator.generate_moves(all_moves);
 
     Move player_move(string_move, colour);
 
-    return player_move;
+    while (true) {
+        std::cout << "Insert the move you want to play (Piece + starting square + landing square):\n";
+        std::cin >> string_move;
+
+        Move player_move(string_move, colour);
+
+        // Check if the move is legal
+        bool is_legal = false;
+        for (int i = 0; i < legal_moves.count; i++) {
+            if (player_move == legal_moves.move_list[i]) {
+                is_legal = true;
+                break;
+            }
+        }
+
+        if (is_legal) {
+            return player_move;
+        } else {
+            std::cout << "Invalid move. Please try again.\n";
+        }
+    }
+
 }
