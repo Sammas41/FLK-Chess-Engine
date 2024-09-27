@@ -79,7 +79,6 @@ Move Engine::get_player_move(int colour) {
 
     Move player_move(string_move, colour);
 
-<<<<<<< HEAD
     while (true) {
         std::cout << "Insert the move you want to play (Piece + starting square + landing square):\n";
         std::cin >> string_move;
@@ -101,20 +100,8 @@ Move Engine::get_player_move(int colour) {
             std::cout << "Invalid move. Please try again.\n";
         }
     }
-
-=======
-    return player_move;
 }
 
 Move Engine::search_position(int depth) {
-
-    int alpha = -50000, beta = 50000;
-
-    flk::clear_tables();
-
-    for(int current_depth = 1; current_depth <= depth; current_depth++)
-        flk::negamax(game, current_depth, alpha, beta);    
-
-    return flk::pv_table[0][0];
->>>>>>> 661bc6aea4d75a4802fb657ee6564931588f3633
+    return flk::iterative_search(game, depth);
 }
