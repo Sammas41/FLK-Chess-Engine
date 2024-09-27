@@ -1,5 +1,6 @@
 #include "moveGenerator.h"
 
+// Checks if a square is attacked by an enemy piece
 int MoveGenerator::is_square_attacked(int square, int side){
     
     // attacked by white pawns
@@ -34,7 +35,7 @@ int MoveGenerator::is_square_attacked(int square, int side){
     return 0;
 }
 
-// print attacked squares
+// Print attacked squares
 void MoveGenerator::print_attacked_squares(int side){
 
     printf("\n");
@@ -592,6 +593,7 @@ void MoveArray::add_move(Move move)
     count++;
 }
 
+// Prints the move in a pretty format, used by print_move_list function
 void MoveGenerator::print_move_pretty(Move move) {
     std::cout << "|   " << square_to_coordinates[move.get_source_square()] << "   |   "
               << square_to_coordinates[move.get_target_square()] << "   |   "
@@ -604,7 +606,8 @@ void MoveGenerator::print_move_pretty(Move move) {
               //<< score_move(move, 0, NULL, NULL) << "  |\n";
 }
 
-void MoveGenerator::print_move_list(MoveArray legal_moves) {
+// Prints the list of legal moves in this position
+void MoveGenerator::print_move_list(MoveArray& legal_moves) {
 
     std::cout << "---------------------------------------------------------------------------------------\n";
     std::cout << "| Source | Target | Piece | Capture | Double push | Promotion | Castling | En Passant |\n";
@@ -612,83 +615,4 @@ void MoveGenerator::print_move_list(MoveArray legal_moves) {
     for(int i = 0; i < legal_moves.count; i++)
         print_move_pretty(legal_moves.move_list[i]);
     std::cout << "---------------------------------------------------------------------------------------\n";
-}
-
-int MoveGenerator::score_move(Move move, int ply, 
-                              Move killer_moves[][MAX_KILLER_DEPTH], int history_moves[][SQUARES]) {
-    if(move.is_capture())
-    {
-        int attacking_piece = move.get_piece_moved();
-        int attacked_square = move.get_target_square();
-
-        int start_piece, end_piece;
-        if(game.get_side() == white) { start_piece = p; end_piece = k;}
-        else { start_piece = P; end_piece = K; }
-
-        int attacked_piece = P;
-        // To get the captured piece, loop through all the pieces
-        for(int piece = start_piece; start_piece < end_piece; piece++)
-        {
-            // If there is a bit set on the attacked square then we
-            // have found the attacked piece.
-            // NOTE: in case of en passant capture then the attacked
-            //       square is empty but since attacked_piece is initialized
-            //       to P we return the correct value anyway. In case
-            //       of switched color it works fine also in this case
-            //       due to the symmetry of MVV_LVA matrix:
-            //       MVV_LVA[P][p] = MVV_LVA[p][P]  
-            if(get_bit(game.get_bitboard(piece), attacked_square))
-            {
-                attacked_piece = piece;
-                break;
-            }
-        }
-
-        return MVV_LVA[attacking_piece][attacked_piece] + 10000;
-    }
-    // quiet moves scores
-    else {
-        if(move == killer_moves[0][ply])
-            return 9000;
-        else if(move == killer_moves[1][ply])
-            return 8000;
-        else return history_moves[move.get_piece_moved()][move.get_target_square()];
-    }
-
-    return 0;
-}
-
-void MoveGenerator::sort_moves(MoveArray& moves, int ply,
-                               Move killer_moves[][MAX_KILLER_DEPTH], int history_moves[][SQUARES]) {
-    int move_scores[moves.count];
-
-    for(int i = 0; i < moves.count; i++)
-        move_scores[i] = score_move(moves.move_list[i], ply, killer_moves, history_moves);
-
-    for(int current = 0; current < moves.count; current++)
-    {
-        for(int next = current + 1; next < moves.count; next++)
-        {
-            if(move_scores[current] < move_scores[next])
-            {
-                int temp = move_scores[current];
-                move_scores[current] = move_scores[next];
-                move_scores[next] = temp;
-
-                Move temp_move = moves.move_list[current];
-                moves.move_list[current] = moves.move_list[next];
-                moves.move_list[next] = temp_move;
-            }
-        }
-    }
-}
-
-void MoveGenerator::print_score(MoveArray list, Move killer[][MAX_KILLER_DEPTH], int hist[][SQUARES])
-{
-    std::cout << "Move scores:\n\n";
-    for(int i = 0; i < list.count; i++) {
-        std::cout << i+1 << ": ";
-        list.move_list[i].print_move();
-        std::cout << "   Score: " << score_move(list.move_list[i], 0, killer, hist) << "\n";
-    }
 }
