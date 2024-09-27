@@ -18,6 +18,13 @@ namespace flk {
     // History moves scores (12 pieces x 64 squares)
     int history_moves[PIECE_TYPES][SQUARES];
 
+    bool is_check(Game& game) {
+        MoveGenerator m(game);
+        return m.is_square_attacked(game.get_side() == white ? 
+                                            get_ls1b_index(game.get_bitboard(K)) :
+                                            get_ls1b_index(game.get_bitboard(k)), game.get_side() ^ 1);
+    }
+
     // Negamax searching algorithm
     int negamax(Game& game, int depth, int alpha, int beta)
     {

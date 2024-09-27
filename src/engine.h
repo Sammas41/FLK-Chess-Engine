@@ -11,6 +11,7 @@ class Engine {
         Engine(std::string);
 
         void play(char);
+        bool is_mate(Game&);
     private:
         Game game;
 

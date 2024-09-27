@@ -15,6 +15,7 @@ namespace flk {
     extern Move killer_moves[2][MAX_PV_LENGTH];
     extern int history_moves[PIECE_TYPES][SQUARES];
 
+    bool is_check(Game& game);
     // Perf test functions, useful for debugging the move
     // generation process
     void perft_search(Game&, int, std::vector<int>&);
