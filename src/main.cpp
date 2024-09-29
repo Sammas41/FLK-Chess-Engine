@@ -11,10 +11,9 @@ int main()
 	Game game(flk::test::trickyPos);
 	game.print_board();
 
-	Engine e;
-	e.play('w');
+	// Engine e;
+	// e.play('w');
 	
-	/*
 	int depth = 6;
 
 	auto t1 = std::chrono::high_resolution_clock::now();
@@ -24,6 +23,6 @@ int main()
 	std::chrono::duration<double, std::milli> t = t2 - t1;
 
 	std::cout << "Search took: " << t.count() * 0.001 << " seconds\n";
-	*/
+	
 	return 0;
 }

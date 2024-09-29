@@ -21,6 +21,10 @@ namespace flk {
     // Negamax searching algorithm
     int negamax(Game& game, int depth, int alpha, int beta)
     {
+        // This variable keeps track if the node we are 
+        // searching is a pv node
+        bool found_pv = false;
+
         // Initialize pv
         pv_length[ply] = ply;
 
@@ -78,9 +82,26 @@ namespace flk {
             // Play the move and increment the ply counter
             g.make_move(legal_moves.move_list[i]);
             ply++;
+            
+            // Principal variation search
+            if(found_pv) {
+                // We perform the search initially with tighter
+                // bounds on alpha, assuming that the pv move is
+                // the best move available in the position
+                score = -negamax(g, depth - 1, -alpha - 1, -alpha);
+                
+                // If the pv node is not the best move then perform
+                // the normal alpha beta search
+                if(score > alpha && score < beta)
+                    score = -negamax(g, depth - 1, -beta, -alpha);
+            }
+            else {
+                // If the node is not a pv node then perform
+                // the normal alpha beta search
+                score = -negamax(g, depth - 1, -beta, -alpha);
+            }
 
-            // Call negamax again for the opposite side and depth - 1
-            score = -negamax(g, depth - 1, -beta, -alpha);
+            // score = -negamax(g, depth - 1, -beta, -alpha);
 
             // Take back the move and reduce the ply counter
             ply--;
@@ -110,6 +131,9 @@ namespace flk {
                                  [legal_moves.move_list[i].get_target_square()] += depth;
                 }
 
+                // This node is a pv node 
+                found_pv = true;
+                
                 // Update the alpha score
                 alpha = score;
 
@@ -239,6 +263,7 @@ namespace flk {
         }
     }
 
+    // Iterative search function for time management
     Move iterative_search(Game& game, int depth) {
 
         int alpha = -50000, beta = 50000;
@@ -246,24 +271,24 @@ namespace flk {
         follow_pv = 0;
         score_pv = 0;
 
+        // Clear the tables from the previous iteration
         clear_tables();
 
         for(int current_depth = 1; current_depth <= depth; current_depth++) {
-            // Reset the nodes count
-            nodes = 0;
 
+            // Enable follow pv flag
             follow_pv = 1;
 
             // Search the current position at the current depth
             negamax(game, current_depth, alpha, beta);
-            /*
-            std::cout << "Principal variation at depth " << current_depth << ": ";
-	        for(int i = 0; i < pv_length[0]; i++) {
-                pv_table[0][i].print_move();
-                std:: cout << "  ";
-            }
-	        std::cout << "\nNumber of nodes searched: " << flk::nodes << "\n";*/
         }
+
+        std::cout << "Principal variation at depth " << depth << ": ";
+	    for(int i = 0; i < pv_length[0]; i++) {
+            pv_table[0][i].print_move();
+            std:: cout << "  ";
+        }
+	    std::cout << "\nNumber of nodes searched: " << flk::nodes << "\n";
 
         return pv_table[0][0];
     }
