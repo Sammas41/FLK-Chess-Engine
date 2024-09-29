@@ -45,15 +45,7 @@ namespace flk {
         // Generate all possible moves in the position
         MoveGenerator m(game);
         MoveArray legal_moves = m.generate_moves(all_moves);
-
-        // If we are following the pv line, put the pv move
-        // on top of the search 
-        if(follow_pv) {
-            enable_pv_score(legal_moves);
-        }
-
-        sort_moves(legal_moves, game);
-
+        
         // If there are no legal moves then it is either
         // checkmate or stalemate
         int is_check = m.is_square_attacked(game.get_side() == white ? 
@@ -70,6 +62,15 @@ namespace flk {
                 return -10000 + ply;
             else return 0;
         }
+
+        // If we are following the pv line, put the pv move
+        // on top of the search 
+        if(follow_pv) {
+            enable_pv_score(legal_moves);
+        }
+
+        // Sort the moves based by their score
+        sort_moves(legal_moves, game);
 
         int score;
 
@@ -100,8 +101,6 @@ namespace flk {
                 // the normal alpha beta search
                 score = -negamax(g, depth - 1, -beta, -alpha);
             }
-
-            // score = -negamax(g, depth - 1, -beta, -alpha);
 
             // Take back the move and reduce the ply counter
             ply--;
