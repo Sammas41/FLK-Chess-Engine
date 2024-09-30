@@ -9,12 +9,6 @@ namespace flk {
 
     extern int nodes;
 
-    extern Move pv_table[MAX_PV_LENGTH][MAX_PV_LENGTH];
-    extern int pv_length[MAX_PV_LENGTH];
-
-    extern Move killer_moves[2][MAX_PV_LENGTH];
-    extern int history_moves[PIECE_TYPES][SQUARES];
-
     // Perf test functions, useful for debugging the move
     // generation process
     void perft_search(Game&, int, std::vector<int>&);
