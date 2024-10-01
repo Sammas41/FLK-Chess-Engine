@@ -8,9 +8,16 @@ int main()
 {
 	init_all_attacks();
 
-	Engine e;
+	Engine e("4k3/R7/8/8/8/8/8/4K2R w K - 0 1");
 	e.play('w');
 
+	/*
+	Game game(flk::test::trickyPos);
+	game.print_board();
+
+	Engine e;
+	e.play('w');
+	
 	/*
 	Game game(flk::test::trickyPos);
 	game.print_board();
