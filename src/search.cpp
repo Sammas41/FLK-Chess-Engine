@@ -5,6 +5,9 @@ namespace flk {
     int nodes = 0, ply = 0;
     int follow_pv = 0, score_pv = 0;  
 
+    const int FULL_DEPTH_MOVES = 4;
+    const int REDUCTION_LIMIT = 3;
+
     // Triangular principal variation table
     Move pv_table[MAX_PV_LENGTH][MAX_PV_LENGTH];
 
@@ -21,11 +24,7 @@ namespace flk {
     // Negamax searching algorithm
     int negamax(Game& game, int depth, int alpha, int beta)
     {
-        // This variable keeps track if the node we are 
-        // searching is a pv node
-        bool found_pv = false;
-
-        // Initialize pv
+        // Initialize pv length
         pv_length[ply] = ply;
 
         // Base case: start the quiescence search
@@ -54,7 +53,8 @@ namespace flk {
 
         // If the king is in check, search one move deeper
         // to avoid mates
-        if(is_check) depth++; 
+        if(is_check)
+            depth++; 
 
         if(legal_moves.count == 0)
         {
@@ -62,17 +62,19 @@ namespace flk {
                 return -10000 + ply;
             else return 0;
         }
-
+        
         // If we are following the pv line, put the pv move
         // on top of the search 
-        if(follow_pv) {
+        if(follow_pv)
             enable_pv_score(legal_moves);
-        }
 
         // Sort the moves based by their score
         sort_moves(legal_moves, game);
 
         int score;
+
+        // Counter for the number of moves searched
+        int moves_searched = 0;
 
         // Copy the game state
         Game g(game);
@@ -84,27 +86,43 @@ namespace flk {
             g.make_move(legal_moves.move_list[i]);
             ply++;
             
-            // Principal variation search
-            if(found_pv) {
-                // We perform the search initially with tighter
-                // bounds on alpha, assuming that the pv move is
-                // the best move available in the position
-                score = -negamax(g, depth - 1, -alpha - 1, -alpha);
-                
-                // If the pv node is not the best move then perform
-                // the normal alpha beta search
-                if(score > alpha && score < beta)
-                    score = -negamax(g, depth - 1, -beta, -alpha);
+            // Principal variation search (the first move will always
+            // be the PV move since we put it on top in the sort_move
+            // function)
+            if(moves_searched == 0) {
+                // Search the PV move in full depth
+                score = -negamax(g, depth - 1, -beta, -alpha);
             }
             else {
-                // If the node is not a pv node then perform
-                // the normal alpha beta search
-                score = -negamax(g, depth - 1, -beta, -alpha);
+                // Checks if it is possible to apply Late Move Reduction technique (LMR)
+                if(moves_searched >= FULL_DEPTH_MOVES      && 
+                   depth >= REDUCTION_LIMIT                && 
+                   ok_to_reduce(legal_moves.move_list[i], is_check)) {
+                        score = -negamax(g, depth - 2, -alpha - 1, -alpha);
+                   }
+                else
+                    score = alpha + 1; // This ensures that full depth search is done
+
+                // Since score can assume only values that are <= alpha thanks to the
+                // previous search, if score > alpha it means that we did not perform
+                // the reduced search and this move is yet to be searched 
+                if(score > alpha) {
+                    // Perform a normal PVS search
+                    score = -negamax(g, depth - 1, -alpha - 1, -alpha);
+
+                    // If the node doesn't fail high or low then do the normal
+                    // full depth search
+                    if(score > alpha && score < beta)
+                        score = -negamax(g, depth - 1, -beta, -alpha);
+                }
             }
 
             // Take back the move and reduce the ply counter
             ply--;
             g.take_back_to(game);
+
+            // Increment the counter of searched moves
+            moves_searched++;
 
             // Alpha - Beta pruning
             //
@@ -129,9 +147,6 @@ namespace flk {
                     history_moves[legal_moves.move_list[i].get_piece_moved()]
                                  [legal_moves.move_list[i].get_target_square()] += depth;
                 }
-
-                // This node is a pv node 
-                found_pv = true;
                 
                 // Update the alpha score
                 alpha = score;
@@ -287,9 +302,31 @@ namespace flk {
             pv_table[0][i].print_move();
             std:: cout << "  ";
         }
-	    std::cout << "\nNumber of nodes searched: " << flk::nodes << "\n";
+        std::cout << "\n";
+	    // std::cout << "\nNumber of nodes searched: " << flk::nodes << "\n";
 
         return pv_table[0][0];
+    }
+
+    // Checks if we can apply LMR to this move
+    bool ok_to_reduce(Move move, int is_check) {
+        // Captures should not be reduced
+        if(move.is_capture())
+            return false;
+
+        // Promotions should not be reduced
+        if(move.get_promoted_piece())
+            return false;
+
+        // Checks should not be reduced
+        if(is_check)
+            return false;
+
+        // Killer moves should not be reduced
+        if(move == killer_moves[0][ply] || move == killer_moves[1][ply])
+            return false;
+
+        return true;
     }
 
     // Returns the score of a move relevant for 

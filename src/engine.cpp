@@ -25,7 +25,7 @@ void Engine::play(char side) {
             game.make_move(player_move);
             
             // Let the engine find the best move
-            Move engine_move = search_position(6);
+            Move engine_move = search_position(8);
 
             // Output the engine move
             std::cout << "Engine played: ";

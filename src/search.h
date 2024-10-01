@@ -23,6 +23,7 @@ namespace flk {
     int score_move(Move, Game&);
     void sort_moves(MoveArray&, Game&);
     void enable_pv_score(MoveArray&);
+    bool ok_to_reduce(Move, int);
 
     // Clear tables from previous iterations
     void clear_tables();
