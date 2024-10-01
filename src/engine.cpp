@@ -11,7 +11,9 @@ Engine::Engine(std::string fen) : game(fen) {
 void Engine::play(char side) {
     bool game_over = false;
     std::vector<Game> game_history;  // To store game states for undo functionality
-    
+    game_history.clear();
+    game_history.push_back(game); // Store initial position
+
     while (!game_over) {
         if (side == 'w' || side == 'W') {
             // Print board
@@ -19,11 +21,16 @@ void Engine::play(char side) {
             game.print_board();
 
             while (is_running()) { 
-                // Read player's move
-                Move player_move = get_player_move(white);
+                InputResult result = process_input(white, game_history);
+
+                if (!result.is_move) {
+                    // If it's not a move (i.e., it was an undo), continue the loop
+                    continue;
+                }
 
                 // Make player's move
-                game.make_move(player_move);
+                game.make_move(result.move);
+                game_history.push_back(game);
                 
                 // Check for checkmate or stalemate after player's move
                 if (is_mate(game)) {
@@ -41,6 +48,7 @@ void Engine::play(char side) {
                 
                 // Make the engine move
                 game.make_move(engine_move);
+                game_history.push_back(game);
 
                 // Check for checkmate or stalemate after engine's move
                 if (is_mate(game)) {
@@ -59,6 +67,7 @@ void Engine::play(char side) {
 
                 // Make the engine move
                 game.make_move(engine_move);
+                game_history.push_back(game);
 
                 game.print_board();
                 std::cout << "Engine played: ";
@@ -71,9 +80,15 @@ void Engine::play(char side) {
                     break;
                 }
 
-                Move player_move = get_player_move(black);
+                InputResult result = process_input(black, game_history);
 
-                game.make_move(player_move);
+                if (!result.is_move) {
+                    // If it's not a move (i.e., it was an undo), continue the loop
+                    continue;
+                }
+
+                game.make_move(result.move);
+                game_history.push_back(game);
 
                 // Check for checkmate or stalemate after player's move
                 if (is_mate(game)) {
@@ -106,15 +121,73 @@ void Engine::play(char side) {
 bool Engine::is_running() {
     return true;
 }
-// crea movegenerator da game, -> feneratemoveall() ritorna move array.
-// prendi mosse legali 
 
-Move Engine::get_player_move(int colour) {
-    std::string string_move;
+std::string Engine::take_input() {
+    std::string input;
+    std::cout << "Insert the move you want to play (Piece + starting square + landing square):\n";
+    std::cout << "Insert 'undo' if you want to take back\n";
+    std::cout << "Insert 'undo-moveindex' of the move you want to take back to take back multiple moves\n";
+    std::cin >> input;
+    return input;
+}
+
+InputResult Engine::process_input(int colour, std::vector<Game>& game_history) {
+    while (true) {
+        std::string input = take_input();
+
+        if (input == "undo") {
+            undo(1, game_history);
+            return {false, Move()};
+        } else if (input.substr(0, 5) == "undo-") {
+            int index = std::stoi(input.substr(5));
+            undo(index, game_history);
+            return {false, Move()};
+        }
+
+        Move move = create_move(input, colour);
+        if (is_legal_move(move)) {
+            return {true, move};
+        } else {
+            std::cout << "Invalid move. Please try again.\n";
+        }
+    }
+}
+
+Move Engine::create_move(std::string input, int colour) {
+    return Move(input, colour);
+}
+
+bool Engine::is_legal_move(Move& move) {
     MoveGenerator move_generator(game);
     MoveArray legal_moves = move_generator.generate_moves(all_moves);
 
-    Move player_move(string_move, colour);
+    for (int i = 0; i < legal_moves.count; i++) {
+        if (move == legal_moves.move_list[i]) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void Engine::undo(int steps, std::vector<Game>& game_history) {
+    steps = steps * 2;
+    for (int i = 0; i < steps && game_history.size() > 1; i++) {
+        game_history.pop_back();
+    }
+    if (!game_history.empty()) {
+        game = game_history.back();
+        std::cout << "Moved back " << steps << " step(s). Current position:\n";
+        game.print_board();
+    } else {
+        std::cout << "Cannot undo any further.\n";
+    }
+}
+
+/* Move Engine::get_player_move(int colour, std::string input_move) {
+    MoveGenerator move_generator(game);
+    MoveArray legal_moves = move_generator.generate_moves(all_moves);
+
+    Move player_move(input_move, colour);
 
     while (true) {
         std::cout << "Insert the move you want to play (Piece + starting square + landing square):\n";
@@ -137,11 +210,11 @@ Move Engine::get_player_move(int colour) {
             std::cout << "Invalid move. Please try again.\n";
         }
     }
-}
+}*/
 
 Move Engine::search_position(int depth) {
     return flk::iterative_search(game, depth);
-}
+} 
 
 
 bool Engine::is_mate(Game& game) {
