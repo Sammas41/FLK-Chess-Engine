@@ -11,7 +11,87 @@ int evaluate(Game& game)
 }
 
 namespace flk {
-  
+
+
+    U64 set_file_rank_mask(int file_number, int rank_number)
+    {
+        U64 mask = 0ULL;
+        for(int rank = 0; rank < 8; rank++)
+        {
+            for(int file = 0; file < 8; file++)
+            {
+                int square = rank * 8 + file;
+
+
+                if (file_number != -1){
+
+                    if (file == file_number){
+                        set_bit(mask, square);
+                    }
+                    
+                }else if (rank_number != -1){
+
+                    if (rank == rank_number){
+                        set_bit(mask, square);
+                    }
+                }        
+            }
+        }
+        return mask;       
+    }
+
+
+    void init_evaluation_masks(){
+        U64 file_masks[64];
+        U64 rank_masks[64];
+        U64 isolated_masks[64];
+        U64 black_passed_masks[64];
+        U64 white_passed_masks[64];
+
+        for (int rank = 0; rank < 8; rank++){
+            for (int file = 0; file < 8; file++){
+
+                int square = rank * 8 + file;
+                
+                file_masks[square] = set_file_rank_mask(file, -1);
+                rank_masks[square] = set_file_rank_mask(-1 , rank);
+
+                isolated_masks[square] = set_file_rank_mask(file -1, -1);
+                isolated_masks[square] |= set_file_rank_mask(file +1, -1);
+            }
+        }
+
+        for (int rank = 0; rank < 8; rank++){
+            for (int file = 0; file < 8; file++){
+
+                int square = rank * 8 + file;
+
+                // white passed pawn masks
+                white_passed_masks[square] = set_file_rank_mask(file - 1, -1);
+                white_passed_masks[square] |= set_file_rank_mask(file, -1);
+                white_passed_masks[square] |= set_file_rank_mask(file + 1, -1);
+
+                //loop over reduntant ranks for passed pawns masks
+                for (int i = 0; i < (8 - rank); i++){
+                    white_passed_masks[square] &=  ~rank_masks[(7 - i) * 8 + file];
+                }
+
+                // black passed pawn masks
+                black_passed_masks[square] = set_file_rank_mask(file - 1, -1);
+                black_passed_masks[square] |= set_file_rank_mask(file, -1);
+                black_passed_masks[square] |= set_file_rank_mask(file + 1, -1);
+
+
+                //loop over reduntant ranks for passed pawns masks
+                for (int i = 0; i < rank + 1; i++){
+                    black_passed_masks[square] &=  ~rank_masks[i * 8 + file];
+                }
+                print_bitboard(white_passed_masks[square]);
+            }
+        }
+    };
+
+
     int lazy_evaluation(Game& game)
     {
         int lazy_score = 0;

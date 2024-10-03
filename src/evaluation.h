@@ -5,7 +5,17 @@
 
 int evaluate(Game &);
 
+
 namespace flk {
+
+
+/*     U64 file_mask[64];
+    U64 rank_mask[64];
+    U64 isolated_mask[64];
+    U64 passed_mask[64]; */
+
+    U64 set_file_rank_mask(int , int);
+    void init_evaluation_masks();
 
     int lazy_evaluation(Game &);
 

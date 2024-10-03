@@ -14,7 +14,9 @@ int main()
 	Game game(flk::test::trickyPos);
 	game.print_board();
 
-	int depth = 8;
+	flk::init_evaluation_masks();
+
+	/* int depth = 8;
 
 	auto t1 = std::chrono::high_resolution_clock::now();
 	Move move = flk::iterative_search(game, depth);
@@ -24,5 +26,5 @@ int main()
 
 	std::cout << "Search took: " << t.count() * 0.001 << " seconds\n";
 		
-	return 0;
+	return 0; */
 }
