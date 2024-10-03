@@ -9,6 +9,7 @@ struct InputResult {
     bool is_move;
     Move move;
 };
+
 class Engine {
     public:
         Engine();

@@ -21,13 +21,6 @@ namespace flk {
     // History moves scores (12 pieces x 64 squares)
     int history_moves[PIECE_TYPES][SQUARES];
 
-    bool is_check(Game& game) {
-        MoveGenerator m(game);
-        return m.is_square_attacked(game.get_side() == white ? 
-                                            get_ls1b_index(game.get_bitboard(K)) :
-                                            get_ls1b_index(game.get_bitboard(k)), game.get_side() ^ 1);
-    }
-
     // Negamax searching algorithm
     int negamax(Game& game, int depth, int alpha, int beta)
     {
@@ -35,7 +28,7 @@ namespace flk {
         pv_length[ply] = ply;
 
         // Base case: start the quiescence search
-        if (depth == 0)
+        if (depth <= 0)
             return quiescence_search(game, alpha, beta);
         
         // If we have reached the maximum ply length stop
@@ -47,22 +40,44 @@ namespace flk {
         // we will introduce will actually reduce the
         // number of nodes searched
         nodes++;
-
-        // Generate all possible moves in the position
-        MoveGenerator m(game);
-        MoveArray legal_moves = m.generate_moves(all_moves);
         
-        // If there are no legal moves then it is either
-        // checkmate or stalemate
+        // Checks if the king is in check in the current position
+        MoveGenerator m(game);
         int is_check = m.is_square_attacked(game.get_side() == white ? 
                                             get_ls1b_index(game.get_bitboard(K)) :
                                             get_ls1b_index(game.get_bitboard(k)), game.get_side() ^ 1);
+        
+        // Null move pruning
+        if(depth >= 3 && is_check == 0 && ply) {
+            // Copy the board state
+            Game g(game);
 
+            // Change game side
+            g.set_side(g.get_side() ^ 1);
+
+            // Disable en passant square
+            g.set_enpassant(no_sq);
+
+            // Give to the opponent an extra move and see if we can prune some nodes
+            // for future searches. Reduction factor is set to R = 2 (depth - 1 - R)
+            int score = -negamax(g, depth - 1 - 2, -beta, -beta + 1);
+
+            // If the node fails high then we return beta and skip
+            // the rest of the search
+            if(score >= beta)
+                return beta;
+        }
+
+        // Generate all possible moves in the position
+        MoveArray legal_moves = m.generate_moves(all_moves);
+        
         // If the king is in check, search one move deeper
         // to avoid mates
         if(is_check)
             depth++; 
 
+        // If there are no legal moves then it is either
+        // checkmate or stalemate
         if(legal_moves.count == 0)
         {
             if(is_check)
@@ -310,7 +325,7 @@ namespace flk {
             std:: cout << "  ";
         }
         std::cout << "\n";
-	    // std::cout << "\nNumber of nodes searched: " << flk::nodes << "\n";
+	    std::cout << "\nNumber of nodes searched: " << flk::nodes << "\n";
 
         return pv_table[0][0];
     }
@@ -431,6 +446,13 @@ namespace flk {
             list.move_list[i].print_move();
             std::cout << "   Score: " << score_move(list.move_list[i], game) << "\n";
         }
+    }
+
+    bool is_check(Game& game) {
+        MoveGenerator m(game);
+        return m.is_square_attacked(game.get_side() == white ? 
+                                            get_ls1b_index(game.get_bitboard(K)) :
+                                            get_ls1b_index(game.get_bitboard(k)), game.get_side() ^ 1);
     }
 
     // Performs a perf test search in the current position
