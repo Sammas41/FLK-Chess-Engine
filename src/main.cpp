@@ -14,7 +14,7 @@ int main()
 	Game game(flk::test::trickyPos);
 	game.print_board();
 
-	int depth = 7;
+	int depth = 8;
 
 	auto t1 = std::chrono::high_resolution_clock::now();
 	Move move = flk::iterative_search(game, depth);

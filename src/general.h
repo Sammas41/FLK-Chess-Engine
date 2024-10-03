@@ -6,13 +6,13 @@
 
 typedef unsigned long long U64;
 
-// Useful constants
+// ------ Useful constants ------
+// Board constants
 constexpr int RANKS = 8;
 constexpr int FILES = 8;
 constexpr int SQUARES = 64;
 constexpr int COLORS = 2;
 constexpr int PIECE_TYPES = 12;
-constexpr int MAX_PV_LENGTH = 64;
 
 // Squares notation
 enum {

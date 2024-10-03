@@ -9,6 +9,11 @@ namespace flk {
 
     extern int nodes;
 
+    // Search constants
+    constexpr int MAX_PV_LENGTH = 64;
+    constexpr int FLK_INFINITY = 50000;
+    constexpr int WINDOW_VAL = 50;
+
     // Perf test functions, useful for debugging the move
     // generation process
     void perft_search(Game&, int, std::vector<int>&);

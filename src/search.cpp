@@ -302,7 +302,7 @@ namespace flk {
     // Iterative search function for time management
     Move iterative_search(Game& game, int depth) {
 
-        int alpha = -50000, beta = 50000;
+        int alpha = -FLK_INFINITY, beta = FLK_INFINITY;
 
         follow_pv = 0;
         score_pv = 0;
@@ -316,7 +316,16 @@ namespace flk {
             follow_pv = 1;
 
             // Search the current position at the current depth
-            negamax(game, current_depth, alpha, beta);
+            int score = negamax(game, current_depth, alpha, beta);
+            
+            if((score <= alpha) || (score >= beta)) {
+                alpha = -FLK_INFINITY;
+                beta = FLK_INFINITY;
+                continue;
+            }
+
+            alpha = score - WINDOW_VAL;
+            beta = score + WINDOW_VAL;
         }
 
         std::cout << "Principal variation at depth " << depth << ": ";
