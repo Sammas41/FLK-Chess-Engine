@@ -8,11 +8,11 @@ int evaluate(Game &);
 
 namespace flk {
 
-
-/*     U64 file_mask[64];
-    U64 rank_mask[64];
-    U64 isolated_mask[64];
-    U64 passed_mask[64]; */
+    extern U64 file_masks[64];
+    extern U64 rank_masks[64];
+    extern U64 isolated_masks[64];
+    extern U64 black_passed_masks[64];
+    extern U64 white_passed_masks[64];
 
     U64 set_file_rank_mask(int , int);
     void init_evaluation_masks();
@@ -106,6 +106,24 @@ namespace flk {
         a7, b7, c7, d7, e7, f7, g7, h7,
         a8, b8, c8, d8, e8, f8, g8, h8
     };
+
+    // **************** improve evaluation ****************
+    const int get_rank[64] = {
+        7, 7, 7, 7, 7, 7, 7, 7,
+        6, 6, 6, 6, 6, 6, 6, 6,
+        5, 5, 5, 5, 5, 5, 5, 5,
+        4, 4, 4, 4, 4, 4, 4, 4,
+        3, 3, 3, 3, 3, 3, 3, 3,
+        2, 2, 2, 2, 2, 2, 2, 2,
+        1, 1, 1, 1, 1, 1, 1, 1,
+        0, 0, 0, 0, 0, 0, 0, 0
+    };
+
+    const int double_pawn_penalty = -10;
+    const int isolated_pawn_penalty = -10;
+    const int passed_pawn_bonus[8] = {0,5,10,20,35,60,100,200};
+
+
 };
 
 

@@ -12,6 +12,11 @@ int evaluate(Game& game)
 
 namespace flk {
 
+    U64 file_masks[64];
+    U64 rank_masks[64];
+    U64 isolated_masks[64];
+    U64 black_passed_masks[64];
+    U64 white_passed_masks[64];
 
     U64 set_file_rank_mask(int file_number, int rank_number)
     {
@@ -42,11 +47,7 @@ namespace flk {
 
 
     void init_evaluation_masks(){
-        U64 file_masks[64];
-        U64 rank_masks[64];
-        U64 isolated_masks[64];
-        U64 black_passed_masks[64];
-        U64 white_passed_masks[64];
+        
 
         for (int rank = 0; rank < 8; rank++){
             for (int file = 0; file < 8; file++){
@@ -86,7 +87,6 @@ namespace flk {
                 for (int i = 0; i < rank + 1; i++){
                     black_passed_masks[square] &=  ~rank_masks[i * 8 + file];
                 }
-                print_bitboard(white_passed_masks[square]);
             }
         }
     };
@@ -128,6 +128,7 @@ namespace flk {
     int eval_position(Game& game)
     {
         int square = no_sq, pos_score = 0;
+        int double_pawns = 0;
 
         for(int piece = P; piece <= k; piece++)
         {
@@ -141,9 +142,26 @@ namespace flk {
 
                 switch (piece)
                 {
-                case P:
+                case P:{
+                    // positional score
                     pos_score += pawn_positional_score[square];
+
+                    //double pawn penalty
+                    double_pawns = count_bits(bitboard & file_masks[square]);
+                    if (double_pawns >= 2){
+                        pos_score += double_pawn_penalty * double_pawns;
+                    } 
+
+                    // isolated pawn penalty
+                    if ((bitboard & isolated_masks[square])==0)
+                        pos_score += isolated_pawn_penalty; 
+
+                    // passed pawn bonus
+                    if ((white_passed_masks[square] & game.get_bitboard(p))==0)
+                        pos_score += passed_pawn_bonus[get_rank[square]];
+
                     break;
+                }
                 case N:
                     pos_score += knight_positional_score[square];
                     break;
@@ -157,8 +175,23 @@ namespace flk {
                     pos_score += king_positional_score[square];
                     break;
                 case p:
+                {
                     pos_score -= pawn_positional_score[mirror_squares[square]];
+
+                    double_pawns = count_bits(bitboard & file_masks[square]);
+                    if (double_pawns >= 2){
+                        pos_score -= double_pawn_penalty * double_pawns;
+                    } 
+                    // isolated pawn penalty
+                    if ((bitboard & isolated_masks[square])==0)
+                        pos_score -= isolated_pawn_penalty; 
+
+                    // passed pawn bonus
+                    if ((black_passed_masks[square] & game.get_bitboard(P))==0)
+                        pos_score -= passed_pawn_bonus[get_rank[mirror_squares[square]]];
+
                     break;
+                }
                 case n:
                     pos_score -= knight_positional_score[mirror_squares[square]];
                     break;

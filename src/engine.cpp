@@ -39,7 +39,7 @@ void Engine::play(char side) {
                 }
 
                 // Let the engine find the best move
-                Move engine_move = search_position(6);
+                Move engine_move = search_position(8);
 
                 // Output the engine move
                 std::cout << "Engine played: ";
@@ -63,7 +63,7 @@ void Engine::play(char side) {
         else if (side == 'b' || side == 'B') {
             while (is_running()) {
                 // Let the engine find the best move
-                Move engine_move = search_position(6);
+                Move engine_move = search_position(8);
 
                 // Make the engine move
                 game.make_move(engine_move);

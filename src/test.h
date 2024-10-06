@@ -15,6 +15,7 @@ namespace flk {
 		std::string bugPos = "rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8";
 		std::string genericPos = "r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10";
 		std::string cmk_position = "r2q1rk1/ppp2ppp/2n1bn2/2b1p3/3pP3/3P1NPP/PPP1NPB1/R1BQ1RK1 b - - 0 9";
+		std::string empty_board = "K7/8/8/8/8/8/8/k7 w - - 0 9";
 
 		// Mate positions:
 		std::string mate_in_1 = "3k4/8/3K4/8/Q7/8/8/8 w - - 0 1";
