@@ -591,6 +591,7 @@ void MoveArray::add_move(Move move)
 {
     move_list[count] = move;
     count++;
+    
 }
 
 // Prints the move in a pretty format, used by print_move_list function

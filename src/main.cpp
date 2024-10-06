@@ -8,25 +8,24 @@ int main()
 {
 	init_all_attacks();
 	flk::init_evaluation_masks();
-	Engine e;
-	e.play('w');
+
+	// Engine e;
+	// e.play('w');
 	
-/* 	U64 dp_bb = 0ULL;
-	set_bit(dp_bb, e2);
-	set_bit(dp_bb, e3); */
-
-/* 	U64 wp_bb = FENtoBitboard("K7/P7/P7/8/8/8/8/8");
-	U64 bp_bb = FENtoBitboard("8/8/8/8/8/p7/p7/8"); */
-
-/* 	Game game(flk::test::empty_board);
-	game.set_bitboard(P,wp_bb );
-	game.set_bitboard(p, bp_bb);
+	
+ 	Game game(flk::test::seg_fault);
 	game.print_board();
-	 */
+
+	Move move = flk::iterative_search(game, 8);
+
+	/*
+	MoveGenerator m(game);
+	MoveArray list = m.generate_moves(all_moves);
+	std::cout << "Count: " << list.count << "\n";
+	*/
+
 /* 	int score = flk::eval_position(game);
 	std::cout << "Score: " << score << std::endl; */
-
-	
 
 	/* int depth = 8;
 	

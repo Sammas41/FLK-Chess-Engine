@@ -13,7 +13,7 @@
 */
 struct MoveArray
 {
-    std::array<Move, 80> move_list;
+    std::array<Move, MAX_MOVES_IN_POSITION> move_list;
     unsigned int count = 0;
 
     void add_move(Move);

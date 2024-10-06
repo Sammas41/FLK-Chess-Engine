@@ -21,6 +21,7 @@ void Engine::play(char side) {
             game.print_board();
 
             while (is_running()) { 
+                
                 InputResult result = process_input(white, game_history);
 
                 if (!result.is_move) {
