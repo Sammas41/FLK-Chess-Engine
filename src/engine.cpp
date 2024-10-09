@@ -8,11 +8,16 @@ Engine::Engine(std::string fen) : game(fen) {
     
 }
 
-void Engine::play(char side) {
+void Engine::play() {
     bool game_over = false;
     std::vector<Game> game_history;  // To store game states for undo functionality
-    game_history.clear();
     game_history.push_back(game); // Store initial position
+
+    make_header();
+
+    char side;
+    std::cout << "Choose a color [w/b]:\n";
+    std::cin >> side;
 
     while (!game_over) {
         if (side == 'w' || side == 'W') {
@@ -40,15 +45,10 @@ void Engine::play(char side) {
                 }
 
                 // Let the engine find the best move
-                Move engine_move = search_position(8);
+                flk::BestLine engine_line = search_position();
 
-                // Output the engine move
-                std::cout << "Engine played: ";
-                engine_move.print_move();  
-                std::cout << "\n";
-                
                 // Make the engine move
-                game.make_move(engine_move);
+                game.make_move(engine_line.best_move);
                 game_history.push_back(game);
 
                 // Check for checkmate or stalemate after engine's move
@@ -58,21 +58,28 @@ void Engine::play(char side) {
                 }
 
                 // Print board
-                game.print_board();         
+                game.print_board();
+
+                // Output the engine move
+                print_engine_line(engine_line);
+                /*
+                std::cout << "Engine played: ";
+                engine_line.best_move.print_move();  
+                std::cout << "\n";*/        
             }
         }
         else if (side == 'b' || side == 'B') {
             while (is_running()) {
                 // Let the engine find the best move
-                Move engine_move = search_position(8);
+                flk::BestLine engine_line = search_position();
 
                 // Make the engine move
-                game.make_move(engine_move);
+                game.make_move(engine_line.best_move);
                 game_history.push_back(game);
 
                 game.print_board();
                 std::cout << "Engine played: ";
-                engine_move.print_move();
+                engine_line.best_move.print_move();
                 std::cout << "\n";
 
                 // Check for checkmate or stalemate after engine's move
@@ -126,8 +133,6 @@ bool Engine::is_running() {
 std::string Engine::take_input() {
     std::string input;
     std::cout << "Insert the move you want to play (Piece + starting square + landing square):\n";
-    std::cout << "Insert 'undo' if you want to take back\n";
-    std::cout << "Insert 'undo-moveindex' of the move you want to take back to take back multiple moves\n";
     std::cin >> input;
     return input;
 }
@@ -184,39 +189,9 @@ void Engine::undo(int steps, std::vector<Game>& game_history) {
     }
 }
 
-/* Move Engine::get_player_move(int colour, std::string input_move) {
-    MoveGenerator move_generator(game);
-    MoveArray legal_moves = move_generator.generate_moves(all_moves);
-
-    Move player_move(input_move, colour);
-
-    while (true) {
-        std::cout << "Insert the move you want to play (Piece + starting square + landing square):\n";
-        std::cin >> string_move;
-
-        Move player_move(string_move, colour);
-
-        // Check if the move is legal
-        bool is_legal = false;
-        for (int i = 0; i < legal_moves.count; i++) {
-            if (player_move == legal_moves.move_list[i]) {
-                is_legal = true;
-                break;
-            }
-        }
-
-        if (is_legal) {
-            return player_move;
-        } else {
-            std::cout << "Invalid move. Please try again.\n";
-        }
-    }
-}*/
-
-Move Engine::search_position(int depth) {
-    return flk::iterative_search(game, depth);
+flk::BestLine Engine::search_position() {
+    return flk::iterative_search(game, depth, max_search_time);
 } 
-
 
 bool Engine::is_mate(Game& game) {
     MoveGenerator move_generator(game);
@@ -231,4 +206,45 @@ bool Engine::is_mate(Game& game) {
         return true;
     }
     return false;
+}
+
+void Engine::print_engine_line(flk::BestLine line) {
+    if(all_info == false) {
+        std::cout << "Engine played: ";
+        line.best_move.print_move();  
+        std::cout << "\n";
+    }
+    else {
+        // Print the best move
+        std::cout << "Engine played: ";
+        line.best_move.print_move();  
+        std::cout << "\n";
+
+        // Print the pv line and evaluation
+        for(int i = 0; i < line.pv_line_length; i++) {
+            line.pv_line[0][i].print_move();
+            std::cout << " ";
+        }
+
+        std::cout << "Evaluation: " << line.evaluation / 100 <<  "\n";
+        std::cout << "Nodes searched: " << line.nodes_visited 
+                  << "  Depth reached: " << line.depth_reached
+                  << "  Search time: " << line.search_time << "\n";
+    }
+}
+
+void Engine::make_header() {
+    std::cout << "------------------------------------------------\n";
+    std::cout << "         ***********   **          **    ***   \n";
+    std::cout << "        ***********   **          **   ***      \n";
+    std::cout << "       **            **          ** ***         \n";
+    std::cout << "      *******       **          ****            \n";
+    std::cout << "     *******       **          ****             \n";
+    std::cout << "    **            **          ** ***            \n";
+    std::cout << "   **            ********    **   ***           \n";
+    std::cout << "  **            ********    **     ***          \n";
+    std::cout << "------------------------------------------------\n";
+    std::cout << "         Fried Liver King Chess Engine          \n";
+    std::cout << "     By Nicola Schiavo and Samuele Berdusco     \n";
+    std::cout << "               Version: " + VERSION + "\n\n";
 }

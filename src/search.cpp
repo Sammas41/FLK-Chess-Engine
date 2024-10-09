@@ -5,8 +5,11 @@ namespace flk {
     int nodes = 0, ply = 0;
     int follow_pv = 0, score_pv = 0;  
 
-    const int FULL_DEPTH_MOVES = 4;
-    const int REDUCTION_LIMIT = 3;
+    // Global variables to measure the duration
+    // of the search
+    bool stop_search = false;
+    int time_treshold;
+    std::chrono::time_point<std::chrono::system_clock> start_time, stop_time;
 
     // Triangular principal variation table
     Move pv_table[MAX_PV_LENGTH][MAX_PV_LENGTH];
@@ -24,6 +27,16 @@ namespace flk {
     // Negamax searching algorithm
     int negamax(Game& game, int depth, int alpha, int beta)
     {
+        if(nodes % 2000 == 0) {
+            stop_time = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double> t = stop_time - start_time;
+
+            if(t.count() > time_treshold) {
+                stop_search = true;
+                return 0;
+            }
+        }
+
         // Initialize pv length
         pv_length[ply] = ply;
 
@@ -300,43 +313,71 @@ namespace flk {
     }
 
     // Iterative search function for time management
-    Move iterative_search(Game& game, int depth) {
-
-        int alpha = -FLK_INFINITY, beta = FLK_INFINITY;
+    BestLine iterative_search(Game& game, int depth, int max_time) {
 
         follow_pv = 0;
         score_pv = 0;
+        time_treshold = max_time;
+        stop_search = false;
 
         // Clear the tables from the previous iteration
         clear_tables();
+        
+        BestLine line;
 
+        int alpha = -FLK_INFINITY, beta = FLK_INFINITY;
+
+        start_time = std::chrono::high_resolution_clock::now();
         for(int current_depth = 1; current_depth <= depth; current_depth++) {
 
             // Enable follow pv flag
             follow_pv = 1;
 
+            // Copy the best pv line from the previous iteration,
+            // in case the search takes too much time this one will
+            // be returned
+            for(int i = 0; i < pv_length[0]; i++)
+                line.pv_line[0][i] = pv_table[0][i];
+
             // Search the current position at the current depth
             int score = negamax(game, current_depth, alpha, beta);
-            
+
+            // If we have reached time limit then stop the search
+            if(stop_search != true) {
+                // Save the max depth reached during the search
+                line.depth_reached = current_depth;
+                line.pv_line_length = pv_length[0];
+                
+                // Save the score of the position
+                line.evaluation = score;
+            }
+            else 
+                break;
+
+            // If the score is not in the window range we 
+            // need to do a full research 
             if((score <= alpha) || (score >= beta)) {
                 alpha = -FLK_INFINITY;
                 beta = FLK_INFINITY;
                 continue;
             }
-
+            
+            // Shrink the size of the aspiration window
             alpha = score - WINDOW_VAL;
             beta = score + WINDOW_VAL;
         }
+        
+        // Saves the best move in the current position
+        line.best_move = line.pv_line[0][0];
 
-        std::cout << "Principal variation at depth " << depth << ": ";
-	    for(int i = 0; i < pv_length[0]; i++) {
-            pv_table[0][i].print_move();
-            std:: cout << "  ";
-        }
-        std::cout << "\n";
-	    std::cout << "\nNumber of nodes searched: " << flk::nodes << "\n";
+        // Saves the number of nodes visited
+        line.nodes_visited = nodes;
 
-        return pv_table[0][0];
+        // Saves the search duration
+        std::chrono::duration<double> t = stop_time - start_time;
+        line.search_time = t.count();
+
+        return line;
     }
 
     // Checks if we can apply LMR to this move

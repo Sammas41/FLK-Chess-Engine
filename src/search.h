@@ -4,15 +4,30 @@
 #include "evaluation.h"
 #include "moveGenerator.h"
 #include <vector>
+#include <chrono>
 
 namespace flk {
-
-    extern int nodes;
-
+    
     // Search constants
     constexpr int MAX_PV_LENGTH = 64;
     constexpr int FLK_INFINITY = 50000;
     constexpr int WINDOW_VAL = 50;
+    constexpr int FULL_DEPTH_MOVES = 4;
+    constexpr int REDUCTION_LIMIT = 3;
+    
+    // Contains all the information regarding the best line
+    struct BestLine {
+        Move pv_line[MAX_PV_LENGTH][MAX_PV_LENGTH];
+        Move best_move;
+
+        int pv_line_length;
+        int depth_reached;
+        int nodes_visited;
+        int evaluation;
+        double search_time;
+    };
+
+    extern int nodes;
 
     // Perf test functions, useful for debugging the move
     // generation process
@@ -22,7 +37,7 @@ namespace flk {
     // Search functions
     int negamax(Game&, int, int, int);
     int quiescence_search(Game&, int, int);
-    Move iterative_search(Game&, int);
+    BestLine iterative_search(Game&, int, int);
 
     // Score move functions
     int score_move(Move, Game&);

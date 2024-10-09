@@ -9,20 +9,9 @@ int main()
 	init_all_attacks();
 	flk::init_evaluation_masks();
 
-	// Engine e;
-	// e.play('w');
+	Engine e;
+	e.play();
 	
-	
- 	Game game(flk::test::seg_fault);
-	game.print_board();
-
-	Move move = flk::iterative_search(game, 8);
-
-	/*
-	MoveGenerator m(game);
-	MoveArray list = m.generate_moves(all_moves);
-	std::cout << "Count: " << list.count << "\n";
-	*/
 
 /* 	int score = flk::eval_position(game);
 	std::cout << "Score: " << score << std::endl; */
