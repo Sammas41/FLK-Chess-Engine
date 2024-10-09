@@ -28,13 +28,11 @@ namespace flk {
     int negamax(Game& game, int depth, int alpha, int beta)
     {
         if(nodes % 2000 == 0) {
-            stop_time = std::chrono::high_resolution_clock::now();
+            stop_time = std::chrono::system_clock::now();
             std::chrono::duration<double> t = stop_time - start_time;
 
-            if(t.count() > time_treshold) {
+            if(t.count() > time_treshold)
                 stop_search = true;
-                return 0;
-            }
         }
 
         // Initialize pv length
@@ -116,7 +114,11 @@ namespace flk {
 
         // Loop through all the legal moves
         for(int i = 0; i < legal_moves.count; i++)
-        {      
+        {     
+            // If time is over then block the search
+            if(stop_search == true)
+                break;
+            
             // Play the move and increment the ply counter
             g.make_move(legal_moves.move_list[i]);
             ply++;
@@ -327,7 +329,7 @@ namespace flk {
 
         int alpha = -FLK_INFINITY, beta = FLK_INFINITY;
 
-        start_time = std::chrono::high_resolution_clock::now();
+        start_time = std::chrono::system_clock::now();
         for(int current_depth = 1; current_depth <= depth; current_depth++) {
 
             // Enable follow pv flag
@@ -341,15 +343,15 @@ namespace flk {
 
             // Search the current position at the current depth
             int score = negamax(game, current_depth, alpha, beta);
+            
+            // Save the score of the position
+            line.evaluation = score;
 
             // If we have reached time limit then stop the search
-            if(stop_search != true) {
+            if(stop_search == false) {
                 // Save the max depth reached during the search
                 line.depth_reached = current_depth;
                 line.pv_line_length = pv_length[0];
-                
-                // Save the score of the position
-                line.evaluation = score;
             }
             else 
                 break;
@@ -376,7 +378,7 @@ namespace flk {
         // Saves the search duration
         std::chrono::duration<double> t = stop_time - start_time;
         line.search_time = t.count();
-
+    
         return line;
     }
 

@@ -39,33 +39,27 @@ void Engine::play() {
                 game_history.push_back(game);
                 
                 // Check for checkmate or stalemate after player's move
-                if (is_mate(game)) {
-                    game_over = true;
+                if (is_mate(game))
                     break;
-                }
 
                 // Let the engine find the best move
                 flk::BestLine engine_line = search_position();
-
+                
                 // Make the engine move
                 game.make_move(engine_line.best_move);
                 game_history.push_back(game);
 
                 // Check for checkmate or stalemate after engine's move
-                if (is_mate(game)) {
-                    game_over = true;
+                if (is_mate(game))
                     break;
-                }
 
                 // Print board
                 game.print_board();
+                
+                std::cout << "Eval before the func: " << engine_line.evaluation << "\n";
 
                 // Output the engine move
-                print_engine_line(engine_line);
-                /*
-                std::cout << "Engine played: ";
-                engine_line.best_move.print_move();  
-                std::cout << "\n";*/        
+                print_engine_line(engine_line);       
             }
         }
         else if (side == 'b' || side == 'B') {
@@ -77,16 +71,15 @@ void Engine::play() {
                 game.make_move(engine_line.best_move);
                 game_history.push_back(game);
 
+                // Print the board
                 game.print_board();
-                std::cout << "Engine played: ";
-                engine_line.best_move.print_move();
-                std::cout << "\n";
+                
+                // Print the engine move
+                print_engine_line(engine_line);
 
                 // Check for checkmate or stalemate after engine's move
-                if (is_mate(game)) {
-                    game_over = true;
+                if (is_mate(game))
                     break;
-                }
 
                 InputResult result = process_input(black, game_history);
 
@@ -99,10 +92,8 @@ void Engine::play() {
                 game_history.push_back(game);
 
                 // Check for checkmate or stalemate after player's move
-                if (is_mate(game)) {
-                    game_over = true;
+                if (is_mate(game))
                     break;
-                }
             }
         }
         else {
@@ -127,7 +118,7 @@ void Engine::play() {
 }
 
 bool Engine::is_running() {
-    return true;
+    return game_over;
 }
 
 std::string Engine::take_input() {
@@ -203,12 +194,14 @@ bool Engine::is_mate(Game& game) {
         } else {
             std::cout << "Stalemate! The game is a draw.\n";
         }
+        game_over = true;
         return true;
     }
     return false;
 }
 
-void Engine::print_engine_line(flk::BestLine line) {
+void Engine::print_engine_line(flk::BestLine& line) {
+
     if(all_info == false) {
         std::cout << "Engine played: ";
         line.best_move.print_move();  
@@ -226,9 +219,11 @@ void Engine::print_engine_line(flk::BestLine line) {
             std::cout << " ";
         }
 
-        std::cout << "Evaluation: " << line.evaluation / 100 <<  "\n";
+        std::cout << "Evaluation: " << std::setprecision(1)
+                  << static_cast<double>(line.evaluation) / 100 <<  "\n";
         std::cout << "Nodes searched: " << line.nodes_visited 
                   << "  Depth reached: " << line.depth_reached
+                  << std::setprecision(4)
                   << "  Search time: " << line.search_time << "\n";
     }
 }

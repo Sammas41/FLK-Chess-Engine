@@ -4,6 +4,7 @@
 #include "game.h"
 #include "moveGenerator.h"
 #include "search.h"
+#include <iomanip>
 
 struct InputResult {
     bool is_move;
@@ -31,14 +32,15 @@ class Engine {
         Game game;
 
         int depth = 8;
-        int max_search_time = 5;
+        int max_search_time = 2;
         
+        bool game_over;
         bool all_info = true;
 
         const std::string VERSION = "1.0";
 
         void make_header();
-        void print_engine_line(flk::BestLine);
+        void print_engine_line(flk::BestLine&);
 
         bool is_running();
         Move get_player_move(int, std::string);
