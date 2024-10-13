@@ -168,9 +168,23 @@ namespace flk {
                 case B:
                     pos_score += bishop_positional_score[square];
                     break;
-                case R:
+                case R:{
+                    // positional score
                     pos_score += rook_positional_score[square];
+
+                    // semiopen file bonus
+                    if ((game.get_bitboard(P) & file_masks[square])==0){
+                        pos_score += semi_open_file_score;
+                    }
+
+                    // open file bonus
+                    if (((game.get_bitboard(P) | game.get_bitboard(p)) & file_masks[square])==0){
+                        pos_score += open_file_score;
+                    }
+
                     break;
+                }
+                    
                 case K:
                     pos_score += king_positional_score[square];
                     break;
@@ -198,9 +212,23 @@ namespace flk {
                 case b:
                     pos_score -= bishop_positional_score[mirror_squares[square]];
                     break;
-                case r:
+                case r:{
+                    // positional score
                     pos_score -= rook_positional_score[mirror_squares[square]];
+
+                    // semiopen file bonus
+                    if ((game.get_bitboard(p) & file_masks[square])==0){
+                        pos_score -= semi_open_file_score;
+                    }
+
+                    // open file bonus
+                    if (((game.get_bitboard(P) | game.get_bitboard(p)) & file_masks[square])==0){
+                        pos_score -= open_file_score;
+                    }
+
                     break;
+                }
+
                 case k:
                     pos_score -= king_positional_score[mirror_squares[square]];
                 default:

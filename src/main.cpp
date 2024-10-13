@@ -7,12 +7,13 @@ int main()
 	init_all_attacks();
 	flk::init_evaluation_masks();
 
-	Engine e;
-	e.play();
+/* 	Engine e;
+	e.play(); */
 	
 
-/* 	int score = flk::eval_position(game);
-	std::cout << "Score: " << score << std::endl; */
+	Game game(flk::test::openfiles_board);
+	int score = flk::eval_position(game);
+	std::cout << "Score: " << score << std::endl;
 
 	/* int depth = 8;
 	
