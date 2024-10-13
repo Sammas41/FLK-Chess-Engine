@@ -350,8 +350,8 @@ namespace flk {
             // If we have reached time limit then stop the search
             if(stop_search == false) {
                 // Save the max depth reached during the search
-                line.depth_reached = current_depth;
-                line.pv_line_length = pv_length[0];
+                line.depth_reached = current_depth - 1;
+                line.pv_line_length = pv_length[0] - 1;
             }
             else 
                 break;

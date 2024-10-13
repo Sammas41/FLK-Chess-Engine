@@ -9,7 +9,6 @@ Engine::Engine(std::string fen) : game(fen) {
 }
 
 void Engine::play() {
-    bool game_over = false;
     std::vector<Game> game_history;  // To store game states for undo functionality
     game_history.push_back(game); // Store initial position
 
@@ -55,8 +54,6 @@ void Engine::play() {
 
                 // Print board
                 game.print_board();
-                
-                std::cout << "Eval before the func: " << engine_line.evaluation << "\n";
 
                 // Output the engine move
                 print_engine_line(engine_line);       
@@ -118,7 +115,7 @@ void Engine::play() {
 }
 
 bool Engine::is_running() {
-    return game_over;
+    return !game_over;
 }
 
 std::string Engine::take_input() {
@@ -200,8 +197,10 @@ bool Engine::is_mate(Game& game) {
     return false;
 }
 
-void Engine::print_engine_line(flk::BestLine& line) {
-
+void Engine::print_engine_line(flk::BestLine line) {
+    // Two possibilites:
+    //   - just the print the engine move
+    //   - print all the info of the search 
     if(all_info == false) {
         std::cout << "Engine played: ";
         line.best_move.print_move();  
@@ -219,8 +218,12 @@ void Engine::print_engine_line(flk::BestLine& line) {
             std::cout << " ";
         }
 
-        std::cout << "Evaluation: " << std::setprecision(1)
-                  << static_cast<double>(line.evaluation) / 100 <<  "\n";
+        // Print evaluation
+        double eval = static_cast<double>(line.evaluation) / 100;
+        (eval > 0) ? std::cout << "Evaluation: +" : std::cout << "Evaluation: ";
+        std::cout << std::setprecision(1) << eval <<  "\n";
+
+        // Print nodes searched, depth reached, search time
         std::cout << "Nodes searched: " << line.nodes_visited 
                   << "  Depth reached: " << line.depth_reached
                   << std::setprecision(4)
