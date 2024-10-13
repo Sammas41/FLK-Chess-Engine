@@ -16,6 +16,7 @@ namespace flk {
 		std::string genericPos = "r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10";
 		std::string cmk_position = "r2q1rk1/ppp2ppp/2n1bn2/2b1p3/3pP3/3P1NPP/PPP1NPB1/R1BQ1RK1 b - - 0 9";
 		std::string empty_board = "K7/8/8/8/8/8/8/k7 w - - 0 9";
+		std::string openfiles_board = "k5r1/p1p2p1p/8/8/8/8/2P2PPP/KR6 w - - 0 9";
 		std::string seg_fault = "8/5kpp/1p1q1n2/2p1R1Q1/2b4P/3p3K/6P1/r7 b - - 1 30";
 
 		// Mate positions:
