@@ -11,7 +11,7 @@ int main()
 	e.play(); */
 	
 
-	Game game(flk::test::openfiles_board);
+	Game game(flk::test::king_safety_board);
 	int score = flk::eval_position(game);
 	std::cout << "Score: " << score << std::endl;
 

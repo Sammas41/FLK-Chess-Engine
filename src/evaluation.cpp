@@ -1,4 +1,5 @@
 #include "evaluation.h"
+#include "attacks.h"
 
 int evaluate(Game& game)
 {
@@ -132,7 +133,6 @@ namespace flk {
 
         for(int piece = P; piece <= k; piece++)
         {
-            if(piece == q || piece == Q) continue;
 
             U64 bitboard = game.get_bitboard(piece);
 
@@ -165,9 +165,15 @@ namespace flk {
                 case N:
                     pos_score += knight_positional_score[square];
                     break;
-                case B:
+                case B:{
                     pos_score += bishop_positional_score[square];
+
+                    // mobility bonus
+                    pos_score += count_bits(get_bishop_attack(square, game.get_occupancy(both)));
+
                     break;
+                }
+
                 case R:{
                     // positional score
                     pos_score += rook_positional_score[square];
@@ -184,10 +190,31 @@ namespace flk {
 
                     break;
                 }
-                    
-                case K:
+
+                case Q:{
+                    // mobility bonus
+                    pos_score += count_bits(get_queen_attack(square, game.get_occupancy(both)));
+                    break;                    
+                }    
+                case K:{
                     pos_score += king_positional_score[square];
+
+                    // semiopen file penalty
+                    if ((game.get_bitboard(P) & file_masks[square])==0){
+                        pos_score -= semi_open_file_score;
+                    }
+
+                    // open file penalty
+                    if (((game.get_bitboard(P) | game.get_bitboard(p)) & file_masks[square])==0){
+                        pos_score -= open_file_score;
+                    }
+
+                    // king safety bonus ********EXPERIMENTAL*********
+                    pos_score += count_bits(get_king_attack(square) & game.get_occupancy(white)) * king_shield_bonus;
+
                     break;
+                }
+                    
                 case p:
                 {
                     pos_score -= pawn_positional_score[mirror_squares[square]];
@@ -209,9 +236,12 @@ namespace flk {
                 case n:
                     pos_score -= knight_positional_score[mirror_squares[square]];
                     break;
-                case b:
+                case b:{
                     pos_score -= bishop_positional_score[mirror_squares[square]];
+                    // mobility bonus
+                    pos_score -= count_bits(get_bishop_attack(square, game.get_occupancy(both)));
                     break;
+                }
                 case r:{
                     // positional score
                     pos_score -= rook_positional_score[mirror_squares[square]];
@@ -229,8 +259,32 @@ namespace flk {
                     break;
                 }
 
-                case k:
+                case q:{
+                    // mobility bonus
+                    pos_score -= count_bits(get_queen_attack(square, game.get_occupancy(both)));
+                    break;                    
+                } 
+
+                case k:{
                     pos_score -= king_positional_score[mirror_squares[square]];
+
+                    // semiopen file penalty
+                    if ((game.get_bitboard(p) & file_masks[square])==0){
+                        pos_score += semi_open_file_score;
+                    }
+
+                    // open file penalty
+                    if (((game.get_bitboard(P) | game.get_bitboard(p)) & file_masks[square])==0){
+                        pos_score += open_file_score;
+                    }
+
+                     // king safety bonus ********EXPERIMENTAL*********
+                    pos_score -= count_bits(get_king_attack(square) & game.get_occupancy(black)) * king_shield_bonus;
+                                       
+
+                    break;
+                }
+                    
                 default:
                     break;
                 }
