@@ -8,120 +8,130 @@ Engine::Engine(std::string fen) : game(fen) {
     
 }
 
-void Engine::play() {
-    std::vector<Game> game_history;  // To store game states for undo functionality
-    game_history.push_back(game); // Store initial position
-
+void Engine::run() {
+    
     make_header();
 
+    // Main loop
+    while (close_engine == false) {
+        // Read input from the command line
+        read();
+    }
+    
+    std::cout << "Thanks for playing\n";
+}
+
+void Engine::play() {   
+
+    // To store game states for undo functionality
+    std::vector<Game> game_history;
+    game_history.push_back(game);
+    game_over = false;
+
+    // Choose the side
     char side;
     std::cout << "Choose a color [w/b]:\n";
     std::cin >> side;
 
-    while (!game_over) {
-        if (side == 'w' || side == 'W') {
-            // Print board
-            std::cout << "\n";
+    // This line is necessary due to the fact that std::getline is also used
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+    if (side == 'w' || side == 'W') {
+
+        // Print board
+        std::cout << "\n";
+        game.print_board();
+
+        // Game loop
+        while (!game_over) { 
+            
+            InputResult result = process_input(white, game_history);
+
+            if (!result.is_move) {
+                // If it's not a move (i.e., it was an undo), continue the loop
+                continue;
+            }
+
+            // Make player's move
+            game.make_move(result.move);
+            game_history.push_back(game);
+            
+            // Check for checkmate or stalemate after player's move
+            if (is_mate(game)) {
+                game.print_board();
+                break;
+            }
+
+            // Let the engine find the best move
+            flk::BestLine engine_line = search_position();
+            
+            // Make the engine move
+            game.make_move(engine_line.best_move);
+            game_history.push_back(game);
+
+            // Print board and engine move
             game.print_board();
+            print_engine_line(engine_line);
 
-            while (is_running()) { 
-                
-                InputResult result = process_input(white, game_history);
+            // Check for checkmate or stalemate after engine's move
+            if (is_mate(game))
+                break;       
+        }
+    }
+    else if (side == 'b' || side == 'B') {
 
-                if (!result.is_move) {
-                    // If it's not a move (i.e., it was an undo), continue the loop
-                    continue;
-                }
+        // Game loop
+        while (!game_over) {
 
-                // Make player's move
-                game.make_move(result.move);
-                game_history.push_back(game);
-                
-                // Check for checkmate or stalemate after player's move
-                if (is_mate(game))
-                    break;
+            // Let the engine find the best move
+            flk::BestLine engine_line = search_position();
 
-                // Let the engine find the best move
-                flk::BestLine engine_line = search_position();
-                
-                // Make the engine move
-                game.make_move(engine_line.best_move);
-                game_history.push_back(game);
+            // Make the engine move
+            game.make_move(engine_line.best_move);
+            game_history.push_back(game);
 
-                // Check for checkmate or stalemate after engine's move
-                if (is_mate(game))
-                    break;
+            // Print the board and the engine move
+            game.print_board();
+            print_engine_line(engine_line);
 
-                // Print board
+            // Check for checkmate or stalemate after engine's move
+            if (is_mate(game))
+                break;
+
+            InputResult result = process_input(black, game_history);
+            if (!result.is_move) {
+                // If it's not a move (i.e., it was an undo), continue the loop
+                continue;
+            }
+
+            game.make_move(result.move);
+            game_history.push_back(game);
+
+            // Check for checkmate or stalemate after player's move
+            if (is_mate(game)) {
                 game.print_board();
-
-                // Output the engine move
-                print_engine_line(engine_line);       
+                break;
             }
         }
-        else if (side == 'b' || side == 'B') {
-            while (is_running()) {
-                // Let the engine find the best move
-                flk::BestLine engine_line = search_position();
+    }
+    else {
+        std::cout << "Invalid side. Select 'w' for white or 'b' for black\n";
+        return;
+    }
 
-                // Make the engine move
-                game.make_move(engine_line.best_move);
-                game_history.push_back(game);
-
-                // Print the board
-                game.print_board();
-                
-                // Print the engine move
-                print_engine_line(engine_line);
-
-                // Check for checkmate or stalemate after engine's move
-                if (is_mate(game))
-                    break;
-
-                InputResult result = process_input(black, game_history);
-
-                if (!result.is_move) {
-                    // If it's not a move (i.e., it was an undo), continue the loop
-                    continue;
-                }
-
-                game.make_move(result.move);
-                game_history.push_back(game);
-
-                // Check for checkmate or stalemate after player's move
-                if (is_mate(game))
-                    break;
-            }
-        }
-        else {
-            std::cout << "[ERROR] Chose a valid side\n";
-            return;
-        }
-
-        if (game_over) {
-            char choice;
-            std::cout << "Do you want to play another game? (y/n): ";
-            std::cin >> choice;
-            if (choice == 'y' || choice == 'Y') {
-                game = Game(); // Reset the game to initial position
-                game_over = false;
-                std::cout << "Starting a new game...\n";
-            } else {
-                std::cout << "Thanks for playing!\n";
-                return;
-            }
-        }
-    }   
-}
-
-bool Engine::is_running() {
-    return !game_over;
+    // reset the board to its initial state and clear history
+    game = game_history.at(0);
+    game_history.clear();
 }
 
 std::string Engine::take_input() {
     std::string input;
     std::cout << "Insert the move you want to play (Piece + starting square + landing square):\n";
     std::cin >> input;
+
+    // This line is necessary due to the fact that std::getline is also used
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
     return input;
 }
 
@@ -211,17 +221,31 @@ void Engine::print_engine_line(flk::BestLine line) {
         std::cout << "Engine played: ";
         line.best_move.print_move();  
         std::cout << "\n";
-
+        
         // Print the pv line and evaluation
-        for(int i = 0; i < line.pv_line_length; i++) {
-            line.pv_line[0][i].print_move();
+        for(int i = 0; i < line.depth_reached; i++) {
+            
+            // If we have found a mate print until the mating move
+            if(line.pv_line[i] == NULL_MOVE)
+                break;
+            
+            line.pv_line[i].print_move();
             std::cout << " ";
         }
 
         // Print evaluation
         double eval = static_cast<double>(line.evaluation) / 100;
-        (eval > 0) ? std::cout << "Evaluation: +" : std::cout << "Evaluation: ";
-        std::cout << std::setprecision(1) << eval <<  "\n";
+
+        // If it white side to move then engine has black (and viceversa) 
+        // so we fix the + and - sign according to the usual convention and
+        // not form the engine perspective
+        if(game.get_side() == white)
+            (eval > 0) ? std::cout << "Evaluation: " : std::cout << "Evaluation: +";
+        else
+            (eval > 0) ? std::cout << "Evaluation: +" : std::cout << "Evaluation: ";
+
+        std::cout << std::setprecision(2);
+        (eval > 0) ? std::cout << eval << "\n" : std::cout << -eval <<  "\n";
 
         // Print nodes searched, depth reached, search time
         std::cout << "Nodes searched: " << line.nodes_visited 
@@ -229,6 +253,120 @@ void Engine::print_engine_line(flk::BestLine line) {
                   << std::setprecision(4)
                   << "  Search time: " << line.search_time << "\n";
     }
+}
+
+void Engine::read() {
+    
+    // Clear the previous command
+    c_line.clear();
+    
+    std::cout << ">> ";
+
+    // Get the new command
+    c_line.read_command();
+
+    // Set command
+    if(c_line.get_command() == "set") {
+        run_set_command();
+        return;
+    }
+
+    // Print command
+    if(c_line.get_command() == "print") {
+        run_print_command();
+        return;
+    }
+
+    // Play command
+    if(c_line.get_command() == "play") {
+        play();
+        return;
+    }
+
+    // Quit command
+    if(c_line.get_command() == "quit" || c_line.get_command() == "q") {
+        close_engine = true;
+        return;
+    }
+
+    // Help command
+    if(c_line.get_command() == "help") {
+        print_help();
+        return;
+    }
+
+    // Null command
+    if(c_line.get_command() == "") {
+        return;
+    }
+
+    std::cout << "Invalid command\n";
+}
+
+void Engine::run_set_command() {
+    // Max depth
+    if(c_line.get_specifier(0) == "maxd" && isdigit(c_line.get_specifier(1).at(0))) {
+        std::string s = c_line.get_specifier(1);
+        depth = std::stoi(s);
+        std::cout << "Max depth set to: " << s << "\n";
+        return;
+    }
+
+    // Max time search
+    if(c_line.get_specifier(0) == "maxst" && isdigit(c_line.get_specifier(1).at(0))) {
+        std::string s = c_line.get_specifier(1);
+        max_search_time = std::stoi(s);
+        std::cout << "Max search time set to: " << s << " sec\n";
+        return;
+    }
+
+    // Search info
+    if(c_line.get_specifier(0) == "info" || c_line.get_specifier(0) == "-i") {
+        std::cout << "Engine now prints all information on the search\n";
+        all_info = true;
+        return;
+    }
+
+    std::cout << "Invalid command\n";
+}
+
+void Engine::run_print_command() {
+    // Print engine settings
+    if(c_line.get_specifier(0) == "settings" || c_line.get_specifier(0) == "-s") {
+        print_settings();
+        return;
+    }
+
+    // Print current board
+    if(c_line.get_specifier(0) == "board" || c_line.get_specifier(0) == "-b") {
+        game.print_board();
+        return;
+    }
+
+    std::cout << "Invalid command\n";
+}
+
+void Engine::print_settings() {
+    std::cout << "Current settings:\n";
+    std::cout << "  Max search depth: " << depth << "\n";
+    std::cout << "  Max search time: " << max_search_time << " sec\n"; 
+}
+
+void Engine::print_help() {
+    std::cout << "Command: set\n";
+    std::cout << "   ... maxd [int number]   --> set maximum depth at [int number]\n";
+    std::cout << "   ... maxst [int number]  --> set maximum search time at [int number] seconds\n";
+    std::cout << "   ... info                --> set the all_info flag\n";
+
+    std::cout << "\nCommand: print\n";
+    std::cout << "   ... settings            --> print engine's settings\n";
+    std::cout << "   ... board               --> print the board\n";
+
+    std::cout << "\nCommand: play\n";
+    std::cout << "   ...                     --> start a new game\n";
+
+    std::cout << "\nCommand: quit (or just q)\n";
+    std::cout << "   ...                     --> quit the application\n";
 }
 
 void Engine::make_header() {

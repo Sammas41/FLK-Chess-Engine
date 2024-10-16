@@ -46,4 +46,6 @@ class Move {
         int encode_move(int, int, int, int, int, int, int, int);
 };
 
+const Move NULL_MOVE(0, 0, 0, 0, 0, 0, 0, 0);
+
 #endif
