@@ -413,4 +413,6 @@ void Engine::make_header() {
     std::cout << "                                                     Fried Liver King Chess Engine          \n";
     std::cout << "                                                 By Nicola Schiavo and Samuele Berdusco     \n";
     std::cout << "                                                           Version: " + VERSION + "\n\n";
+
+    std::cout << "Type help for more information on the commands\n";
 }
