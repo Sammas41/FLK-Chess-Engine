@@ -17,10 +17,9 @@ namespace flk {
     
     // Contains all the information regarding the best line
     struct BestLine {
-        Move pv_line[MAX_PV_LENGTH][MAX_PV_LENGTH];
+        Move pv_line[MAX_PV_LENGTH];
         Move best_move;
 
-        int pv_line_length;
         int depth_reached;
         int nodes_visited;
         int evaluation;

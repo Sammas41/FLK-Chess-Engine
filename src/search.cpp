@@ -326,6 +326,7 @@ namespace flk {
         clear_tables();
         
         BestLine line;
+        int old_pv_length;
 
         int alpha = -FLK_INFINITY, beta = FLK_INFINITY;
 
@@ -338,8 +339,12 @@ namespace flk {
             // Copy the best pv line from the previous iteration,
             // in case the search takes too much time this one will
             // be returned
+            old_pv_length = pv_length[0];
             for(int i = 0; i < pv_length[0]; i++)
-                line.pv_line[0][i] = pv_table[0][i];
+                line.pv_line[i] = pv_table[0][i];
+
+            // Save current best move
+            line.best_move = pv_table[0][0];
 
             // Search the current position at the current depth
             int score = negamax(game, current_depth, alpha, beta);
@@ -350,8 +355,12 @@ namespace flk {
             // If we have reached time limit then stop the search
             if(stop_search == false) {
                 // Save the max depth reached during the search
-                line.depth_reached = current_depth - 1;
-                line.pv_line_length = pv_length[0] - 1;
+                line.depth_reached = current_depth;
+
+                // Fix a bug where the last move of the pv line was
+                // not saved if the engine completed the search
+                if(old_pv_length != pv_length[0])
+                    line.pv_line[old_pv_length] = pv_table[0][pv_length[0] - 1];
             }
             else 
                 break;
@@ -369,9 +378,6 @@ namespace flk {
             beta = score + WINDOW_VAL;
         }
         
-        // Saves the best move in the current position
-        line.best_move = line.pv_line[0][0];
-
         // Saves the number of nodes visited
         line.nodes_visited = nodes;
 
