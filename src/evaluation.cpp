@@ -134,7 +134,6 @@ namespace flk {
 
         for(int piece = P; piece <= k; piece++)
         {
-
             U64 bitboard = game.get_bitboard(piece);
 
             while(bitboard)
@@ -143,7 +142,7 @@ namespace flk {
 
                 switch (piece)
                 {
-                case P:{
+                case P: {
                     // positional score
                     pos_score += pawn_positional_score[square];
 
@@ -166,7 +165,7 @@ namespace flk {
                 case N:
                     pos_score += knight_positional_score[square];
                     break;
-                case B:{
+                case B: {
                     pos_score += bishop_positional_score[square];
 
                     // mobility bonus
@@ -174,8 +173,7 @@ namespace flk {
 
                     break;
                 }
-
-                case R:{
+                case R: {
                     // positional score
                     pos_score += rook_positional_score[square];
 
@@ -191,13 +189,12 @@ namespace flk {
 
                     break;
                 }
-
-                case Q:{
+                case Q: {
                     // mobility bonus
                     pos_score += count_bits(get_queen_attack(square, game.get_occupancy(both)));
                     break;                    
                 }    
-                case K:{
+                case K: {
                     pos_score += king_positional_score[square];
 
                     // semiopen file penalty
@@ -211,13 +208,12 @@ namespace flk {
                     }
 
                     // king safety bonus ********EXPERIMENTAL*********
-                    pos_score += count_bits(get_king_attack(square) & game.get_occupancy(white)) * king_shield_bonus;
-
-                    break;
-                }
+                    pos_score += count_bits(get_king_attack(square) & game.get_occupancy(white)) * 
+                                 king_shield_bonus;
                     
-                case p:
-                {
+                    break;
+                }  
+                case p: {
                     pos_score -= pawn_positional_score[mirror_squares[square]];
 
                     double_pawns = count_bits(bitboard & file_masks[square]);
@@ -237,13 +233,13 @@ namespace flk {
                 case n:
                     pos_score -= knight_positional_score[mirror_squares[square]];
                     break;
-                case b:{
+                case b: {
                     pos_score -= bishop_positional_score[mirror_squares[square]];
                     // mobility bonus
                     pos_score -= count_bits(get_bishop_attack(square, game.get_occupancy(both)));
                     break;
                 }
-                case r:{
+                case r: {
                     // positional score
                     pos_score -= rook_positional_score[mirror_squares[square]];
 
@@ -259,14 +255,12 @@ namespace flk {
 
                     break;
                 }
-
-                case q:{
+                case q: {
                     // mobility bonus
                     pos_score -= count_bits(get_queen_attack(square, game.get_occupancy(both)));
                     break;                    
                 } 
-
-                case k:{
+                case k: {
                     pos_score -= king_positional_score[mirror_squares[square]];
 
                     // semiopen file penalty
@@ -279,17 +273,15 @@ namespace flk {
                         pos_score += open_file_score;
                     }
 
-                     // king safety bonus ********EXPERIMENTAL*********
-                    pos_score -= count_bits(get_king_attack(square) & game.get_occupancy(black)) * king_shield_bonus;
-                                       
-
+                    // king safety bonus ********EXPERIMENTAL*********
+                    pos_score -= count_bits(get_king_attack(square) & game.get_occupancy(black)) *
+                                 king_shield_bonus;
+            
                     break;
-                }
-                    
+                }   
                 default:
                     break;
                 }
-
                 pop_bit(bitboard, square);
             }
         }
