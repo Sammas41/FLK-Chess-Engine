@@ -2,6 +2,7 @@
 
 namespace flk {
 
+    // Global variables used in the search
     int nodes = 0, ply = 0;
     int follow_pv = 0, score_pv = 0;  
 
@@ -45,7 +46,7 @@ namespace flk {
         // If we have reached the maximum ply length stop
         // the search and evaluate the current position
         if(ply > MAX_PV_LENGTH - 1)
-            return evaluate(game);
+            return flk::evaluate(game);
 
         // Only used to check if the new features that
         // we will introduce will actually reduce the
@@ -211,7 +212,7 @@ namespace flk {
         nodes++;
 
         // Evaluate the position
-        int evaluation = flk::lazy_evaluation(game);
+        int evaluation = flk::evaluate(game);
 
         // If the score is better than the opponent's
         // best response then prune the branch
@@ -409,8 +410,7 @@ namespace flk {
         return true;
     }
 
-    // Returns the score of a move relevant for 
-    // move ordering
+    // Returns the score of a move relevant for move ordering
     int score_move(Move move, Game& game) {
 
         // If we are still in the pv line
@@ -506,6 +506,7 @@ namespace flk {
         }
     }
 
+    // Checks if the king is in check
     bool is_check(Game& game) {
         MoveGenerator m(game);
         return m.is_square_attacked(game.get_side() == white ? 

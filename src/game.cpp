@@ -1,16 +1,19 @@
 #include "game.h"
 
+// Default constructor
 Game::Game()
 {
     parse_fen(initial_position_fen);
 }
 
+// Construct a game from a FEN
 Game::Game(std::string& fen)
 {
     if(is_valid(fen)) parse_fen(fen);
     else std::cerr << "Invalid FEN, cannot build Game object\n";
 }
 
+// Construct a game from another game
 Game::Game(const Game & g)
 {
     for(int i = 0; i < 12; i++)
@@ -26,33 +29,15 @@ Game::Game(const Game & g)
     fullmoveNumber = g.fullmoveNumber;
 }
 
-// getters and setters
+// Getters
 U64 Game::get_bitboard(int index)
 {	
 	return bitboards[index];
 }
 
-U64& Game::get_bitboard_reference(int index)
-{	
-	return bitboards[index];
-}
-
-U64* Game::get_bitboards(){
-    return bitboards;
-}
-
 U64 Game::get_occupancy(int index)
 {
     return occupancies[index];
-}
-
-U64& Game::get_occupancy_reference(int index){
-    return occupancies[index];
-}
-
-U64* Game::get_occupancies()
-{
-    return occupancies;
 }
 
 int Game::get_side(){
@@ -67,58 +52,16 @@ int Game::get_enpassant(){
     return enpassant;
 }
 
+// Setters
 void Game::set_side(int side_to_move){
     side = side_to_move;
-}
-
-void Game::set_castle(int setcastle){
-    castle = setcastle;
 }
 
 void Game::set_enpassant(int enpassant_square){
     enpassant = enpassant_square;
 }
 
-void Game::set_bitboards(U64 new_bitboards[12]){
-    memcpy(bitboards, new_bitboards, 96);//96=sizeof(bitboards)
-}
-
-void Game::set_occupancies(U64 new_occupancies[3]){
-    memcpy(occupancies, new_occupancies, 24);//24=sizeof(occupancies)
-}
-
-void Game::update_occupancy(int side,U64 occupancy){
-    occupancies[side] |= occupancy;
-}
-
-void Game::reset_occupancies(){
-    memset(occupancies, 0ULL, 24);//24=sizeof(occupancies)
-}
-
-void Game::set_bitboard(int index, U64 value) {
-    // Update bitboards, assuming you have 12 bitboards
-    if (index >= 0 && index < 12) bitboards[index] = value;
-    else std::cerr << "Index out of range in set_bitboard function." << std::endl;
-    
-    // Update occupancies
-    for(int i = 0; i < 3; i++) occupancies[i] = 0ULL;
-
-    // White occupancy
-    for(int piece = P; piece <= K; piece++)
-    {
-        occupancies[white] |= bitboards[piece];
-    }
-
-    // Black occupancy
-    for(int piece = p; piece <= k; piece++)
-    {
-        occupancies[black] |= bitboards[piece];
-    }
-
-    // Total occupancy
-    occupancies[both] = occupancies[white] | occupancies[black];
-}
-
+// Parse a FEN
 void Game::parse_fen(const std::string& fen) {
     
     if(!is_valid(fen))
@@ -223,7 +166,7 @@ void Game::parse_fen(const std::string& fen) {
 
 }
 
-// print board
+// Print board
 void Game::print_board()
 {
     // print offset
@@ -280,6 +223,7 @@ void Game::print_board()
     std::cout << "     Fullmove: " << fullmoveNumber << std::endl;                                    
 }
 
+// Checks if a FEN is valid
 bool Game::is_valid(const std::string & fen)
 {
     std::istringstream iss(fen);
@@ -360,6 +304,7 @@ bool Game::is_valid(const std::string & fen)
     return true;
 }
 
+// Takes back game to a previous state
 void Game::take_back_to(Game revert_to)
 {
     for(int piece = P; piece <= k; piece++)
@@ -375,6 +320,7 @@ void Game::take_back_to(Game revert_to)
     fullmoveNumber = revert_to.fullmoveNumber;
 }
 
+// Makes moves and update all the bitboards
 void Game::make_move(Move move)
 {
     // parse move

@@ -1,11 +1,14 @@
 #include "move.h"
 
+// Constructors:
+// Directly
 Move::Move(int source, int target, int piece, int promoted_piece,
            int capture, int double_push, int en_passant, int castling) {
     move = encode_move(source, target, piece, promoted_piece, capture,
                        double_push, en_passant, castling);
 }
 
+// From a string
 Move::Move(std::string move_string, int side) {
 
     // Castling moves
@@ -127,20 +130,19 @@ Move::Move(std::string move_string, int side) {
     }
 }
 
-/*
-    move encoding
-            
-          binary move bits                               hexidecimal 
-    
-    0000 0000 0000 0000 0011 1111    source square       0x3f
-    0000 0000 0000 1111 1100 0000    target square       0xfc0
-    0000 0000 1111 0000 0000 0000    piece               0xf000
-    0000 1111 0000 0000 0000 0000    promoted piece      0xf0000
-    0001 0000 0000 0000 0000 0000    capture flag        0x100000
-    0010 0000 0000 0000 0000 0000    double push flag    0x200000
-    0100 0000 0000 0000 0000 0000    enpassant flag      0x400000
-    1000 0000 0000 0000 0000 0000    castling flag       0x800000
-*/
+/*   Move encoding
+ *           
+ *         binary move bits                               hexidecimal 
+ *   
+ *   0000 0000 0000 0000 0011 1111    source square       0x3f
+ *   0000 0000 0000 1111 1100 0000    target square       0xfc0
+ *   0000 0000 1111 0000 0000 0000    piece               0xf000
+ *   0000 1111 0000 0000 0000 0000    promoted piece      0xf0000
+ *   0001 0000 0000 0000 0000 0000    capture flag        0x100000
+ *   0010 0000 0000 0000 0000 0000    double push flag    0x200000
+ *   0100 0000 0000 0000 0000 0000    enpassant flag      0x400000
+ *   1000 0000 0000 0000 0000 0000    castling flag       0x800000
+ */
 
 // Encodes a move as in the format above
 int Move::encode_move(int source,
@@ -162,6 +164,7 @@ int Move::encode_move(int source,
              (castling << 23) ;
 }
 
+// Getters
 int Move::get_source_square() {
     return move & 0x3f;
 }
@@ -194,6 +197,7 @@ int Move::get_promoted_piece() {
     return (move & 0xf0000) >> 16;
 }
 
+// Print function
 void Move::print_move(bool all_info) {
     printf("%s%s%c", square_to_coordinates[get_source_square()],
                        square_to_coordinates[get_target_square()],

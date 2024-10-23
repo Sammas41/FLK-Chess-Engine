@@ -16,6 +16,7 @@ class Move {
         Move(std::string, int);
         Move() { move = 0; }
 
+        // Getters
         int get_source_square();
         int get_target_square();
         int get_piece_moved();
@@ -24,7 +25,8 @@ class Move {
         bool is_en_passant();
         bool is_double_push();
         bool is_capture();
-
+        
+        // Print function
         void print_move(bool all_info = false);
 
         // Overload of the == operator
@@ -43,6 +45,7 @@ class Move {
     private:
         int move;
 
+        // Encoding function
         int encode_move(int, int, int, int, int, int, int, int);
 };
 

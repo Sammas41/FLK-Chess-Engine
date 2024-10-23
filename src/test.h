@@ -3,6 +3,7 @@
 
 #include <string>
 
+// This file contains the FENs of the positions used to test this engine
 namespace flk {
 
 	namespace test {

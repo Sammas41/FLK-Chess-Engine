@@ -1,13 +1,19 @@
 #include "engine.h"
 
+// Constructors:
+// Default
 Engine::Engine() : game() {
-    
+    flk::init_all_attacks();
+	flk::init_evaluation_masks();
 }
 
+// From a chosen position
 Engine::Engine(std::string fen) : game(fen) {
-    
+    flk::init_all_attacks();
+	flk::init_evaluation_masks();
 }
 
+// Start the engine
 void Engine::run() {
     
     make_header();
@@ -21,6 +27,7 @@ void Engine::run() {
     std::cout << "Thanks for playing\n";
 }
 
+// Game loop
 void Engine::play() {   
 
     // To store game states for undo functionality
@@ -124,6 +131,7 @@ void Engine::play() {
     game_history.clear();
 }
 
+// Read the user inputs
 std::string Engine::take_input() {
     std::string input;
     std::cout << "Insert the move you want to play (Piece + starting square + landing square):\n";
@@ -157,10 +165,12 @@ InputResult Engine::process_input(int colour, std::vector<Game>& game_history) {
     }
 }
 
+// Returns the user move
 Move Engine::create_move(std::string input, int colour) {
     return Move(input, colour);
 }
 
+// Checks if the move inserted is among the legal moves
 bool Engine::is_legal_move(Move& move) {
     MoveGenerator move_generator(game);
     MoveArray legal_moves = move_generator.generate_moves(all_moves);
@@ -173,6 +183,7 @@ bool Engine::is_legal_move(Move& move) {
     return false;
 }
 
+// Undo the played moves
 void Engine::undo(int steps, std::vector<Game>& game_history) {
     steps = steps * 2;
     for (int i = 0; i < steps && game_history.size() > 1; i++) {
@@ -187,10 +198,12 @@ void Engine::undo(int steps, std::vector<Game>& game_history) {
     }
 }
 
+// Obtain the engine best line in this position
 flk::BestLine Engine::search_position() {
     return flk::iterative_search(game, depth, max_search_time);
 } 
 
+// Checks if it is mate
 bool Engine::is_mate(Game& game) {
     MoveGenerator move_generator(game);
     MoveArray legal_moves = move_generator.generate_moves(all_moves);
@@ -207,6 +220,7 @@ bool Engine::is_mate(Game& game) {
     return false;
 }
 
+// Print the engine line
 void Engine::print_engine_line(flk::BestLine line) {
     // Two possibilites:
     //   - just the print the engine move
@@ -240,12 +254,12 @@ void Engine::print_engine_line(flk::BestLine line) {
         // so we fix the + and - sign according to the usual convention and
         // not form the engine perspective
         if(game.get_side() == white)
-            (eval > 0) ? std::cout << "Evaluation: " : std::cout << "Evaluation: +";
+            (eval > 0) ? std::cout << "Evaluation: -" : std::cout << "Evaluation: +";
         else
-            (eval > 0) ? std::cout << "Evaluation: +" : std::cout << "Evaluation: ";
+            (eval > 0) ? std::cout << "Evaluation: +" : std::cout << "Evaluation: -";
 
         std::cout << std::setprecision(2);
-        (eval > 0) ? std::cout << eval << "\n" : std::cout << -eval <<  "\n";
+        (eval >= 0) ? std::cout << eval << "\n" : std::cout << -eval <<  "\n";
 
         // Print nodes searched, depth reached, search time
         std::cout << "Nodes searched: " << line.nodes_visited 
@@ -255,6 +269,7 @@ void Engine::print_engine_line(flk::BestLine line) {
     }
 }
 
+// Reads the user input
 void Engine::read() {
     
     // Clear the previous command
@@ -303,6 +318,7 @@ void Engine::read() {
     std::cout << "Invalid command\n";
 }
 
+// Process the user command
 void Engine::run_set_command() {
     // Max depth
     if(c_line.get_specifier(0) == "maxd" && isdigit(c_line.get_specifier(1).at(0))) {
@@ -371,76 +387,19 @@ void Engine::print_help() {
 
 void Engine::make_header() {
 
-    std::cout << "        . .  . . .               .        .                     ....               .         .. ..                  .    ..\n";
-    std::cout << "      .      ...::...                                        ......                         ...::..                  ..:..\n";
-    std::cout << "             ..-@@+.................   .   .. ......... ......:*#-..    ..... ................-@#:. ..... .... .......*@+.\n";
-    std::cout << "    .         .......................     .............:......:%@-..  ........................-@#:. .......... .......*@+.\n";
-    std::cout << "             ..:%@=.:@@#%@@@%+%@@@@=.     .-@@#@@-.:#@@%@@#:.*@@@@@-.+@@%@@@#...*@#%@#:.*@@@@@*@#:..-%@%%@@+...:#@@@@%#@+.\n";
-    std::cout << "           . ..:%@=.:@@+..:%@*...#@*..    .-@@=...:@%-...-%%:.:%@-...:-...:#@+..+@#:...#@%:...+@#:.+@#:...=@*.:@@*...:#@+.\n";
-    std::cout << "              ..%@= :@@=...%@+...*@*.    ..-@%:...+@@%%%%%@@-.:%@-...+%@%##%@*..+@+.  :%@=....-@#:.%@@%%%%%@%-=@%:.. .*@+.\n";
-    std::cout << "           .. ..%@= :@@=  .%@+. .*@*.     .-@%:...=@#-........:%@-..=@%:...*@*..+@+.  :#@*....=@#:.#@#:.......-@@=....*@+.\n";
-    std::cout << "              .:%@=.:@@=...%@+...*@*.     .-@%:....+@@*++*%=..:#@#*-:%@*--+%@*..+@+.  .-%@%**#%@#:.:#@%*++##-..=@@#**%@@+.\n";
-    std::cout << "        .   ....--:..--:...--:...--:.    ..:=-..  ...-=++=:....:=+=:..-++=:---..:-:..  ..:=+=::--....:-++=-......-++=::-:.\n";
-    std::cout << "       .                         .                            .    .      .                     .                        .\n";
-    std::cout << "                   .       .                                                                                   .          \n";
-    std::cout << "   .   .      .                                       . ..         ......          .                         .            \n";
-    std::cout << "                                     .        ..             .......... ......                                           .\n";
-    std::cout << "                                             .....................................            .          .                \n";
-    std::cout << "                                          ..........................:.............                               .        \n";
-    std::cout << "               .  .                    . ........:---==*-:::....:-=+*++*==:.........             .           .            \n";
-    std::cout << "                                       . .....::.=*+=-+=:-+*==+--=::.....=*##-.....             .           .             \n";
-    std::cout << ".       .               .           .    ......-*+-:.::.....-+-::::.........=#+:....                                  .   \n";
-    std::cout << "   .                                  .. .....--:..............:--...........=+....                                  .  . \n";
-    std::cout << "         .                            .. ....--....................... ......:+:...                               .       \n";
-    std::cout << "   .      .   .         .              .....:+:..............................:+:...                                        \n";
-    std::cout << ".      .         .                     ....:*=................................=+:..        .                         .    \n";
-    std::cout << "        .                      .       ....++......:--=====------=-:...........+=..                                        \n";
-    std::cout << "                                    ......-+........................:::::::::-:-+:..                               .      \n";
-    std::cout << "                                     .....+=............::--=---=-:............:+:..                                      \n";
-    std::cout << " .                                  .....-+:.....:::--=-::........:-==========::+:.                    .  .               \n";
-    std::cout << "                                    .....==......:::...........................:+:.      .                                \n";
-    std::cout << "                 .          ............:=:....................................:=:..........                  . .         \n";
-    std::cout << "          .                 ............=-..... ....... ....       ..:..........=:..........  .                     .     \n";
-    std::cout << "                         .......-++++*+*-......                    .:+-.........--..---:....         .                    \n";
-    std::cout << "                       .......=+-......:........                   ..=+.........:+*+-::++:...                              \n";
-    std::cout << "              .   .     .....==..:--==:...::....                   ...+*:...............-+:..         .  .           .    \n";
-    std::cout << " .  .                .  .....==.:==-#@@#*-:--...   ..............  ....:++:....:-....:...+-....              .            \n";
-    std::cout << " ..     .         .     .....==...-=***+=:......   ......:-==............=*:...:-=+=#@#-.==....     .                     \n";
-    std::cout << "         .           .  .....-+:.................    ...:+=:............:*=......:--+*=::+:.....          .          .    \n";
-    std::cout << "..                      ......-+=:..............   ......=+:...:==:....:*-............-++:.....       .                   \n";
-    std::cout << " .       .                ......::=+-...      .   ........:==:.......-*#+.........:+*+-......     .                       \n";
-    std::cout << "    .                       .......=+:..      .     ............................:*=..........                          .  \n";
-    std::cout << "            .          .    ......:+=...               ...:--:::..:::-=++*-....=+-........       .                 ...... \n";
-    std::cout << "                   .   .    ......=+...                ....:-==++++==-:.....:=+-.......      .                    ........\n";
-    std::cout << "    .                      .......+-...                 .................:=+=:.........       .   .                .......\n";
-    std::cout << "             .      .       .....-*:...               ..................:+=:...........              .            .....-=:\n";
-    std::cout << "                            ....-#-.....          .   ..  ............-+*-.........                                ....-+=\n";
-    std::cout << "               .       .    ...-#-.....               .  ..........-**-........                                ........:+=\n";
-    std::cout << "                      ........-*-......               .......:+#++=:..........                                 ........:+=\n";
-    std::cout << "                .  .. ......:==:.......   .           ........:+-........  ...                      .          ........:=-\n";
-    std::cout << "                ..........:-+:.........           .............-+:..........                                        ......\n";
-    std::cout << "          ..   .........:=+-...........           .....:+:......=+:...........                   .                .. . ...\n";
-    std::cout << "           .........:-=*#*+=:........             .....==........-*-...........         .   .                           . \n";
-    std::cout << "      ..........-+**=-:::.......      .     .     ................:=*+*++=-:.........                                      \n";
-    std::cout << "      .......:+*-...............  .....            ......... .............:=*=......                         .          . \n";
-    std::cout << "      .....:++:.............      .....     .     ...........................:++-...                 .         .         .\n";
-    std::cout << "      ....::.....                                                          ....::...       .                        ......\n";
-    std::cout << "      ...........                                                          .........                               .......\n";
-
-
-    std::cout << "                                            ------------------------------------------------\n";
-    std::cout << "                                                     ***********   **          **    ***   \n";
-    std::cout << "                                                    ***********   **          **   ***      \n";
-    std::cout << "                                                   **            **          ** ***         \n";
-    std::cout << "                                                  *******       **          ****            \n";
-    std::cout << "                                                 *******       **          ****             \n";
-    std::cout << "                                                **            **          ** ***            \n";
-    std::cout << "                                               **            ********    **   ***           \n";
-    std::cout << "                                              **            ********    **     ***          \n";
-    std::cout << "                                            ------------------------------------------------\n";
-    std::cout << "                                                     Fried Liver King Chess Engine          \n";
-    std::cout << "                                                 By Nicola Schiavo and Samuele Berdusco     \n";
-    std::cout << "                                                           Version: " + VERSION + "\n\n";
+    std::cout << "------------------------------------------------\n";
+    std::cout << "         ***********   **          **    ***    \n";
+    std::cout << "        ***********   **          **   ***      \n";
+    std::cout << "       **            **          ** ***         \n";
+    std::cout << "      *******       **          ****            \n";
+    std::cout << "     *******       **          ****             \n";
+    std::cout << "    **            **          ** ***            \n";
+    std::cout << "   **            ********    **   ***           \n";
+    std::cout << "  **            ********    **     ***          \n";
+    std::cout << "------------------------------------------------\n";
+    std::cout << "         Fried Liver King Chess Engine          \n";
+    std::cout << "     By Nicola Schiavo and Samuele Berdusco     \n";
+    std::cout << "               Version: " + VERSION + "\n\n";
 
     std::cout << "Type help for more information on the commands\n";
 }

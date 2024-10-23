@@ -1,9 +1,11 @@
 #include "commandLine.h"
 
+// Constructor
 CommandLine::CommandLine() : command() {
 
 }
 
+// Read function
 void CommandLine::read_command() {
 
     std::string line, line_token;
@@ -34,12 +36,14 @@ void CommandLine::read_command() {
     }
 }
 
+// Clear function
 void CommandLine::clear() {
     command = "";
     for(std::string& s : specifiers)
         s = "";
 }
 
+// Getters
 std::string CommandLine::get_command() {
     return command;
 }

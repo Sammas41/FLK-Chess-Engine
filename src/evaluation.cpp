@@ -1,16 +1,6 @@
 #include "evaluation.h"
 #include "attacks.h"
 
-int evaluate(Game& game)
-{
-    int score = 0;
-
-    // Compute the total score for the position
-    score += flk::lazy_evaluation(game);
-
-    return score; 
-}
-
 namespace flk {
 
     U64 file_masks[64];
@@ -19,6 +9,18 @@ namespace flk {
     U64 black_passed_masks[64];
     U64 white_passed_masks[64];
 
+    // Main evaluation function
+    int evaluate(Game& game)
+    {
+        int score = 0;
+
+        // Compute the total score for the position
+        score += flk::lazy_evaluation(game);
+
+        return score; 
+    }
+
+    // Computes the evaluation masks
     U64 set_file_rank_mask(int file_number, int rank_number)
     {
         U64 mask = 0ULL;
@@ -46,10 +48,8 @@ namespace flk {
         return mask;       
     }
 
-
-    void init_evaluation_masks(){
-        
-
+    // Init the evalution masks
+    void init_evaluation_masks() {
         for (int rank = 0; rank < 8; rank++){
             for (int file = 0; file < 8; file++){
 
@@ -92,9 +92,8 @@ namespace flk {
         }
     };
 
-
-    int lazy_evaluation(Game& game)
-    {
+    // Lazy evaluation function
+    int lazy_evaluation(Game& game) {
         int lazy_score = 0;
 
         // Material and positional evaluation
@@ -104,6 +103,7 @@ namespace flk {
         return lazy_score;
     }
 
+    // Material evaluation 
     int eval_material(Game& game)
     {
         int material_score = 0, square = no_sq;
@@ -126,6 +126,7 @@ namespace flk {
         return (game.get_side() == white) ? material_score : -material_score;
     }
 
+    // Positional evaluation
     int eval_position(Game& game)
     {
         int square = no_sq, pos_score = 0;

@@ -3,9 +3,6 @@
 
 #include "game.h"
 
-int evaluate(Game &);
-
-
 namespace flk {
 
     extern U64 file_masks[64];
@@ -14,13 +11,15 @@ namespace flk {
     extern U64 black_passed_masks[64];
     extern U64 white_passed_masks[64];
 
-    U64 set_file_rank_mask(int , int);
-    void init_evaluation_masks();
-
+    // Evaluation functions
+    int evaluate(Game &);
     int lazy_evaluation(Game &);
-
     int eval_material(Game &);
     int eval_position(Game &);
+
+    // Initialization
+    void init_evaluation_masks();
+    U64 set_file_rank_mask(int , int);
     
     const int piece_score[12] = {
         // white pieces:
@@ -125,10 +124,6 @@ namespace flk {
     const int semi_open_file_score = 10;
     const int open_file_score = 15;
     const int king_shield_bonus = 5;
-
-
 };
-
-
 
 #endif

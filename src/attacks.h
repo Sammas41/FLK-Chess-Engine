@@ -3,16 +3,6 @@
 
 #include "general.h"
 
-// Retrieve the attacks from the tables
-U64 get_pawn_attack(int, int);
-U64 get_knight_attack(int);
-U64 get_king_attack(int);
-U64 get_bishop_attack(int, U64);
-U64 get_rook_attack(int, U64);
-U64 get_queen_attack(int, U64);
-
-void init_all_attacks();
-
 // Namespace Fried Liver King
 namespace flk {
     
@@ -30,6 +20,15 @@ namespace flk {
     // Initialization functions
     void init_leaper_pieces_attacks();
     void init_slider_pieces_attacks();
+    void init_all_attacks();
+
+    // Retrieve the attacks from the tables
+    U64 get_pawn_attack(int, int);
+    U64 get_knight_attack(int);
+    U64 get_king_attack(int);
+    U64 get_bishop_attack(int, U64);
+    U64 get_rook_attack(int, U64);
+    U64 get_queen_attack(int, U64);
 
     // Attacks generation
     U64 generate_pawn_attacks(int, U64);

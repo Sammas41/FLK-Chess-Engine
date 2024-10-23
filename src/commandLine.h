@@ -9,9 +9,11 @@ class CommandLine {
     public:
         CommandLine();
 
+        // Basic functionality
         void read_command();
         void clear();
 
+        // Getters
         std::string get_command();
         std::string get_specifier(int);
 

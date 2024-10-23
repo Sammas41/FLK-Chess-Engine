@@ -5,30 +5,30 @@ int MoveGenerator::is_square_attacked(int square, int side){
     
     // attacked by white pawns
     if((side == white) && 
-       (get_pawn_attack(black,square) & game.get_bitboard(P))) return 1;
+       (flk::get_pawn_attack(black,square) & game.get_bitboard(P))) return 1;
     
     // attacked by black pawns
     if((side == black) && 
-       (get_pawn_attack(white,square) & game.get_bitboard(p))) return 1;
+       (flk::get_pawn_attack(white,square) & game.get_bitboard(p))) return 1;
     
     // attacked by knights
-    if(get_knight_attack(square) & 
+    if(flk::get_knight_attack(square) & 
       ((side == white) ? game.get_bitboard(N) : game.get_bitboard(n))) return 1;
     
     // attacked by king
-    if(get_king_attack(square) & 
+    if(flk::get_king_attack(square) & 
       ((side == white) ? game.get_bitboard(K) : game.get_bitboard(k))) return 1;
     
     // attacked by bishops
-    if(get_bishop_attack(square, game.get_occupancy(both)) & 
+    if(flk::get_bishop_attack(square, game.get_occupancy(both)) & 
       ((side == white) ? game.get_bitboard(B) : game.get_bitboard(b))) return 1;
     
     // attacked by rooks
-    if(get_rook_attack(square, game.get_occupancy(both)) & 
+    if(flk::get_rook_attack(square, game.get_occupancy(both)) & 
       ((side == white) ? game.get_bitboard(R) : game.get_bitboard(r))) return 1;
 
     // attacked by queens
-    if(get_queen_attack(square, game.get_occupancy(both)) & 
+    if(flk::get_queen_attack(square, game.get_occupancy(both)) & 
       ((side == white) ? game.get_bitboard(Q) : game.get_bitboard(q))) return 1;
     
     // by default return false (square not attacked)
@@ -163,7 +163,7 @@ void MoveGenerator::generate_white_pawns_moves(int piece, U64 bitboard) {
                 }
             }
 
-            U64 attacks = get_pawn_attack(white,source_square) & game.get_occupancy(black);
+            U64 attacks = flk::get_pawn_attack(white,source_square) & game.get_occupancy(black);
 
             // generate en passant captures
             int en_passant_square = game.get_enpassant();
@@ -280,7 +280,7 @@ void MoveGenerator::generate_black_pawns_moves(int piece, U64 bitboard) {
                 }
             }
 
-            U64 attacks =  get_pawn_attack(black,source_square) & game.get_occupancy(white);
+            U64 attacks = flk::get_pawn_attack(black,source_square) & game.get_occupancy(white);
             
             // generate en passant captures
             int en_passant_square = game.get_enpassant();
@@ -379,7 +379,7 @@ void MoveGenerator::generate_knights_moves(int piece, U64 bitboard, int side) {
             int source_square = get_ls1b_index(bitboard);
             
             // init piece attacks in order to get set of target squares
-            U64 attacks =  get_knight_attack(source_square) & ((side == white) ? ~game.get_occupancy(white) : ~game.get_occupancy(black));
+            U64 attacks =  flk::get_knight_attack(source_square) & ((side == white) ? ~game.get_occupancy(white) : ~game.get_occupancy(black));
             
             // loop over target squares available from generated attacks
             while (attacks)
@@ -418,7 +418,7 @@ void MoveGenerator::generate_bishops_moves(int piece, U64 bitboard, int side){
             int source_square = get_ls1b_index(bitboard);
             
             // init piece attacks in order to get set of target squares
-            U64 attacks =  get_bishop_attack(source_square, game.get_occupancy(both)) & ((side == white) ? ~game.get_occupancy(white) : ~game.get_occupancy(black));
+            U64 attacks = flk::get_bishop_attack(source_square, game.get_occupancy(both)) & ((side == white) ? ~game.get_occupancy(white) : ~game.get_occupancy(black));
             
             // loop over target squares available from generated attacks
             while (attacks)
@@ -458,7 +458,7 @@ void MoveGenerator::generate_rooks_moves(int piece, U64 bitboard, int side){
             int source_square = get_ls1b_index(bitboard);
             
             // init piece attacks in order to get set of target squares
-            U64 attacks =  get_rook_attack(source_square, game.get_occupancy(both)) & ((side == white) ? ~game.get_occupancy(white) : ~game.get_occupancy(black));
+            U64 attacks = flk::get_rook_attack(source_square, game.get_occupancy(both)) & ((side == white) ? ~game.get_occupancy(white) : ~game.get_occupancy(black));
             
             // loop over target squares available from generated attacks
             while (attacks)
@@ -499,7 +499,7 @@ void MoveGenerator::generate_queens_moves(int piece, U64 bitboard, int side){
             int source_square = get_ls1b_index(bitboard);
             
             // init piece attacks in order to get set of target squares
-            U64 attacks =  get_queen_attack(source_square, game.get_occupancy(both)) & ((side == white) ? ~game.get_occupancy(white) : ~game.get_occupancy(black));
+            U64 attacks = flk::get_queen_attack(source_square, game.get_occupancy(both)) & ((side == white) ? ~game.get_occupancy(white) : ~game.get_occupancy(black));
             
             // loop over target squares available from generated attacks
             while (attacks)
@@ -539,7 +539,7 @@ void MoveGenerator::generate_kings_moves(int piece, U64 bitboard, int side){
             int source_square = get_ls1b_index(bitboard);
             
             // init piece attacks in order to get set of target squares
-            U64 attacks =  get_king_attack(source_square) & ((side == white) ? ~game.get_occupancy(white) : ~game.get_occupancy(black));
+            U64 attacks = flk::get_king_attack(source_square) & ((side == white) ? ~game.get_occupancy(white) : ~game.get_occupancy(black));
             
             // loop over target squares available from generated attacks
             while (attacks)

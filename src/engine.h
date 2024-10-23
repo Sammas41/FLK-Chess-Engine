@@ -6,7 +6,6 @@
 #include "search.h"
 #include "commandLine.h"
 #include <iomanip>
-#include <sstream>
 #include <cctype>
 
 struct InputResult {

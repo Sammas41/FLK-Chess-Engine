@@ -1,11 +1,5 @@
 #include "attacks.h"
 
-void init_all_attacks()
-{
-	flk::init_leaper_pieces_attacks();
-	flk::init_slider_pieces_attacks();
-}
-
 namespace flk {
 
 	// Attack tables
@@ -18,6 +12,12 @@ namespace flk {
     // Masks
     U64 bishop_mask[SQUARES];
     U64 rook_mask[SQUARES];
+
+	void init_all_attacks()
+	{
+		init_leaper_pieces_attacks();
+		init_slider_pieces_attacks();
+	}
 
 	// Initialize leaper pieces attack tables (pawns, knights and kings)
 	void init_leaper_pieces_attacks()
@@ -75,6 +75,94 @@ namespace flk {
 				rook_attacks[square][magic_index] = generate_rook_attacks_with_blockers(square, occupancy);
 			}
 		}
+	}
+
+	// Retrieve pawns attacks
+	U64 get_pawn_attack(int color, int square)
+	{
+		if(color != white && color != black)
+		{
+			std::cout << "[ERROR] In: get_pawn_attack, Error: color must be white or black\n";
+			return 0ULL;
+		}
+
+		if(square < 0 || square > 63)
+		{
+			std::cout << "[ERROR] In: Attacks::get_pawn_attack, Error: square must be between 0 and 63\n";
+			return 0ULL;
+		}
+
+		if(color == white) return flk::pawn_attacks[white][square];
+		else return flk::pawn_attacks[black][square];
+		}
+
+		// Retrieve knights attacks
+	U64 get_knight_attack(int square)
+	{
+		if(square < 0 || square > 63)
+		{
+			std::cout << "[ERROR] In: get_knight_attack, Error: square must be between 0 and 63\n";
+			return 0ULL;
+		}
+
+		return flk::knight_attacks[square];
+	}
+
+	// Retrieve kings attacks
+	U64 get_king_attack(int square)
+	{
+		if(square < 0 || square > 63)
+		{
+			std::cout << "[ERROR] In: get_king_attack, Error: square must be between 0 and 63\n";
+			return 0ULL;
+		}
+
+		return flk::king_attacks[square];
+	}
+
+	// Retrieve bishops attacks
+	U64 get_bishop_attack(int square, U64 occupancy)
+	{
+		if(square < 0 || square > 63)
+		{
+			std::cout << "[ERROR] In: get_bishop_attack, Error: square must be between 0 and 63\n";
+			return 0ULL;
+		}
+
+		U64 bishop_occupancy = occupancy & flk::bishop_mask[square];
+		int magic_index = flk::compute_magic_index(square, bishop_occupancy, bishop);
+
+		return flk::bishop_attacks[square][magic_index];
+	}
+
+	// Retrieve rooks attacks
+	U64 get_rook_attack(int square, U64 occupancy)
+	{
+		if(square < 0 || square > 63)
+		{
+			std::cout << "[ERROR] In: get_rook_attack, Error: square must be between 0 and 63\n";
+			return 0ULL;
+		}
+
+		U64 rook_occupancy = occupancy & flk::rook_mask[square];
+		int magic_index = flk::compute_magic_index(square, rook_occupancy, rook);
+
+		return flk::rook_attacks[square][magic_index];
+	}
+
+	// Retrieve queens attacks
+	U64 get_queen_attack(int square, U64 occupancy){
+
+		if(square < 0 || square > 63)
+		{
+			std::cout << "[ERROR] In: get_queen_attack, Error: square must be between 0 and 63\n";
+			return 0ULL;
+		}
+
+		U64 result = get_bishop_attack(square, occupancy);
+		result |= get_rook_attack(square, occupancy);
+
+		return result;
 	}
 
 	// Generates the attack table for a pawn on a given square, for both colors
@@ -285,92 +373,3 @@ namespace flk {
 		}
 	}
 }	// End namespace flk
-
-
-// Retrieve pawns attacks
-U64 get_pawn_attack(int color, int square)
-{
-	if(color != white && color != black)
-	{
-		std::cout << "[ERROR] In: get_pawn_attack, Error: color must be white or black\n";
-		return 0ULL;
-	}
-
-	if(square < 0 || square > 63)
-	{
-		std::cout << "[ERROR] In: Attacks::get_pawn_attack, Error: square must be between 0 and 63\n";
-		return 0ULL;
-	}
-
-	if(color == white) return flk::pawn_attacks[white][square];
-	else return flk::pawn_attacks[black][square];
-	}
-
-	// Retrieve knights attacks
-U64 get_knight_attack(int square)
-{
-	if(square < 0 || square > 63)
-	{
-		std::cout << "[ERROR] In: get_knight_attack, Error: square must be between 0 and 63\n";
-		return 0ULL;
-	}
-
-	return flk::knight_attacks[square];
-}
-
-// Retrieve kings attacks
-U64 get_king_attack(int square)
-{
-	if(square < 0 || square > 63)
-	{
-		std::cout << "[ERROR] In: get_king_attack, Error: square must be between 0 and 63\n";
-		return 0ULL;
-	}
-
-	return flk::king_attacks[square];
-}
-
-// Retrieve bishops attacks
-U64 get_bishop_attack(int square, U64 occupancy)
-{
-	if(square < 0 || square > 63)
-	{
-		std::cout << "[ERROR] In: get_bishop_attack, Error: square must be between 0 and 63\n";
-		return 0ULL;
-	}
-
-	U64 bishop_occupancy = occupancy & flk::bishop_mask[square];
-	int magic_index = flk::compute_magic_index(square, bishop_occupancy, bishop);
-
-	return flk::bishop_attacks[square][magic_index];
-}
-
-// Retrieve rooks attacks
-U64 get_rook_attack(int square, U64 occupancy)
-{
-	if(square < 0 || square > 63)
-	{
-		std::cout << "[ERROR] In: get_rook_attack, Error: square must be between 0 and 63\n";
-		return 0ULL;
-	}
-
-	U64 rook_occupancy = occupancy & flk::rook_mask[square];
-	int magic_index = flk::compute_magic_index(square, rook_occupancy, rook);
-
-	return flk::rook_attacks[square][magic_index];
-}
-
-// Retrieve queens attacks
-U64 get_queen_attack(int square, U64 occupancy){
-
-	if(square < 0 || square > 63)
-	{
-		std::cout << "[ERROR] In: get_queen_attack, Error: square must be between 0 and 63\n";
-		return 0ULL;
-	}
-
-	U64 result = get_bishop_attack(square, occupancy);
-	result |= get_rook_attack(square, occupancy);
-
-	return result;
-}
