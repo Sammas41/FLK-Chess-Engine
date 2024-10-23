@@ -1,12 +1,12 @@
 #ifndef GAME_H
 #define GAME_H
 
-#include "general.h"
-#include "attacks.h"
+#include "move.h"
 #include <sstream> // For std::istringstream
 #include <algorithm> // For std::count
+#include <cstring> // For memset() function
 
-class Game{
+class Game {
     private:
 
         // array of pieces bitboards (black and white)
@@ -24,8 +24,6 @@ class Game{
         // castling rights
         int castle = 0;
 
-        int activeColor;
-
         // This is the number of halfmoves (or moves by one player) since the last capture or pawn advance.
         // This is used for the fifty-move rule.
         int halfmoveClock;
@@ -36,37 +34,47 @@ class Game{
 
     public:
 
-        Game();
+        // Constructors
+        Game();     // Default constructor
+        Game(std::string &);    // Constructior from a FEN
+        Game(const Game &);     // Copy constructor
 
-        // castling rights binary encoding
-
-        /*
-
-        bin    dec
-            
-        0001    1  white king can castle to the king side
-        0010    2  white king can castle to the queen side
-        0100    4  black king can castle to the king side
-        1000    8  black king can castle to the queen side
-
-        examples
-
-        1111       both sides an castle both directions
-        1001       black king => queen side
-                   white king => king side
-
-        */
-
-        enum { wk = 1, wq = 2, bk = 4, bq = 8 };
-
+        // Getters
         U64 get_bitboard(int);
         U64 get_occupancy(int);
-        void set_bitboard(int, U64);
-        void initialize_pieces_bitboards(const std::string&);
-        void print_board();
+        int get_side();
+        int get_castle();
+        int get_enpassant();
 
+        // Setters
+        void set_side(int);
+        void set_enpassant(int);
+
+        // General
+        void parse_fen(const std::string&);
+        void print_board();
         bool is_valid(const std::string &);
 
+        // Move the pieces or take back to a previous position
+        void make_move(Move);
+        void take_back_to(Game);
+
+        /*   Castling rights binary encoding
+         *
+         *   bin    dec
+         *       
+         *   0001    1    white king can castle to the king side
+         *   0010    2    white king can castle to the queen side
+         *   0100    4    black king can castle to the king side
+         *   1000    8    black king can castle to the queen side
+         *  
+         *   examples
+         * 
+         *   1111       both sides an castle both directions
+         *   1001       black king => queen side and white king => king side
+         */
+
+        enum { wk = 1, wq = 2, bk = 4, bq = 8 };
 };
 
 #endif

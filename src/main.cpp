@@ -1,15 +1,9 @@
-#include "general.h"
-#include "attacks.h"
-#include "game.h"
+#include "engine.h"
 
 int main()
 {
-	Attacks attacks;
-	Game game;
-	U64 bitboard = FENtoBitboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
-	
-	print_bitboard(attacks.get_queen_attack(e4, bitboard));
-	game.print_board();
+	Engine e;
+	e.run();
 
-	return 0;
+	return 0; 
 }

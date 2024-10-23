@@ -6,11 +6,14 @@
 
 typedef unsigned long long U64;
 
-// Useful constants
+// ------ Useful constants ------
+// Board constants
 constexpr int RANKS = 8;
 constexpr int FILES = 8;
 constexpr int SQUARES = 64;
 constexpr int COLORS = 2;
+constexpr int PIECE_TYPES = 12;
+constexpr int MAX_MOVES_IN_POSITION = 150; 
 
 // Squares notation
 enum {
@@ -33,16 +36,21 @@ enum { king, queen, rook, bishop, knight, pawn };
 // encode pieces
 enum {P, N, B, R, Q, K, p, n, b, r, q, k};
 
+// type of moves
+enum { all_moves, only_captures};
 
 extern const char *square_to_coordinates[64];
 extern char ascii_pieces[13];
 extern std::unordered_map<char, int> char_pieces;
+extern std::unordered_map<int, char> int_to_char_pieces;
+extern std::unordered_map<int, char> promoted_pieces;
 extern std::string initial_position_fen;
+extern const int castling_rights[64];
 
 // Useful functions for manipulating bits in bitboards
 U64 get_bit(U64, int);
-U64 set_bit(U64, int);
-U64 pop_bit(U64, int);
+void set_bit(U64 &, int);
+void pop_bit(U64 &, int);
 
 U64 FENtoBitboard(std::string);
 

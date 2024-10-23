@@ -1,13 +1,35 @@
 #include "game.h"
-#include "general.h"
 
-#include <sstream>
-
-
-Game::Game(){
-    initialize_pieces_bitboards(initial_position_fen);
+// Default constructor
+Game::Game()
+{
+    parse_fen(initial_position_fen);
 }
 
+// Construct a game from a FEN
+Game::Game(std::string& fen)
+{
+    if(is_valid(fen)) parse_fen(fen);
+    else std::cerr << "Invalid FEN, cannot build Game object\n";
+}
+
+// Construct a game from another game
+Game::Game(const Game & g)
+{
+    for(int i = 0; i < 12; i++)
+    {
+        bitboards[i] = g.bitboards[i];
+        if(i < 3) occupancies[i] = g.occupancies[i];
+    }
+
+    side = g.side;
+    castle = g.castle;
+    enpassant = g.enpassant;
+    halfmoveClock = g.halfmoveClock;
+    fullmoveNumber = g.fullmoveNumber;
+}
+
+// Getters
 U64 Game::get_bitboard(int index)
 {	
 	return bitboards[index];
@@ -18,16 +40,29 @@ U64 Game::get_occupancy(int index)
     return occupancies[index];
 }
 
-void Game::set_bitboard(int index, U64 value) {
-    if (index >= 0 && index < 12) { // Assuming you have 12 bitboards
-        bitboards[index] = value;
-    } else {
-        // Handle error: index out of range
-        std::cerr << "Index out of range in set_bitboard function." << std::endl;
-    }
+int Game::get_side(){
+    return side;
 }
 
-void Game::initialize_pieces_bitboards(const std::string& fen) {
+int Game::get_castle(){
+    return castle;
+}
+
+int Game::get_enpassant(){
+    return enpassant;
+}
+
+// Setters
+void Game::set_side(int side_to_move){
+    side = side_to_move;
+}
+
+void Game::set_enpassant(int enpassant_square){
+    enpassant = enpassant_square;
+}
+
+// Parse a FEN
+void Game::parse_fen(const std::string& fen) {
     
     if(!is_valid(fen))
     {
@@ -35,8 +70,6 @@ void Game::initialize_pieces_bitboards(const std::string& fen) {
         return;
     }
     
-    int square = 0;
-
     // Initialize all bitboards to 0
     for (int i = 0; i < 12; ++i) {
         bitboards[i] = 0ULL;
@@ -45,9 +78,7 @@ void Game::initialize_pieces_bitboards(const std::string& fen) {
 
     // reset game state variables
     side = 0;
-
     enpassant = no_sq;
-
     castle = 0;
 
     std::istringstream fenStream(fen);
@@ -56,6 +87,7 @@ void Game::initialize_pieces_bitboards(const std::string& fen) {
     // Parse FEN string
     fenStream >> board >> activeColor >> castlingRights >> enPassant >> halfmove >> fullmove;
 
+    int square = 0;
 	for (char c : board) {
         if (c == '/') {
             continue; // Skip to the next row
@@ -134,7 +166,7 @@ void Game::initialize_pieces_bitboards(const std::string& fen) {
 
 }
 
-// print board
+// Print board
 void Game::print_board()
 {
     // print offset
@@ -191,7 +223,7 @@ void Game::print_board()
     std::cout << "     Fullmove: " << fullmoveNumber << std::endl;                                    
 }
 
-
+// Checks if a FEN is valid
 bool Game::is_valid(const std::string & fen)
 {
     std::istringstream iss(fen);
@@ -270,4 +302,147 @@ bool Game::is_valid(const std::string & fen)
 
     // Hopefully the FEN is ok
     return true;
+}
+
+// Takes back game to a previous state
+void Game::take_back_to(Game revert_to)
+{
+    for(int piece = P; piece <= k; piece++)
+        bitboards[piece] = revert_to.bitboards[piece];
+    
+    for(int i = 0; i < 3; i++)
+        occupancies[i] = revert_to.occupancies[i];
+
+    side = revert_to.side;
+    castle = revert_to.castle;
+    enpassant = revert_to.enpassant;
+    halfmoveClock = revert_to.halfmoveClock;
+    fullmoveNumber = revert_to.fullmoveNumber;
+}
+
+// Makes moves and update all the bitboards
+void Game::make_move(Move move)
+{
+    // parse move
+    int source_square = move.get_source_square();
+    int target_square = move.get_target_square();
+    int piece = move.get_piece_moved();
+    int promoted_piece = move.get_promoted_piece();
+    int capture = move.is_capture();
+    int double_push = move.is_double_push();
+    int enpassant_flag = move.is_en_passant();
+    int castling_flag = move.is_castling();
+
+    // do the move
+    pop_bit(bitboards[piece], source_square);
+    set_bit(bitboards[piece], target_square);
+
+    // handling captures
+    if (capture) {
+        // pick up bitboard of opposide side to move to capture opponent pieces
+        int start_piece, end_piece;
+
+        if (side == white) {
+            // black pieces range
+            start_piece = p;
+            end_piece = k;
+        } else {
+            // white pieces range
+            start_piece = P;
+            end_piece = K;               
+        }
+
+        for (int bb_piece = start_piece; bb_piece <= end_piece; bb_piece++) {
+            // check if there's piece on target square
+            if (get_bit(bitboards[bb_piece], target_square)) {
+                // remove from correspondant bitboard
+                pop_bit(bitboards[bb_piece], target_square);
+                break;
+            }
+        }
+    }
+
+    // handling pawn promotion
+    if (promoted_piece) {
+        // erase pawn from target square
+        pop_bit(bitboards[side==white ? P : p], target_square);
+
+        // create new selected piece on target square
+        set_bit(bitboards[promoted_piece], target_square);
+    }
+
+    // handling enpassant
+    if (enpassant_flag) {
+        // erase opposed pawn
+        if (side == white) {
+            pop_bit(bitboards[p], target_square + 8);
+        } else {
+            pop_bit(bitboards[P], target_square - 8);
+        }
+    }
+
+    // reset enpassant square
+    enpassant = no_sq;
+
+    // handle double pawn push
+    if (double_push) {
+        // set enpassant square 
+        if (side == white) {
+            enpassant = target_square + 8;
+        } else {
+            enpassant = target_square - 8;
+        }
+    }  
+
+    // handle castling
+    if (castling_flag) {
+            
+        switch(target_square) {
+            // white kingside
+            case (g1):
+                pop_bit(bitboards[R],h1);
+                set_bit(bitboards[R],f1);
+                break;
+            // white queenside
+            case (c1):
+                pop_bit(bitboards[R],a1);
+                set_bit(bitboards[R],d1);
+                break;
+            // black kingside
+            case (g8):
+                pop_bit(bitboards[r],h8);
+                set_bit(bitboards[r],f8);
+                break;
+            // black queenside
+            case (c8):
+                pop_bit(bitboards[r],a8);
+                set_bit(bitboards[r],d8);
+                break;
+        }
+    }
+
+    // update castling rights
+    castle = castle & castling_rights[source_square];
+    castle = castle & castling_rights[target_square];
+
+    // reset and update occupancy tables
+    memset(occupancies, 0ULL, 24);
+
+    // white occupancy
+    for(int piece = P; piece <= K; piece++)
+    {
+        occupancies[white] |= bitboards[piece];
+    }
+
+    // black occupancy
+    for(int piece = p; piece <= k; piece++)
+    {
+        occupancies[black] |= bitboards[piece];
+    }
+
+    // total occupancy
+    occupancies[both] = occupancies[white] | occupancies[black];
+
+    // change side after the move is done
+    side == white ? side = black : side = white;
 }

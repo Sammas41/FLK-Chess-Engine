@@ -1,10 +1,8 @@
 #include "general.h"
 
 // initial position FEN
-//std::string initial_position_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+std::string initial_position_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
-//test FEN
-std::string initial_position_fen = "r3kb1r/3n1pp1/p6p/2pPp2q/Pp2N3/3B2PP/1PQ2P2/R3K2R w KQkq - 0 1";
 // convert squares to coordinates
 const char *square_to_coordinates[64] = {
 	"a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8",
@@ -36,6 +34,60 @@ std::unordered_map<char, int> char_pieces = {
 	{'k', k}
 };
 
+std::unordered_map<int, char> int_to_char_pieces = {
+	{P, 'P'},
+	{N, 'N'},
+	{B, 'B'},
+	{R, 'R'},
+	{Q, 'Q'},
+	{K, 'K'},
+	{p, 'p'},
+	{n, 'n'},
+	{b, 'b'},
+	{r, 'r'},
+	{q, 'q'},
+	{k, 'k'}
+};
+
+std::unordered_map<int, char> promoted_pieces = {
+    {Q, 'q'},
+    {R, 'r'},
+    {B, 'b'},
+    {N, 'n'},
+    {q, 'q'},
+    {r, 'r'},
+    {b, 'b'},
+    {n, 'n'}
+};
+
+/*
+							  castling  move     in      in
+							   right  update     binary  decimal
+
+ king & rooks didn't move:     1111 & 1111  =  1111    15
+
+        white king  moved:     1111 & 1100  =  1100    12
+  white king's rook moved:     1111 & 1110  =  1110    14
+ white queen's rook moved:     1111 & 1101  =  1101    13
+     
+         black king moved:     1111 & 0011  =  1011    3
+  black king's rook moved:     1111 & 1011  =  1011    11
+ black queen's rook moved:     1111 & 0111  =  0111    7
+
+*/
+
+// castling rights update constants
+const int castling_rights[64] = {
+     7, 15, 15, 15,  3, 15, 15, 11,
+    15, 15, 15, 15, 15, 15, 15, 15,
+    15, 15, 15, 15, 15, 15, 15, 15,
+    15, 15, 15, 15, 15, 15, 15, 15,
+    15, 15, 15, 15, 15, 15, 15, 15,
+    15, 15, 15, 15, 15, 15, 15, 15,
+    15, 15, 15, 15, 15, 15, 15, 15,
+    13, 15, 15, 15, 12, 15, 15, 14
+};
+
 // Returns the bit of a chosen square
 U64 get_bit(U64 bitboard, int square)
 {
@@ -43,15 +95,14 @@ U64 get_bit(U64 bitboard, int square)
 }
 
 // Sets the bit on the chosen square
-U64 set_bit(U64 bitboard, int square)
+void set_bit(U64 & bitboard, int square)
 {
-	return bitboard | (1ULL << square);
+	bitboard |= (1ULL << square);
 }
 
 // Pops the bit on the chosen square
-U64 pop_bit(U64 bitboard, int square)
-{
-	return (get_bit(bitboard, square) ? bitboard ^= (1ULL << square) : 0);
+void pop_bit(U64 &bb, int square) {
+    bb &= ~(1ULL << square);
 }
 
 // Counts the number of active bits in a bitboard

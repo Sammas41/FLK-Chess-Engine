@@ -35,13 +35,13 @@ out/
 
 # Makefile generated files
 Makefile.in
-Makefile
+
 
 # Ignore CMake temporary files
 CMakeCache.txt
 CMakeFiles/
 cmake_install.cmake
-Makefile
+
 *.make
 *.cmake
 
